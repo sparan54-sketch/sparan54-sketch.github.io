@@ -215,3 +215,34 @@ if(M[18]){M[18].photoCap=M[18].photoCap||[];M[18].photoCap[26]="Crossin' the Lan
 if(M[18]){M[18].photoCap=M[18].photoCap||[];M[18].photoCap[27]="Admirin' the swirling sands of Whitehaven Beach"}
 if(M[18]){M[18].photoCap=M[18].photoCap||[];M[18].photoCap[28]="Strollin' the colorful waterfront of Cura\u00e7ao"}
 if(M[18]){M[18].photoCap=M[18].photoCap||[];M[18].photoCap[29]="Snorkelin' Trunk Bay in St. John"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[0]="Checkin' out the crack in the Liberty Bell"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[1]="Standin' on the brick plaza at Independence Hall"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[2]="Watchin' Boathouse Row light up red, white and blue"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[3]="Oohin' at the Fourth of July fireworks over the Art Museum"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[4]="Wavin' to the Statue of Liberty at sunset"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[5]="Road-trippin' up to Mount Rushmore"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[6]="Watchin' the sunset over the Grand Canyon"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[7]="Spottin' the Golden Gate Bridge above the fog"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[8]="Grillin' at a backyard BBQ"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[9]="Cheerin' the fire truck at the small-town parade"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[10]="Strollin' the National Mall at dusk"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[11]="Cruisin' down Route 66"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[12]="Watchin' a bald eagle swoop over the lake"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[13]="Catchin' a baseball doubleheader"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[14]="Waitin' for Old Faithful to blow at Yellowstone"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[15]="Judgin' the apple pie contest at the county fair"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[16]="Watchin' the sunset by the Acadia lighthouse"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[17]="Bar-hoppin' the neon honky-tonks in Nashville"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[18]="Watchin' a rocket launch from the Space Coast"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[19]="Sittin' on the dock for the lake fireworks"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[20]="Visitin' the horses in Kentucky horse country"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[21]="Listenin' to jazz in the French Quarter"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[22]="Drivin' the Pacific Coast Highway"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[23]="Salutin' the flag by the sea"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[24]="Writin' hearts with sparklers in the yard"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[25]="Feastin' at a Cape Cod clambake at sunset"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[26]="Watchin' the hot air balloons lift off"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[27]="Catchin' a movie at the drive-in under the stars"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[28]="Takin' in the lights of Times Square"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[29]="Watchin' lava glow at Hawaii's volcanoes"}
+if(M[19]){M[19].photoCap=M[19].photoCap||[];M[19].photoCap[30]="Cheerin' the big summer night fireworks finale"}
