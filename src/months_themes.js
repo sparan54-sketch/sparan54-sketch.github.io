@@ -28,7 +28,7 @@ const LAY={
  steam(n,W,H){const cols=5,per=Math.ceil(n/cols),P=[];for(let i=0;i<n;i++){const c=Math.floor(i/per),k=i%per,up=c%2==0,f=k/(per-1||1),y=H*.93-(up?f:1-f)*H*.7;P.push([W*.12+c*(W*.76/(cols-1))+Math.sin(f*Math.PI*2)*W*.04,y])}return P},
  eight(n,W,H){const P=[];for(let i=0;i<n;i++){const a=i/n*2*Math.PI;P.push([W/2+Math.sin(a)*W*.4,H*.58+Math.sin(2*a)*H*.2+Math.cos(a)*H*.12])}return P},
  star(n,W,H){const V=[];for(let j=0;j<10;j++){const a=-Math.PI/2+j*Math.PI/5,r=j%2?.42:1;V.push([W/2+Math.cos(a)*W*.44*r,H*.6+Math.sin(a)*H*.37*r])}const P=[];for(let i=0;i<n;i++){const t=i/n*10,j=Math.floor(t),f=t-j,a=V[j],b=V[(j+1)%10];P.push([a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f])}return P},
- mountain(n,W,H){const P=[],legs=4,per=n/legs;for(let i=0;i<n;i++){const t=i/(n-1),leg=Math.floor(i/per),f=(i%per)/per,dir=leg%2?-1:1,x=W/2+dir*(f-.5)*W*.82*(1-t*.3);P.push([x,H*.94-t*H*.7])}return P},
+ mountain(n,W,H){const P=[],legs=4,per=n/legs;for(let i=0;i<n;i++){const t=i/(n-1),leg=Math.floor(i/per),f=(i%per)/per,dir=leg%2?-1:1,x=W/2+dir*(f-.5)*W*.82*(1-t*.3);P.push([x,H*.95-t*H*.6])}return P},
  orbit(n,W,H){const P=[],cx=W/2,cy=H*.6,h=Math.ceil(n/2);for(let i=0;i<n;i++){const o=i<h,j=o?i:i-h,m=o?h:n-h,a=j/m*2*Math.PI+(o?0:.3),rx=o?W*.4:W*.22,ry=o?H*.34:H*.16,tl=-.12;const x=Math.cos(a)*rx,y=Math.sin(a)*ry;P.push([cx+x*Math.cos(tl)-y*Math.sin(tl),cy+x*Math.sin(tl)+y*Math.cos(tl)])}return P},
  platform(n,W,H){const P=[],lv=5,per=Math.ceil(n/lv);for(let i=0;i<n;i++){const l=Math.floor(i/per),k=i%per,f=k/(per-1||1),dir=l%2?-1:1,x=W/2+dir*(f-.5)*W*.8,step=Math.floor(f*3)%2?-H*.025:0;P.push([x,H*.93-l*(H*.7/(lv-.5))+step])}return P}
 };
