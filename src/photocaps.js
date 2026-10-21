@@ -59,3 +59,35 @@ if(M[11]){M[11].photoCap=M[11].photoCap||[];M[11].photoCap[26]="Picnickin' on Th
 if(M[11]){M[11].photoCap=M[11].photoCap||[];M[11].photoCap[27]="Curlin' up by the fireside in the den"}
 if(M[11]){M[11].photoCap=M[11].photoCap||[];M[11].photoCap[28]="Admirin' the patchwork quilts at the quilt shed"}
 if(M[11]){M[11].photoCap=M[11].photoCap||[];M[11].photoCap[29]="Seein' our breath on the first frosty morning"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[0]="Steppin' through the wreath-hung gate into winter"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[1]="Spottin' a deer in the snowy pine grove"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[2]="Skatin' under the string lights around the big tree"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[3]="Warmin' our hands with cocoa at the cocoa hut"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[4]="Pickin' out our tree at the snowy tree lot"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[5]="Struttin' under the candy cane arches"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[6]="Peekin' at the gingerbread houses on Gingerbread Row"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[7]="Slidin' across the frozen pond by the cabin"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[8]="Checkin' out the sleigh at the red sleigh barn"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[9]="Crossin' the lantern-lit bridge at dusk"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[10]="Buildin' a snowman in the sunny field"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[11]="Window shoppin' the shelves at the toy shop"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[12]="Snugglin' up at the cabin in the snow"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[13]="Visitin' the reindeer at the paddock"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[14]="Carolin' under the lamppost on the corner"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[15]="Browsin' the wreaths at the winter market"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[16]="Pickin' ornaments at the twinkly stall"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[17]="Stoppin' by the old mitten mill by the creek"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[18]="Bracin' against the north wind on the hill"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[19]="Walkin' through the glowing twinkle tunnel"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[20]="Stargazin' on the longest night of the year"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[21]="Hangin' stockings by the crackling fire"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[22]="Bakin' a batch of Christmas cookies"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[23]="Waitin' up for Santa under the full moon"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[24]="Openin' presents by the tree on Christmas morning"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[25]="Wrappin' up the last gifts in the wrapping room"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[26]="Racin' down the sledding hill"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[27]="Explorin' the glittering ice palace"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[28]="Watchin' the northern lights from Starry Ridge"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[29]="Oohin' at fireworks over the river"}
+if(M[12]){M[12].photoCap=M[12].photoCap||[];M[12].photoCap[30]="Ringin' in the New Year under the fireworks"}
+if(M[14]){M[14].photoCap=M[14].photoCap||[];M[14].photoCap[13]="Handin' my girl a heart-shaped box of chocolates at the Valentine's Day palace"}
