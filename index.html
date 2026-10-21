@@ -225,7 +225,7 @@ TM(23,{name:"November",accent:"#ffd23f",stamp:"⭐",sky:["#5c94fc","#a8d8ff"],gr
  s+=`<div class="p" style="left:50%;top:12%;transform:translateX(-50%);font:900 14px monospace;color:#fff;text-shadow:2px 2px #000;z-index:3">SCORE ${String(d*12345%999999).padStart(6,'0')} · 🪙×${(d*7)%100} · DAY ${d}</div>`;return s}}
 Object.entries({11:'square',12:'spiral',14:'heart',16:'ring',17:'steam',18:'eight',19:'star',20:'mountain',22:'orbit'}).forEach(([k,v])=>{if(M[k])M[k].layout=v});
 // ===== February heart + Cupid's arrow
-function heartGeo(W,H){const cx=W/2,cy=H*.56,sc=Math.min(W*.44/16,H*.34/15),D=[];for(let k=0;k<2000;k++){const a=k/2000*2*Math.PI;D.push([cx+16*Math.pow(Math.sin(a),3)*sc,cy-(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))*sc])}
+function heartGeo(W,H){const cx=W/2,cy=H*.56,sc=Math.min(W*.44/16,H*.34/15),D=[];for(let k=0;k<2000;k++){const a=k/2000*2*Math.PI;D.push([cx+16*Math.pow(Math.sin(a),3)*sc,cy-(13*Math.cos(a)-4*Math.cos(2*a)-1.5*Math.cos(3*a)-.5*Math.cos(4*a))*sc])}
  const A0=[cx-17*sc,cy+9*sc],A1=[cx+17*sc,cy-11*sc];return{D,A0,A1,sc}}
 function inPoly(p,D){let c=false;for(let i=0,j=D.length-1;i<D.length;j=i++){const a=D[i],b=D[j];if((a[1]>p[1])!=(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
 LAY.heart=function(n,W,H){const hn=n-6,{D,A0,A1,sc}=heartGeo(W,H),m=Math.max(W*.085,30);
@@ -238,7 +238,7 @@ LAY.heart=function(n,W,H){const hn=n-6,{D,A0,A1,sc}=heartGeo(W,H),m=Math.max(W*.
  const C=[0];for(let k=1;k<R.length;k++)C.push(C[k-1]+Math.hypot(R[k][0]-R[k-1][0],R[k][1]-R[k-1][1]));const T=C[C.length-1],P=[];let k=0;
  for(let i=0;i<hn;i++){const t=(i+.6)/(hn+.2)*T;while(k<C.length-2&&C[k+1]<t)k++;P.push(R[k].slice())}
  for(let i=0;i<6;i++)P.push(L(g0+(g1-g0)*i/5));return P};
-if(M[14])M[14].ldeco=(W,H)=>{const {A0,A1}=heartGeo(W,H),x0=A0[0],y0=A0[1],x1=A1[0],y1=A1[1],a=Math.atan2(y1-y0,x1-x0)*180/Math.PI;return `<g><line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="#c9a227" stroke-width="6" stroke-linecap="round"/><g transform="translate(${x1} ${y1}) rotate(${a})"><path d="M14 0 L-20 -15 L-12 0 L-20 15Z" fill="#c9a227" stroke="#7a5a10" stroke-width="2"/></g><g transform="translate(${x0} ${y0}) rotate(${a})"><path d="M0 -15 L16 -15 L34 0 L16 15 L0 15 L13 0Z" fill="#ff4d8a" stroke="#fff" stroke-width="1.5"/><path d="M8 -9 L26 0 L8 9" fill="none" stroke="#fff" stroke-width="1.2"/></g></g>`};
+if(M[14])M[14].pin=[22,23,24,25,26,27];if(M[14])M[14].ldeco=(W,H)=>{const {A0,A1}=heartGeo(W,H),x0=A0[0],y0=A0[1],x1=A1[0],y1=A1[1],a=Math.atan2(y1-y0,x1-x0)*180/Math.PI;return `<g><line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="#c9a227" stroke-width="6" stroke-linecap="round"/><g transform="translate(${x1} ${y1}) rotate(${a})"><path d="M14 0 L-20 -15 L-12 0 L-20 15Z" fill="#c9a227" stroke="#7a5a10" stroke-width="2"/></g><g transform="translate(${x0} ${y0}) rotate(${a})"><path d="M0 -15 L16 -15 L34 0 L16 15 L0 15 L13 0Z" fill="#ff4d8a" stroke="#fff" stroke-width="1.5"/><path d="M8 -9 L26 0 L8 9" fill="none" stroke="#fff" stroke-width="1.2"/></g></g>`};
 // ===== December 2027: Christmas + beer winter adventures (key 24)
 LAY.snowflake=function(n,W,H){const P=[[W/2,H*.6]],arms=6,per=Math.ceil((n-1)/arms);for(let a=0;a<arms;a++){const ang=-Math.PI/2+a*Math.PI/3;for(let j=1;j<=per&&P.length<n;j++){const r=j/per;P.push([W/2+Math.cos(ang)*W*.43*r,H*.6+Math.sin(ang)*H*.34*r])}}return P};
 TM(24,{name:"December",accent:"#ffcf3f",stamp:"🍺",sky:["#0b1d3a","#3a6ea5"],ground:"#eef6ff",path:"#ffffff",tile:"#b3202a",title:"Christmas Cheers · Winter Beer Adventures",fx:"stars",amb:"❄️",layout:"snowflake",
@@ -655,6 +655,11 @@ if(M[14]){M[14].photoCap=M[14].photoCap||[];M[14].photoCap[24]="Watchin' paper h
 if(M[14]){M[14].photoCap=M[14].photoCap||[];M[14].photoCap[25]="Waltzin' in the moonbeam ballroom"}
 if(M[14]){M[14].photoCap=M[14].photoCap||[];M[14].photoCap[26]="Gazin' at the pink aurora over the peak"}
 if(M[14]){M[14].photoCap=M[14].photoCap||[];M[14].photoCap[27]="Cozyin' up at the sweet dreams cottage"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[0]="Scoopin' hummus and za'atar flatbread at Suraya"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[1]="Pullin' skewers off the grill at Laser Wolf"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[4]="Tearin' into laffa and hummus at Zahav"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[14]="Bringin' our own wine to Illata"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[16]="Slurpin' coastal seafood at Little Water"}
 // ===== More settings + landmarks for drawn months
 const ST={
  dream:(o={})=>A.sky(o.a||'#ff9ec7',o.b||'#ffe3f0')+A.cloud(70,60,1.4)+A.cloud(300,90,1.8)+A.cloud(200,40,1)+`<path d="M250 230 V150 h14 v-20 l10 -14 10 14 v20 h14 v-30 l10 -14 10 14 v44 h14 v80Z" fill="#fff0f7" stroke="#ffb3d1" stroke-width="2"/>`+A.ground(o.g||'#ffd1e6',230),
@@ -798,7 +803,7 @@ function render(){
  let W=innerWidth,H=innerHeight;const n=dim(m),R=rnd(m*99);let pts,ts,mb;
  if(T.map){mb=(T.board||marchBoard)(W,H);W=mb.W;H=mb.H;pts=mb.P;ts=mb.ts}else if(T.layout&&typeof layPts=='function'){const L=layPts(T,n,W,H);pts=L.P;ts=L.ts}else{pts=path(n,W,H);ts=Math.min(W/9,(H*.7)/(Math.ceil(n/7))*.55,92)}
  {const mv=!T.map;if(mv){let lim=1e9;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)lim=Math.min(lim,Math.max(Math.abs(pts[i][0]-pts[j][0]),Math.abs(pts[i][1]-pts[j][1])/.8));ts=Math.max(Math.min(ts,lim*.95),Math.min(34,W/11))}
-  const o=pts.map(p=>p.slice());pts=pts.map(p=>p.slice());for(let it=0;it<400;it++){let any=0;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1],px=ts*1.06-Math.abs(dx),py=ts*.86-Math.abs(dy);if(px>0&&py>0){any=1;if(px/ts<py/(.8*ts)){const f=px/2*(dx<0?-1:1)||px/2;pts[i][0]-=f;pts[j][0]+=f}else{const f=py/2*(dy<0?-1:1)||py/2;pts[i][1]-=f;pts[j][1]+=f}}}if(!any)break}
+  const o=pts.map(p=>p.slice());pts=pts.map(p=>p.slice());for(let it=0;it<400;it++){let any=0;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1],px=ts*1.06-Math.abs(dx),py=ts*.86-Math.abs(dy);if(px>0&&py>0){any=1;const pi=T.pin&&T.pin.includes(i),pj=T.pin&&T.pin.includes(j);if(pi&&pj)continue;const wi=pi?0:pj?2:1,wj=pj?0:pi?2:1;if(px/ts<py/(.8*ts)){const f=px/2*(dx<0?-1:1)||px/2;pts[i][0]-=f*wi;pts[j][0]+=f*wj}else{const f=py/2*(dy<0?-1:1)||py/2;pts[i][1]-=f*wi;pts[j][1]+=f*wj}}}if(!any)break}
   pts.forEach((p,i)=>{p[0]=Math.max(ts/2+2,Math.min(W-ts/2-2,p[0]))});if(T.map)window.__lead=o}
  let s=`<svg viewBox="0 0 ${W} ${H}"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.sky[0]}"/><stop offset="1" stop-color="${T.sky[1]}"/></linearGradient>
  <filter id="glow"><feGaussianBlur stdDeviation="4"/></filter></defs><rect width="${W}" height="${H}" fill="url(#sk)"/>`;
@@ -882,7 +887,7 @@ function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[
 function capCards(){return [...document.querySelectorAll('#scene .pcap,#scene [style*="translateX(-50%)"]')].filter(e=>e.offsetParent&&e.textContent.trim()&&getComputedStyle(e).display!='none'&&!e.closest('.figs'))}
 function fixCapOverlap(){const pn=document.querySelector('#close .panel');if(!pn)return;const pb=pn.getBoundingClientRect();
  capCards().forEach(e=>{if(e.dataset.ot===undefined)e.dataset.ot=e.style.top||'';e.style.top=e.dataset.ot;const r=e.getBoundingClientRect();
-  if(r.top<pb.bottom+6&&r.bottom>pb.top&&r.left<pb.right&&r.right>pb.left){const sh=pb.bottom+8-r.top;e.style.top=`calc(${e.dataset.ot||'0px'} + ${Math.ceil(sh)}px)`}})}
+  if(r.top<pb.bottom+6&&r.bottom>pb.top&&r.left<pb.right&&r.right>pb.left){const sh=pb.bottom+8-r.top,pr=e.offsetParent.getBoundingClientRect();e.style.top=Math.ceil(r.top-pr.top+sh)+'px'}})}
 addEventListener('resize',()=>{if(openDay)fixCapOverlap()});
 function list(){const items=(data[key(cur,openDay)]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
  document.getElementById('list').innerHTML=items.length?items.map(e=>`<li><b>${fmt(e.time)}</b><span>${esc(e.text)}</span><button title="Delete" onclick="del('${e.id}')">✕</button></li>`).join(''):'<li style="opacity:.7">Nothing logged yet.</li>';requestAnimationFrame(fixCapOverlap)}
