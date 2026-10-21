@@ -20,7 +20,7 @@ DS[14]=[
 ["Pickin' candy hearts out of the meadow","meadow",{h1:"#ffb3d1",h2:"#ff9ec7"},null,["flowers",["#ff4d8a","#fff","#ffd34d"]],[["heart",80,230,.9,"#ff4d8a"],["heart",160,240,.7,"#ffd34d"],["heart",260,236,.8,"#9ecbff"],["heart",330,232,.9,"#fff"]],"heart"],
 ["Wanderin' a garden of crystal roses","garden",{c:["#c2185b","#ff9ec7","#fff"]},null,["flowers",["#c2185b","#ff9ec7","#fff"]],[["rose",100,232,2],["rose",300,232,2.2]],"rose"],
 ["Stargazin' on Valentine's Eve","night",{a:"#1a0f3a",b:"#ff6fae"},null,"none",[["telescope",310,236,1.6],["heart",80,90,1,"#ff4d8a"]],"heart"],
-["Dancin' at the Valentine's Day palace ball","dream",{a:"#ff6fae",b:"#ffe3f0"},["castle"],"none",[["sign",200,70,"HAPPY VALENTINE'S DAY","#c2185b","#fff",16]],"rose"],
+["Handin' my girl a heart-shaped box of chocolates at the Valentine's Day palace","dream",{a:"#ff6fae",b:"#ffe3f0"},["castle"],"none",[["sign",200,70,"HAPPY VALENTINE'S DAY","#c2185b","#fff",16]],"heart"],
 ["Ridin' the carousel horses side by side","dream",{a:"#9ecbff",b:"#ffe3f0"},null,"none",[["sign",200,110,"DREAM CAROUSEL","#ff4d8a","#fff",16]].concat([60,130,270,340].map((x,i)=>["balloon",x,240,1.3,["#ff4d6a","#ffd34d","#4dc3ff","#ff9ec7"][i]])),"heart"],
 ["Crossin' a bridge tied with silk ribbons","dream",{},["goldengate"],"none",[["heart",200,80,1,"#ff4d8a"]],"rose"],
 ["Kissin' at the end of the pier under the moon","nightlake",{},null,["railing","#c8a070"],[["heart",200,90,1.4,"#ff4d8a"]],"heart"],

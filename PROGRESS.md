@@ -66,7 +66,16 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 ## Round 8 (2026-10-21 ~5:50 PM ET) — photo backdrops + drawn months
 - Per-day photo backdrops: assets/backdrops/YYYY-MM-DD.jpg (or .jpg.b64 data-URI fallback; the GitHub MCP can only write text, so we push .b64). Photo mode hides drawn layers; figurines + caption stay. Captions in src/photocaps.js.
 - Workflow: `./addbd.sh YYYY-MM-DD /path.jpg "Caption"` (writes assets/backdrops/*.jpg/.b64 + photocaps.js), move source to incoming/done/, build, push .b64s (≤4 per push) + index.html + photocaps.js, then `python verify_bd.py K D1 D2` on live.
-- LIVE photos: Oct 1–31 2026 (all), Apr 1 2027. PLAN CHANGE: no more drawn close-ups; every day gets a generator photo. Deploy each month when its full set is in incoming/, verify at 390x844 with verify_bd.py, sync test at end.
+- LIVE photos: Oct 2026 (all 31), Nov 2026 (all 30), Dec 2026 (all 31), Apr 1 2027. Next: Feb 2027 (skip Jan/Mar). PLAN CHANGE: no more drawn close-ups; every day gets a generator photo. Deploy each month when its full set is in incoming/, verify at 390x844 with verify_bd.py, sync test at end.
 - March 2027 drawn close-ups LIVE (DRAWN=[14,15]); all pub-interior setting, props vary — could use more setting variety.
 - Build: `DRAWN=[14] python3 build.py "$(cat SYNC_URL.txt)" 10,...,24` — DRAWN lists months whose drawn specs (months_drawn.js DS[k]) are enabled. Feb (14) live. March (15) spec written, under screenshot check.
 - PENDING: Mar–Nov 2027 drawn specs; Oct 11–31 photos as they arrive in incoming/; 2026 drawn upgrade.
+- Jan & Mar 2027: NO generated photos (user will send real ones later); skip them in the deploy order.
+- Jan/Mar real user photos land in incoming/ one at a time (2027-01-01 Dalessandro's in); deploy when the month is complete or user asks.
+
+## Round 9 (2026-10-21 ~6:40 PM ET)
+- LIVE photos: Oct, Nov, Dec 2026 complete (all days).
+- January 2027 REDONE: 31 restaurants from user list (Laurel + Bibou closed; Honeysuckle + Rosy's dropped), OSM-geocoded, route ~13.9 km, new OSMJ2 street data (osm/proc4.py builds osmdata.js: OSMJ, OSMJ2, OSMO, OSMM). Old Jan photos moved to incoming/old_jan/.
+- October 2026 month view is now a spooky OSM map (OCTLOC in months_osm.js, OSMO data). Photos/captions unchanged.
+- February arrow: single straight shaft, days 23–28 evenly along it inside the heart; heart path ends at day 22 next to the arrow entry. Feb 14 = heart-shaped box of chocolates (caption in months_drawn.js + photocaps.js).
+- Next: Feb photos (when in incoming/), Apr–Dec 2027, then sync test. Jan/Mar wait for user's real photos.
