@@ -1,0 +1,155 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Our Board · 2026</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Georgia,serif;color:#fff;overflow:hidden;background:#000}
+#tabs{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;overflow-x:auto;justify-content:flex-start!important;gap:6px;justify-content:center;padding:max(8px,env(safe-area-inset-top)) 8px 8px}
+#tabs button{flex:0 0 auto;border:0;border-radius:20px;padding:7px 14px;font:600 14px Georgia;background:rgba(0,0,0,.45);color:#fff;backdrop-filter:blur(6px);cursor:pointer}
+#tabs button.on{background:var(--accent);color:#111}
+#sync{position:fixed;right:10px;bottom:10px;z-index:20;font:12px sans-serif;background:rgba(0,0,0,.5);padding:6px 10px;border-radius:14px;cursor:pointer}
+#board{position:fixed;inset:0}#board svg{width:100%;height:100%;display:block}
+.tile{cursor:pointer}.tile:hover rect{filter:brightness(1.25)}
+.fig{pointer-events:none}
+#close{position:fixed;inset:0;z-index:30;display:none;overflow:hidden}
+#close.open{display:block;animation:zin .5s ease}
+@keyframes zin{from{transform:scale(1.4);opacity:0}to{transform:none;opacity:1}}
+#scene{position:absolute;inset:0}
+.layer{position:absolute;left:-10%;right:-10%;bottom:0;transition:transform .2s}
+.figs{position:absolute;bottom:13%;left:50%;transform:translateX(-50%);display:flex;align-items:flex-end;gap:2vw;z-index:5}
+.figs img{height:min(40vh,52vw);filter:drop-shadow(0 18px 12px rgba(0,0,0,.6));animation:bob 3s ease-in-out infinite}
+.figs img+img{animation-delay:-1.5s}
+@keyframes bob{50%{transform:translateY(-6px) rotate(1deg)}}
+.panel{position:absolute;left:10px;right:10px;top:max(10px,env(safe-area-inset-top));z-index:8;background:rgba(10,10,15,.72);backdrop-filter:blur(8px);border-radius:16px;padding:12px 14px;max-width:460px;margin:auto;max-height:46vh;overflow:auto}
+.panel h2{margin:0 0 2px;font-size:22px}.panel .sub{opacity:.8;font-size:14px;margin-bottom:8px}
+.btn{border:0;border-radius:12px;padding:9px 14px;font:700 14px Georgia;cursor:pointer;background:var(--accent);color:#111}
+.ghost{background:rgba(255,255,255,.15);color:#fff}
+form{display:none;gap:6px;flex-wrap:wrap;margin:8px 0}form.on{display:flex}
+input{flex:1 1 120px;padding:9px;border-radius:10px;border:0;font:15px Georgia}
+ul{list-style:none;padding:0;margin:8px 0 0}li{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid rgba(255,255,255,.15)}
+li b{min-width:70px;color:var(--accent)}li span{flex:1}li button{background:none;border:0;color:#f88;cursor:pointer;font-size:16px}
+#back{position:absolute;left:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:9}
+.p{position:absolute;pointer-events:none}
+</style></head><body>
+<div id="tabs"></div><div id="board"></div>
+<div id="close"><div id="scene"></div>
+ <div class="panel"><h2 id="ttl"></h2><div class="sub" id="sub"></div>
+  <button class="btn" id="logbtn">Log event and time</button>
+  <form id="f"><input id="ev" placeholder="Event" required maxlength="120"><input id="tm" type="time" required style="flex:0 1 120px"><button class="btn">Submit</button></form>
+  <ul id="list"></ul></div>
+ <button class="btn ghost" id="back">← Back to month</button></div>
+<div id="sync" title="Shared sync settings"></div>
+<script>
+const HIM="__HIM__",HER="__HER__";
+const TODAY=new Date();
+const LIVE=__LIVE__; // month keys shipped live; others only with ?wip=1
+// ---- Shared storage: set SYNC_URL to a JSON endpoint (GET returns JSON, PUT replaces). Empty = this device only.
+let SYNC_URL=new URLSearchParams(location.search).get("sync")||"__SYNC__"||localStorage.getItem("syncUrl");/*localStorage.getItem('syncUrl')||(new URLSearchParams(location.search).get('sync'))||"__SYNC__";
+*/if(SYNC_URL)localStorage.setItem('syncUrl',SYNC_URL);
+const M={
+ 10:{name:"October",accent:"#ff8a1f",stamp:"🎃",sky:["#120a24","#3b1450"],ground:"#1a1410",path:"#5b4a3a",tile:"#2a1d33",
+  title:"A Haunted Walk Through Philadelphia",
+  spots:["Elfreth's Alley","Christ Church Burial Ground","Independence Hall","Liberty Bell","Carpenters' Hall","Betsy Ross House","Ben Franklin's Grave","Eastern State Penitentiary","Rittenhouse Square","Washington Square","Society Hill","Old City Cobbles","Spruce St Ghost Tour","Penn's Landing","Delaware River Fog","Ben Franklin Bridge","Reading Terminal","City Hall Tower","Masonic Temple","Boathouse Row","Antique Row","Laurel Hill Cemetery","Mütter Museum","Fairmount Park Woods","Art Museum Steps","Logan Square","South Street","Italian Market","Fishtown Lanes","Germantown Mansion","Halloween on Broad St"],
+  props:["🦇","👻","🕸️","💀","🎃","🕯️","🌕","🧛","🧙","🐈‍⬛"]},
+ 11:{name:"November",accent:"#e8a33d",stamp:"🦃",sky:["#f2b866","#c9643a"],ground:"#7a5a2a",path:"#c8a36a",tile:"#8a3e1c",
+  title:"The Harvest Trail",
+  spots:["Maple Lane","Apple Orchard","Cider Mill","Hay Bale Maze","Pumpkin Field","Corn Rows","Red Barn","Leaf Pile","Pie Stand","Farmhouse Porch","Covered Bridge","Golden Meadow","Turkey Farm","Cranberry Bog","Sunflower Rows","Hayride","Bonfire Hill","Pecan Grove","Gourd Market","Country Store","Woodland Path","Duck Pond","Wheat Field","Stone Wall","Kitchen Window","Thanksgiving Feast","Leftovers Picnic","Fireside Den","Quilt Shed","First Frost"],
+  props:["🍂","🍁","🦃","🥧","🌽","🍎","🌾","🎃","🍗","🥖"]},
+ 12:{name:"December",accent:"#7fd4ff",stamp:"🎄",sky:["#0b1f3a","#4a6fa5"],ground:"#e8f1fa",path:"#b7cde6",tile:"#1f4d3a",
+  title:"Winter Wonderland",
+  spots:["Snowy Gate","Pine Grove","Ice Rink","Cocoa Hut","Tree Lot","Candy Cane Lane","Gingerbread Row","Frozen Pond","Sleigh Barn","Lantern Bridge","Snowman Field","Toy Shop","Cabin in the Snow","Reindeer Paddock","Carol Corner","Wreath Market","Ornament Stall","Mitten Mill","North Wind Hill","Twinkle Tunnel","Solstice Night","Stocking Mantel","Cookie Kitchen","Christmas Eve","Christmas Morning","Wrapping Room","Sledding Hill","Ice Palace","Starry Ridge","Midnight Fireworks","New Year's Eve"],
+  props:["❄️","⛄","🎁","🦌","🔔","⭐","🎄","🕯️","🧣","🍪"]}
+};
+const WIP=new URLSearchParams(location.search).has('wip');
+const ym=k=>k>12?[2027,k-12]:[2026,k]; const nowK=(TODAY.getFullYear()-2026)*12+TODAY.getMonth()+1;
+const SHOW=Object.keys(M).map(Number).filter(k=>WIP||LIVE.includes(k)).sort((a,b)=>a-b);
+let cur=SHOW.includes(nowK)?nowK:SHOW[0], data={}, openDay=null;
+const key=(k,d)=>{const[y,m]=ym(k);return`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`};
+const dim=k=>{const[y,m]=ym(k);return new Date(y,m,0).getDate()}, dow=(k,d)=>{const[y,m]=ym(k);return new Date(y,m-1,d).getDay()};
+const WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const isToday=(k,d)=>nowK===k&&TODAY.getDate()===d;
+function rnd(s){return()=>(s=(s*16807)%2147483647)/2147483647}
+// ---- storage
+async function load(){data=JSON.parse(localStorage.getItem('cal')||'{}');
+ if(SYNC_URL){try{const r=await fetch(SYNC_URL,{cache:'no-store'});if(r.ok){const t=await r.text();const j=t?JSON.parse(t):{};data=j&&j.events?j.events:data;localStorage.setItem('cal',JSON.stringify(data));stat('Shared ✓')}}catch(e){stat('Offline – saved here')}}else stat('This device only · tap to share')}
+async function mutate(fn){ // re-fetch, apply, write (minimizes overwriting partner's edits)
+ if(SYNC_URL){try{const r=await fetch(SYNC_URL,{cache:'no-store'});if(r.ok){const t=await r.text();const j=t?JSON.parse(t):{};if(j.events)data=j.events}}catch(e){}}
+ fn(data);localStorage.setItem('cal',JSON.stringify(data));
+ if(SYNC_URL){try{const w=await fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({events:data})});if(!w.ok)throw 0;stat('Shared ✓')}catch(e){stat('Sync failed – saved here')}}
+}
+function stat(t){document.getElementById('sync').textContent='⟳ '+t}
+document.getElementById('sync').onclick=()=>{const u=prompt('Shared storage URL (GET returns JSON, POST replaces it). Both of you enter the same one. Leave blank for this device only.',SYNC_URL||'');if(u===null)return;SYNC_URL=u.trim();localStorage.setItem('syncUrl',SYNC_URL);load().then(render)};
+setInterval(()=>{if(SYNC_URL&&!document.hidden)load().then(()=>{render();if(openDay)list()})},20000);
+// ---- 2D board: winding path of tiles
+function path(n,W,H){const pts=[],rows=Math.ceil(n/7),top=H*.2,bot=H*.93;
+ for(let i=0;i<n;i++){const r=Math.floor(i/7),c=i%7,cc=r%2?6-c:c;const x=W*.1+cc*(W*.8/6),y=top+(r+.5)*((bot-top)/rows)+Math.sin(cc*1.3+r)*H*.012;pts.push([x,y])}return pts}
+function render(){
+ const m=cur,T=M[m];document.documentElement.style.setProperty('--accent',T.accent);
+ document.getElementById('tabs').innerHTML=SHOW.map(k=>`<button class="${k==m?'on':''}" onclick="cur=${k};render()">${M[k].name}${k>12?' ’27':''}</button>`).join('');
+ const W=innerWidth,H=innerHeight,n=dim(m),pts=path(n,W,H),R=rnd(m*99),ts=Math.min(W/9,(H*.7)/(Math.ceil(n/7))*.55,92);
+ let s=`<svg viewBox="0 0 ${W} ${H}"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.sky[0]}"/><stop offset="1" stop-color="${T.sky[1]}"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="4"/></filter></defs><rect width="${W}" height="${H}" fill="url(#sk)"/>`;
+ s+=scenery(m,W,H,R);
+ s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${T.path}" stroke-width="${ts*.9}" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>
+ <polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-dasharray="6 9"/>`;
+ s+=`<text x="${W/2}" y="${H*.12}" text-anchor="middle" font-size="${Math.min(W/14,40)}" font-weight="700" fill="#fff" style="paint-order:stroke" stroke="rgba(0,0,0,.5)" stroke-width="4">${T.name} ${ym(m)[0]}</text>
+ <text x="${W/2}" y="${H*.12+22}" text-anchor="middle" font-size="14" fill="${T.accent}" font-style="italic">${T.title}</text>`;
+ pts.forEach(([x,y],i)=>{const d=i+1,ev=(data[key(m,d)]||[]).length,today=isToday(m,d);
+  s+=`<g class="tile" onclick="openClose(${d})"><rect x="${x-ts/2}" y="${y-ts*.4}" width="${ts}" height="${ts*.8}" rx="9" fill="${T.tile}" stroke="${today?'#fff':T.accent}" stroke-width="${today?4:2}"/>
+  <text x="${x}" y="${y-ts*.12}" text-anchor="middle" font-size="${ts*.13}" fill="#fff" opacity=".75">${WD[dow(m,d)].slice(0,3).toUpperCase()}</text>
+  <text x="${x}" y="${y+ts*.22}" text-anchor="middle" font-size="${ts*.34}" font-weight="700" fill="#fff">${d}</text>
+  ${ev?`<text x="${x+ts*.36}" y="${y-ts*.18}" text-anchor="middle" font-size="${ts*.42}" transform="rotate(-14 ${x+ts*.36} ${y-ts*.18})">${T.stamp}</text>`:''}</g>`;
+  if(today){const h=ts*1.5;s+=`<g class="fig"><ellipse cx="${x}" cy="${y-ts*.42+h*.0}" rx="${ts*.6}" ry="${ts*.14}" fill="#000" opacity=".45"/>
+   <image href="${HIM}" x="${x-h*.55}" y="${y-ts*.42-h*.78}" height="${h}" width="${h*.54}"/><image href="${HER}" x="${x+h*.02}" y="${y-ts*.42-h*.78}" height="${h}" width="${h*.5}"/></g>`}
+ });
+ document.getElementById('board').innerHTML=s+'</svg>';
+}
+function scenery(m,W,H,R){let s='';
+ if(m==10){s+=`<circle cx="${W*.82}" cy="${H*.12}" r="${H*.06}" fill="#f5eec0"/><circle cx="${W*.82}" cy="${H*.12}" r="${H*.09}" fill="#f5eec0" opacity=".15" filter="url(#glow)"/>`;
+  // Philly skyline silhouette: City Hall tower, Independence Hall, rowhomes
+  let x=0,sk=`M0 ${H*.3}`;while(x<W){const w=20+R()*50,h=H*(.05+R()*.12);sk+=` L${x} ${H*.3-h} L${x+w} ${H*.3-h}`;x+=w}
+  s+=`<path d="${sk} L${W} ${H*.3} Z" fill="#0b0613"/><rect x="${W*.45}" y="${H*.08}" width="${W*.03}" height="${H*.22}" fill="#0b0613"/><path d="M${W*.45} ${H*.08} L${W*.465} ${H*.03} L${W*.48} ${H*.08}Z" fill="#0b0613"/>
+  <rect x="0" y="${H*.3}" width="${W}" height="${H*.7}" fill="${M[10].ground}"/>`;
+  for(let i=0;i<26;i++)s+=`<text x="${R()*W}" y="${H*.3+R()*H*.7}" font-size="${14+R()*18}" opacity=".7">${["🪦","🎃","🕸️","🌲","🦇","🕯️","🏚️"][i%7]}</text>`;
+  for(let i=0;i<5;i++)s+=`<text font-size="18" y="${H*(.15+R()*.1)}"><animate attributeName="x" from="-30" to="${W+30}" dur="${9+R()*9}s" repeatCount="indefinite"/>🦇</text>`;}
+ if(m==11){s+=`<circle cx="${W*.2}" cy="${H*.18}" r="${H*.07}" fill="#ffd98a"/><path d="M0 ${H*.3} Q${W*.3} ${H*.2} ${W*.6} ${H*.28} T${W} ${H*.26} V${H} H0Z" fill="#a8743a"/><rect y="${H*.33}" width="${W}" height="${H}" fill="${M[11].ground}"/>`;
+  for(let i=0;i<30;i++)s+=`<text x="${R()*W}" y="${H*.32+R()*H*.68}" font-size="${14+R()*16}" opacity=".85">${["🍂","🌾","🎃","🌳","🍁","🌽","🦃"][i%7]}</text>`;
+  for(let i=0;i<12;i++)s+=`<text font-size="16" x="${R()*W}"><animate attributeName="y" from="-20" to="${H}" dur="${8+R()*8}s" begin="-${R()*8}s" repeatCount="indefinite"/>🍁</text>`;}
+ if(m==12){s+=`<path d="M0 ${H*.3} L${W*.2} ${H*.17} L${W*.38} ${H*.28} L${W*.6} ${H*.14} L${W*.8} ${H*.27} L${W} ${H*.2} V${H} H0Z" fill="#cfe0f2"/><rect y="${H*.32}" width="${W}" height="${H}" fill="${M[12].ground}"/>`;
+  for(let i=0;i<30;i++)s+=`<text x="${R()*W}" y="${H*.32+R()*H*.68}" font-size="${14+R()*18}">${["🌲","⛄","🎄","🏠","🦌","🎁"][i%6]}</text>`;
+  for(let i=0;i<40;i++)s+=`<circle r="${1+R()*2}" fill="#fff" cx="${R()*W}"><animate attributeName="cy" from="-5" to="${H}" dur="${6+R()*8}s" begin="-${R()*8}s" repeatCount="indefinite"/></circle>`;}
+ return s}
+// ---- close-up street view
+function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[d-1];
+ document.getElementById('ttl').textContent=`${T.name} ${d} · ${spot}`;
+ document.getElementById('sub').textContent=`${WD[dow(m,d)]}, ${T.name} ${d}, ${ym(m)[0]}${isToday(m,d)?' · You are here today':''}`;
+ const g=T.sky;let h=`<div style="position:absolute;inset:0;background:linear-gradient(${g[0]},${g[1]})"></div>`;
+ // far layer, mid layer, ground + props unique per day (seeded)
+ const far=[],mid=[];
+ const farSet=m==10?["🏛️","🏚️","⛪","🏰"]:m==11?["🌳","🏡","🌲","🛖"]:["🏔️","🌲","🏠","⛪"];
+ for(let i=0;i<8;i++)far.push(`<span class="p" style="left:${i*13+R()*5}%;bottom:${48+R()*6}%;font-size:${60+R()*50}px;opacity:.55;filter:${m==10?'brightness(.35) hue-rotate(250deg)':'none'}">${farSet[Math.floor(R()*4)]}</span>`);
+ for(let i=0;i<7;i++)mid.push(`<span class="p" style="left:${R()*100}%;bottom:${22+R()*18}%;font-size:${40+R()*40}px">${T.props[Math.floor(R()*T.props.length)]}</span>`);
+ h+=`<div class="layer" data-k="8" style="top:0">${m==10?`<div class="p" style="right:15%;top:10%;width:90px;height:90px;border-radius:50%;background:#f5eec0;box-shadow:0 0 60px #f5eec0"></div>`:m==11?`<div class="p" style="left:12%;top:12%;width:100px;height:100px;border-radius:50%;background:#ffd98a;box-shadow:0 0 80px #ffb347"></div>`:''}${far.join('')}</div>`;
+ h+=`<div class="layer" data-k="20" style="top:0">${mid.join('')}</div>`;
+ h+=`<div class="layer" data-k="35" style="height:30%;background:linear-gradient(${T.path},${T.ground});border-top:6px solid rgba(255,255,255,.12)"></div>`;
+ // animated ambient: flying/falling things + lamp flicker
+ const amb=m==10?"🦇":m==11?"🍂":"❄️";
+ for(let i=0;i<14;i++){const fall=m!=10;h+=`<span class="p amb" style="font-size:${14+R()*18}px;left:${fall?R()*100:-10}%;top:${fall?-10:10+R()*40}%;animation:${fall?'fall':'fly'} ${6+R()*8}s linear ${-R()*10}s infinite">${amb}</span>`}
+ h+=`<div class="p" style="left:18%;bottom:22%;font-size:60px;animation:flick 2.5s infinite">${m==10?'🕯️':m==11?'🏮':'🕯️'}</div><div class="p" style="right:16%;bottom:24%;font-size:70px">${T.props[d%T.props.length]}</div>`;
+ h+=`<div class="figs"><img src="${HIM}" alt="Him"><img src="${HER}" alt="Her"></div>`;
+ if(m==10)h+=`<div class="p" style="inset:0;background:radial-gradient(ellipse at 50% 70%,transparent 30%,rgba(10,0,20,.75));animation:fog 6s ease-in-out infinite"></div>`;
+ const sc=document.getElementById('scene');sc.innerHTML=h;
+ document.getElementById('close').classList.add('open');document.getElementById('f').classList.remove('on');list();
+}
+function list(){const items=(data[key(cur,openDay)]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
+ document.getElementById('list').innerHTML=items.length?items.map(e=>`<li><b>${fmt(e.time)}</b><span>${esc(e.text)}</span><button title="Delete" onclick="del('${e.id}')">✕</button></li>`).join(''):'<li style="opacity:.7">Nothing logged yet.</li>'}
+const fmt=t=>{const[h,m]=t.split(':').map(Number);return`${(h%12)||12}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`};
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]));
+async function del(id){const k=key(cur,openDay);await mutate(d=>{d[k]=(d[k]||[]).filter(e=>e.id!==id);if(!d[k].length)delete d[k]});list();render()}
+document.getElementById('logbtn').onclick=()=>{document.getElementById('f').classList.toggle('on');document.getElementById('ev').focus()};
+document.getElementById('f').onsubmit=async e=>{e.preventDefault();const k=key(cur,openDay),it={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),text:ev.value.trim(),time:tm.value};
+ if(!it.text||!it.time)return;await mutate(d=>{(d[k]=d[k]||[]).push(it)});ev.value='';tm.value='';e.target.classList.remove('on');list();render()};
+document.getElementById('back').onclick=()=>{document.getElementById('close').classList.remove('open');openDay=null};
+addEventListener('pointermove',e=>{if(!openDay)return;const dx=e.clientX/innerWidth-.5;document.querySelectorAll('.layer').forEach(l=>l.style.transform=`translateX(${-dx*l.dataset.k}px)`)});
+addEventListener('resize',render);
+document.head.insertAdjacentHTML('beforeend',`<style>@keyframes fall{to{transform:translate(40px,110vh) rotate(360deg)}}@keyframes fly{to{transform:translate(120vw,-10vh)}}@keyframes flick{50%{opacity:.55}}@keyframes fog{50%{opacity:.75}}</style>`);
+load().then(render);render();{const q=new URLSearchParams(location.search);if(q.get("m"))cur=+q.get("m"),render();if(q.get("day"))openClose(+q.get("day"))}
+</script></body></html>
