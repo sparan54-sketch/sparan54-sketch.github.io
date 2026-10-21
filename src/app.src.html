@@ -5,6 +5,7 @@
 #tabs{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;overflow-x:auto;justify-content:flex-start!important;gap:6px;justify-content:center;padding:max(8px,env(safe-area-inset-top)) 8px 8px}
 #tabs button{flex:0 0 auto;border:0;border-radius:20px;padding:7px 14px;font:600 14px Georgia;background:rgba(0,0,0,.45);color:#fff;backdrop-filter:blur(6px);cursor:pointer}
 #tabs button.on{background:var(--accent);color:#111}
+#zbtn{position:fixed;right:10px;bottom:46px;z-index:20;display:flex;flex-direction:column;gap:6px}#zbtn button{border:0;border-radius:12px;min-width:44px;height:40px;font:700 18px Georgia;background:rgba(0,0,0,.6);color:#fff;padding:0 10px}#zbtn button:last-child{font-size:13px}
 #sync{position:fixed;right:10px;bottom:10px;z-index:20;font:12px sans-serif;background:rgba(0,0,0,.5);padding:6px 10px;border-radius:14px;cursor:pointer}
 #board{position:fixed;inset:0}#board svg{width:100%;height:100%;display:block}
 .tile{cursor:pointer}.tile:hover rect{filter:brightness(1.25)}
@@ -86,10 +87,10 @@ function render(){
  const m=cur,T=M[m];document.documentElement.style.setProperty('--accent',T.accent);
  document.getElementById('tabs').innerHTML=SHOW.map(k=>`<button class="${k==m?'on':''}" onclick="cur=${k};render()">${M[k].name}${k>12?' ’27':''}</button>`).join('');
  let W=innerWidth,H=innerHeight;const n=dim(m),R=rnd(m*99);let pts,ts,mb;
- if(T.map){mb=marchBoard(W,H);W=mb.W;H=mb.H;pts=mb.P;ts=mb.ts}else{pts=path(n,W,H);ts=Math.min(W/9,(H*.7)/(Math.ceil(n/7))*.55,92)}
+ if(T.map){mb=(T.board||marchBoard)(W,H);W=mb.W;H=mb.H;pts=mb.P;ts=mb.ts}else{pts=path(n,W,H);ts=Math.min(W/9,(H*.7)/(Math.ceil(n/7))*.55,92)}
  let s=`<svg viewBox="0 0 ${W} ${H}"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.sky[0]}"/><stop offset="1" stop-color="${T.sky[1]}"/></linearGradient>
  <filter id="glow"><feGaussianBlur stdDeviation="4"/></filter></defs><rect width="${W}" height="${H}" fill="url(#sk)"/>`;
- s+=T.map?mb.s:scenery(m,W,H,R);
+ s+=T.map?mb.s:(T.deco?themeScenery(T,W,H,R):scenery(m,W,H,R));
  s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${T.path}" stroke-width="${T.map?4:ts*.9}" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>
  <polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-dasharray="6 9"/>`;
  s+=`<text x="${W/2}" y="${H*.12}" text-anchor="middle" font-size="${Math.min(W/14,40)}" font-weight="700" fill="#fff" style="paint-order:stroke" stroke="rgba(0,0,0,.5)" stroke-width="4">${T.name} ${ym(m)[0]}</text>
@@ -102,7 +103,8 @@ function render(){
   if(today){const h=ts*1.5;s+=`<g class="fig"><ellipse cx="${x}" cy="${y-ts*.42+h*.0}" rx="${ts*.6}" ry="${ts*.14}" fill="#000" opacity=".45"/>
    <image href="${HIM}" x="${x-h*.55}" y="${y-ts*.42-h*.78}" height="${h}" width="${h*.54}"/><image href="${HER}" x="${x+h*.02}" y="${y-ts*.42-h*.78}" height="${h}" width="${h*.5}"/></g>`}
  });
- const bd=document.getElementById('board');bd.style.overflow=T.map?'auto':'hidden';bd.innerHTML=s.replace('<svg viewBox',T.map?`<svg style="width:${W}px;height:${H}px" viewBox`:'<svg viewBox')+'</svg>';
+ const bd=document.getElementById('board');bd.style.overflow='hidden';bd.style.background=T.map?T.ground:'#000';bd.innerHTML=s.replace('<svg viewBox',T.map?'<svg id="msvg" style="touch-action:none" preserveAspectRatio="xMidYMid meet" viewBox':'<svg viewBox')+'</svg>'+(T.map?'<div id="zbtn"><button onclick="zoomBy(1.5)">+</button><button onclick="zoomBy(1/1.5)">−</button><button onclick="zoomFit()">Fit whole map</button></div>':'');
+ if(T.map)setupZoom(W,H);
 }
 function scenery(m,W,H,R){let s='';
  if(m==10){s+=`<circle cx="${W*.82}" cy="${H*.12}" r="${H*.06}" fill="#f5eec0"/><circle cx="${W*.82}" cy="${H*.12}" r="${H*.09}" fill="#f5eec0" opacity=".15" filter="url(#glow)"/>`;
@@ -118,15 +120,25 @@ function scenery(m,W,H,R){let s='';
  if(m==12){s+=`<path d="M0 ${H*.3} L${W*.2} ${H*.17} L${W*.38} ${H*.28} L${W*.6} ${H*.14} L${W*.8} ${H*.27} L${W} ${H*.2} V${H} H0Z" fill="#cfe0f2"/><rect y="${H*.32}" width="${W}" height="${H}" fill="${M[12].ground}"/>`;
   for(let i=0;i<30;i++)s+=`<text x="${R()*W}" y="${H*.32+R()*H*.68}" font-size="${14+R()*18}">${["🌲","⛄","🎄","🏠","🦌","🎁"][i%6]}</text>`;
   for(let i=0;i<40;i++)s+=`<circle r="${1+R()*2}" fill="#fff" cx="${R()*W}"><animate attributeName="cy" from="-5" to="${H}" dur="${6+R()*8}s" begin="-${R()*8}s" repeatCount="indefinite"/></circle>`;}
- if(m==13){let x=0;while(x<W){const w=30+R()*60,h=H*(.08+R()*.18);s+=`<rect x="${x}" y="${H*.32-h}" width="${w}" height="${h}" fill="#0a0410"/>`;for(let k=0;k<6;k++)s+=`<rect x="${x+4+R()*(w-8)}" y="${H*.32-h+6+R()*(h-10)}" width="3" height="4" fill="#ffd34d" opacity=".7"/>`;x+=w}
-  s+=`<rect y="${H*.32}" width="${W}" height="${H}" fill="${M[13].ground}"/><text x="${W/2}" y="${H*.3}" text-anchor="middle" font-size="12" fill="#ff4fa3" letter-spacing="4">TIMES SQUARE · THEATER DISTRICT</text>`;
-  ["RHONY","RHOBH","PUMP RULES","BELOW DECK","SUMMER HOUSE","SOUTHERN CHARM","WWHL","TOP CHEF"].forEach((t,i)=>{const x=(i+.5)*W/8,y=H*.36+R()*H*.55;s+=`<g opacity=".55"><rect x="${x-34}" y="${y-12}" width="68" height="18" rx="3" fill="#2a0a1a" stroke="#ffd34d"/><text x="${x}" y="${y+1}" font-size="9" text-anchor="middle" fill="#ffd34d">${t}</text></g>`});
-  for(let i=0;i<10;i++)s+=`<circle r="40" fill="#fff" opacity=".05" cx="${R()*W}" cy="${R()*H*.3}"><animate attributeName="opacity" values=".02;.12;.02" dur="${2+R()*3}s" repeatCount="indefinite"/></circle>`}
  if(m==14){for(let i=0;i<9;i++)s+=`<ellipse cx="${R()*W}" cy="${H*(.05+R()*.3)}" rx="${50+R()*70}" ry="${18+R()*14}" fill="#fff" opacity=".55"><animate attributeName="cx" values="${R()*W};${R()*W};" dur="${30+R()*30}s" repeatCount="indefinite"/></ellipse>`;
   s+=`<circle cx="${W*.78}" cy="${H*.13}" r="${H*.05}" fill="#fff5fa"/><path d="M0 ${H*.36} Q${W*.25} ${H*.28} ${W*.5} ${H*.34} T${W} ${H*.32} V${H} H0Z" fill="${M[14].ground}"/>`;
   for(let i=0;i<26;i++)s+=`<text x="${R()*W}" y="${H*.36+R()*H*.64}" font-size="${14+R()*16}" opacity=".85">${["🌹","💗","🌸","🦋","🏰","☁️"][i%6]}</text>`;
   for(let i=0;i<12;i++)s+=`<text font-size="16" x="${R()*W}"><animate attributeName="y" from="${H}" to="-20" dur="${9+R()*8}s" begin="-${R()*8}s" repeatCount="indefinite"/>💖</text>`}
  return s}
+// ---- pinch/drag zoom for map months (manipulates the SVG viewBox)
+let ZV=null,ZF=null;
+function applyZ(){const s=document.getElementById('msvg');if(s&&ZV)s.setAttribute('viewBox',ZV.join(' '))}
+function zoomFit(){ZV=ZF.slice();applyZ()}
+function zoomBy(f,cx,cy){if(!ZV)return;const[x,y,w,h]=ZV;if(cx==null){cx=x+w/2;cy=y+h/2}const nw=Math.min(ZF[2]*1.2,Math.max(ZF[2]/12,w/f)),r=nw/w;ZV=[cx-(cx-x)*r,cy-(cy-y)*r,nw,h*r];applyZ()}
+function svgPt(s,e){const r=s.getBoundingClientRect(),[x,y,w,h]=ZV,sc=Math.min(r.width/w,r.height/h),ox=(r.width-w*sc)/2,oy=(r.height-h*sc)/2;return[x+(e.clientX-r.left-ox)/sc,y+(e.clientY-r.top-oy)/sc,sc]}
+let ZK='';function setupZoom(W,H){const k=cur+'|'+W+'|'+H;ZF=[0,0,W,H];if(k!==ZK||!ZV){ZV=ZF.slice();ZK=k}applyZ();const s=document.getElementById('msvg'),pts=new Map();let moved=0,start=null,pd=0;
+ s.addEventListener('pointerdown',e=>{pts.set(e.pointerId,e);moved=0;start=[e.clientX,e.clientY];if(pts.size==2){const[a,b]=[...pts.values()];pd=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}});
+ s.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const prev=pts.get(e.pointerId);pts.set(e.pointerId,e);
+  if(pts.size==1){const dx=e.clientX-prev.clientX,dy=e.clientY-prev.clientY;if(Math.hypot(e.clientX-start[0],e.clientY-start[1])>6)moved=1;if(moved){const sc=svgPt(s,e)[2];ZV[0]-=dx/sc;ZV[1]-=dy/sc;applyZ()}}
+  else if(pts.size==2){moved=1;const[a,b]=[...pts.values()],nd=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);if(pd){const m={clientX:(a.clientX+b.clientX)/2,clientY:(a.clientY+b.clientY)/2},p=svgPt(s,m);zoomBy(nd/pd,p[0],p[1])}pd=nd}});
+ const up=e=>{pts.delete(e.pointerId);pd=0};s.addEventListener('pointerup',up);s.addEventListener('pointercancel',up);
+ s.addEventListener('click',e=>{if(moved){e.stopPropagation();e.preventDefault();moved=0}},true);
+ s.addEventListener('wheel',e=>{e.preventDefault();const p=svgPt(s,e);zoomBy(e.deltaY<0?1.2:1/1.2,p[0],p[1])},{passive:false})}
 // ---- close-up street view
 function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[d-1];
  document.getElementById('ttl').textContent=`${T.name} ${d} · ${spot}`;
@@ -134,14 +146,14 @@ function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[
  const g=T.sky;let h=`<div style="position:absolute;inset:0;background:linear-gradient(${g[0]},${g[1]})"></div>`;
  // far layer, mid layer, ground + props unique per day (seeded)
  const far=[],mid=[];
- const farSet={10:["🏛️","🏚️","⛪","🏰"],11:["🌳","🏡","🌲","🛖"],12:["🏔️","🌲","🏠","⛪"],13:["🏙️","🎭","🏢","🌃"],14:["🏰","☁️","🌈","🎠"],15:["🏘️","🏛️","🏢","🍺"]}[m];
+ const farSet={10:["🏛️","🏚️","⛪","🏰"],11:["🌳","🏡","🌲","🛖"],12:["🏔️","🌲","🏠","⛪"],14:["🏰","☁️","🌈","🎠"],15:["🏘️","🏛️","🏢","🍺"]}[m]||T.far||T.props;
  for(let i=0;i<8;i++)far.push(`<span class="p" style="left:${i*13+R()*5}%;bottom:${48+R()*6}%;font-size:${60+R()*50}px;opacity:.55;filter:${m==10?'brightness(.35) hue-rotate(250deg)':'none'}">${farSet[Math.floor(R()*4)]}</span>`);
  for(let i=0;i<7;i++)mid.push(`<span class="p" style="left:${R()*100}%;bottom:${22+R()*18}%;font-size:${40+R()*40}px">${T.props[Math.floor(R()*T.props.length)]}</span>`);
  h+=`<div class="layer" data-k="8" style="top:0">${m==10?`<div class="p" style="right:15%;top:10%;width:90px;height:90px;border-radius:50%;background:#f5eec0;box-shadow:0 0 60px #f5eec0"></div>`:m==11?`<div class="p" style="left:12%;top:12%;width:100px;height:100px;border-radius:50%;background:#ffd98a;box-shadow:0 0 80px #ffb347"></div>`:''}${far.join('')}</div>`;
  h+=`<div class="layer" data-k="20" style="top:0">${mid.join('')}</div>`;
  h+=`<div class="layer" data-k="35" style="height:30%;background:linear-gradient(${T.path},${T.ground});border-top:6px solid rgba(255,255,255,.12)"></div>`;
  // animated ambient: flying/falling things + lamp flicker
- const amb={10:"🦇",11:"🍂",12:"❄️",13:"✨",14:"🌸",15:"☘️"}[m];
+ const amb={10:"🦇",11:"🍂",12:"❄️",14:"🌸",15:"☘️"}[m]||T.amb||'✨';
  for(let i=0;i<14;i++){const fall=m!=10;h+=`<span class="p amb" style="font-size:${14+R()*18}px;left:${fall?R()*100:-10}%;top:${fall?-10:10+R()*40}%;animation:${fall?'fall':'fly'} ${6+R()*8}s linear ${-R()*10}s infinite">${amb}</span>`}
  h+=`<div class="p" style="left:18%;bottom:22%;font-size:60px;animation:flick 2.5s infinite">${m==10?'🕯️':m==11?'🏮':'🕯️'}</div><div class="p" style="right:16%;bottom:24%;font-size:70px">${T.props[d%T.props.length]}</div>`;
  h+=closeExtra(m,d,R);

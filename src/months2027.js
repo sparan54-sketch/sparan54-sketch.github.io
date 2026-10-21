@@ -1,39 +1,4 @@
 // ===== 2027 months (keys 13=Jan,14=Feb,15=Mar). Shown live only if key in LIVE (else ?wip=1)
-const THEATRES=["Majestic","Shubert","Broadhurst","Booth","Imperial","Winter Garden","Gershwin","Lyceum","Ambassador","Ethel Barrymore","Belasco","Hudson","Lunt-Fontanne","Minskoff","Nederlander","Neil Simon","New Amsterdam","Palace","Richard Rodgers","St. James","Al Hirschfeld","August Wilson","Circle in the Square","James Earl Jones","Eugene O'Neill","John Golden","Hayes","Longacre","Lyric","Marquis","Music Box"];
-const BRAVO=[
-["The Real Housewives of New York City","Bethenny Frankel · Luann de Lesseps · Ramona Singer · Sonja Morgan","“Money can't buy you class.”"],
-["The Real Housewives of Beverly Hills","Kyle Richards · Lisa Vanderpump · Lisa Rinna · Erika Jayne","Diamonds, dinner parties, and a reunion couch."],
-["The Real Housewives of Atlanta","NeNe Leakes · Kandi Burruss · Porsha Williams · Kenya Moore","“Close your legs to married men.” — NeNe"],
-["The Real Housewives of Salt Lake City","Lisa Barlow · Heather Gay · Whitney Rose · Meredith Marks","Snow, glam and mountain-high drama."],
-["The Real Housewives of Potomac","Gizelle Bryant · Karen Huger · Ashley Darby · Wendy Osefo","Etiquette, darling. The Grande Dame enters."],
-["The Real Housewives of Orange County","Vicki Gunvalson · Tamra Judge · Shannon Beador · Heather Dubrow","“Woo-hoo!” The OG franchise."],
-["The Real Housewives of New Jersey","Teresa Giudice · Melissa Gorga · Dolores Catania · Margaret Josephs","Table-flipping, family-style."],
-["The Real Housewives of Miami","Lisa Hochstein · Larsa Pippen · Alexia Nepola · Guerdy Abraira","Sun, yachts and Miami heat."],
-["The Real Housewives of Dubai","Caroline Stanbury · Chanel Ayan · Sara Al Madani · Lesa Milan","Desert glamour, sky-high."],
-["The Real Housewives of Dallas","D'Andra Simmons · Brandi Redmond · Kameron Westcott","Big hair, bigger drama (2016–2021)."],
-["Vanderpump Rules","Lisa Vanderpump · Ariana Madix · Tom Sandoval · James Kennedy","Now serving at SUR."],
-["Below Deck","Captain Lee Rosbach · Kate Chastain · Eddie Lucas","“Stew, a word?” All hands on deck."],
-["Below Deck Mediterranean","Captain Sandy Yawn · Hannah Ferrier (chief stew) · Malia White (bosun)","Charter season on the Med."],
-["Below Deck Sailing Yacht","Captain Glenn Shephard · Daisy Kelliher · Gary King","Sails up, drama up."],
-["Below Deck Down Under","Captain Jason Chambers · Aesha Scott","G'day from the bridge."],
-["Summer House","Kyle Cooke · Amanda Batula · Lindsay Hubbard · Carl Radke · Paige DeSorbo","Loverboy on tap in the Hamptons."],
-["Winter House","Kyle Cooke · Paige DeSorbo · Craig Conover","Ski lodge hookups."],
-["Southern Charm","Shep Rose · Craig Conover · Madison LeCroy · Austen Kroll · Patricia Altschul","Charleston manners, mostly."],
-["Southern Hospitality","Joe Bradley · Leva Bonaparte · Grace Lilly","Front of house at Republic."],
-["Married to Medicine","Dr. Simone Whitmore · Quad Webb · Toya Bush-Harris · Dr. Heavenly Kimes","Scrubs and scandal in Atlanta."],
-["Top Chef","Host Kristen Kish · Tom Colicchio · Gail Simmons (Padma Lakshmi hosted through 2023)","“Please pack your knives and go.”"],
-["Watch What Happens Live","Andy Cohen","Live from the Clubhouse. Shotski!"],
-["The Valley","Jax Taylor · Brittany Cartwright · Kristen Doute","Pump Rules, the suburbs edition."],
-["Shahs of Sunset","Reza Farahan · Mercedes “MJ” Javid · Golnesa “GG” Gharachedaghi","Persian glam on Sunset Blvd."],
-["Million Dollar Listing New York","Fredrik Eklund · Ryan Serhant · Steve Gold","High-kicks for closings."],
-["Million Dollar Listing Los Angeles","Josh Flagg · Josh Altman · Tracy Tutor","Hollywood Hills, open house."],
-["Ladies of London","Caroline Stanbury · Marissa Hermer · Julie Montagu","Tea, titles and tension."],
-["Family Karma","Brian Benni · Monica Vaswani · Vishal Parvani","Miami family, Indian-American style."],
-["Project Runway","Christian Siriano · Nina Garcia · Brandon Maxwell · Elaine Welteroth","Back on Bravo. “Make it work!”"],
-["BravoCon","Hosted by Andy Cohen","Every Housewife, one stage."],
-["RHOBH: The Reunion","Moderated by Andy Cohen","Sequins on the reunion couch."]];
-M[13]={name:"January",accent:"#ffd34d",stamp:"🥂",sky:["#120612","#3a0d3a"],ground:"#1a1015",path:"#2b1b2b",tile:"#6a0f2a",
- title:"Bravo Takes Broadway",spots:BRAVO.map((b,i)=>`${b[0]} · ${THEATRES[i]}`),props:["🥂","💎","🎭","📸","💄","👠","🍾","⭐","🎤","💅"]};
 M[14]={name:"February",accent:"#ff7eb6",stamp:"💘",sky:["#2a0f4a","#ff9ec7"],ground:"#f6c6e0",path:"#fff0f7",tile:"#b0306a",
  title:"A Valentine Dreamscape",
  spots:["Cloud Gate of Hearts","Rose-Petal River","Cotton Candy Clouds","Moonlit Swing","Floating Lantern Lake","Heart Balloon Ferry","Chocolate Waterfall","Love-Letter Library","Starlit Gondola","Pearl Staircase","Candy Heart Meadow","Crystal Rose Garden","Valentine's Eve Sky","Valentine's Day Palace","Dream Carousel","Silk Ribbon Bridge","Kiss-the-Moon Pier","Sugar-Glass Forest","Lullaby Lighthouse","Cupid's Archery Field","Velvet Night Bloom","Twin-Star Observatory","Strawberry Fields","Bubble Bath Lagoon","Paper Hearts Sky","Moonbeam Ballroom","Pink Aurora Peak","Sweet Dreams Cottage"],
@@ -65,65 +30,9 @@ function marchBoard(W0,H0){const T=M[15],U0=-1.78,U1=2.12,V0=-0.95,V1=0.92;
  P.forEach((p,i)=>{s+=`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="#ffd34d"/><line x1="${p[0]}" y1="${p[1]}" x2="${Q[i][0]}" y2="${Q[i][1]}" stroke="#ffd34d" stroke-width="1" opacity=".7"/>`});
  return {s,P:Q,ts,W,H}}
 
-// toy-brick-style minifigures (generic, show-themed; not likenesses)
-function minifig(o){const{x=0,sc=1,skin='#ffd23f',torso='#c2185b',legs='#222',hair='#5a3a1a',hat='',item='',flip=1}=o;
- const it={wine:'<g transform="translate(46,58)"><path d="M0 0 h10 l-2 10 h-6z" fill="#fff8" stroke="#fff"/><rect x="4" y="10" width="2" height="8" fill="#fff"/><path d="M1 2 h8 l-1 5 h-6z" fill="#8b0030"/></g>',
-  champ:'<g transform="translate(46,52)"><rect x="2" y="0" width="5" height="20" fill="#fff8" stroke="#fff"/><rect x="3" y="6" width="3" height="13" fill="#ffd34d"/></g>',
-  tray:'<g transform="translate(36,58)"><rect x="0" y="0" width="26" height="3" fill="#ccc"/><rect x="4" y="-10" width="5" height="10" fill="#ffd34d" opacity=".8"/><rect x="14" y="-12" width="6" height="12" fill="#e33" opacity=".7"/></g>',
-  shaker:'<g transform="translate(46,48)"><rect x="0" y="0" width="9" height="20" rx="2" fill="#cfd8dc" stroke="#90a4ae"/><rect x="2" y="-5" width="5" height="6" fill="#90a4ae"/></g>',
-  wheel:'<g transform="translate(42,52)"><circle cx="10" cy="10" r="10" fill="none" stroke="#8d5524" stroke-width="3"/><path d="M10 0v20M0 10h20M3 3l14 14M17 3L3 17" stroke="#8d5524" stroke-width="2"/></g>',
-  rope:'<g transform="translate(44,56)"><circle cx="8" cy="8" r="7" fill="none" stroke="#e0c08a" stroke-width="3"/></g>',
-  knife:'<g transform="translate(46,50)"><rect x="3" y="12" width="4" height="8" fill="#5d4037"/><path d="M3 12 L3 -6 L8 -2 L7 12z" fill="#eceff1"/></g>',
-  mic:'<g transform="translate(46,48)"><rect x="3" y="6" width="4" height="16" fill="#333"/><circle cx="5" cy="4" r="5" fill="#777"/></g>',
-  key:'<g transform="translate(44,56)"><circle cx="5" cy="5" r="5" fill="none" stroke="#ffd34d" stroke-width="3"/><rect x="9" y="4" width="12" height="3" fill="#ffd34d"/></g>',
-  scissors:'<g transform="translate(44,54)"><circle cx="4" cy="12" r="4" fill="none" stroke="#e91e63" stroke-width="2"/><circle cx="14" cy="12" r="4" fill="none" stroke="#e91e63" stroke-width="2"/><path d="M6 9 L14 -6 M12 9 L4 -6" stroke="#cfd8dc" stroke-width="2"/></g>',
-  purse:'<g transform="translate(44,60)"><path d="M3 4 q6 -10 12 0" fill="none" stroke="#333" stroke-width="2"/><rect x="0" y="4" width="18" height="12" rx="2" fill="#e91e63"/></g>',
-  }[item]||'';
- const hats={captain:'<rect x="11" y="-4" width="30" height="8" rx="2" fill="#fff"/><rect x="8" y="3" width="36" height="4" fill="#0d1b4c"/><circle cx="26" cy="0" r="2.5" fill="#ffd34d"/>',
-  chef:'<rect x="13" y="-14" width="26" height="16" rx="7" fill="#fff"/><rect x="13" y="-2" width="26" height="6" fill="#fff"/>',
-  tiara:'<path d="M14 2 l4 -8 l4 6 l4 -9 l4 9 l4 -6 l4 8z" fill="#ffd34d"/>',
-  cap:'<path d="M12 4 q14 -16 28 0z" fill="#1565c0"/><rect x="34" y="2" width="12" height="3" fill="#1565c0"/>',
-  bun:'<circle cx="26" cy="-3" r="7" fill="'+hair+'"/>'}[hat]||'';
- const hairSvg=hair?`<path d="M10 8 q16 -14 32 0 v6 h-32z" fill="${hair}"/>${hat?'':`<path d="M10 10 v18 h5 v-14z M42 10 v18 h-5 v-14z" fill="${hair}" opacity="${o.long?1:0}"/>`}`:'';
- return `<svg viewBox="-6 -18 64 118" width="${70*sc}" height="${129*sc}" style="position:absolute;left:${x}%;bottom:3%;z-index:6;filter:drop-shadow(0 6px 4px rgba(0,0,0,.5));animation:bob ${2.4+Math.random()}s ease-in-out infinite">
- <rect x="20" y="-1" width="12" height="5" rx="1" fill="${skin}"/>
- <rect x="10" y="3" width="32" height="27" rx="7" fill="${skin}"/>
- <circle cx="20" cy="15" r="2.2" fill="#111"/><circle cx="32" cy="15" r="2.2" fill="#111"/><path d="M19 21 q7 6 14 0" stroke="#111" stroke-width="2" fill="none"/>
- ${hairSvg}${hats}
- <rect x="21" y="30" width="10" height="4" fill="${skin}"/>
- <path d="M10 34 h32 l5 30 h-42z" fill="${torso}"/><rect x="24" y="38" width="4" height="22" fill="#0002"/>
- <path d="M10 35 l-7 24 l6 2 l6 -20z M42 35 l7 24 l-6 2 l-6 -20z" fill="${torso}"/>
- <path d="M0 61 a5 5 0 1 0 9 1 l-3 0 a2 2 0 1 1 -3 -1z" fill="${skin}"/><path d="M44 61 a5 5 0 1 0 9 1 l-3 0 a2 2 0 1 1 -3 -1z" fill="${skin}"/>
- <rect x="5" y="64" width="42" height="7" fill="${legs}"/><rect x="6" y="71" width="19" height="25" fill="${legs}"/><rect x="27" y="71" width="19" height="25" fill="${legs}"/><rect x="25" y="71" width="2" height="12" fill="#0003"/>
- ${it}</svg>`}
-const SKINS=['#ffd23f','#f1c27d','#c68642','#8d5524','#ffdbac','#e0ac69'];
-function bravoCrew(d){const i=d-1,R=rnd(777+d),sk=()=>SKINS[Math.floor(R()*SKINS.length)],hc=()=>['#2b1a0e','#d8b04a','#111','#7a2e0e','#e8d6a0','#5a3a1a'][Math.floor(R()*6)];
- let type=i<10||i==30?'hw':i==10?'vpr':i<15?'boat':i<17?'house':i==17?'charm':i==18?'hosp':i==19?'med':i==20?'chef':i==21?'talk':i==22?'vpr':i==23?'hw':i<26?'realty':i==26?'hw':i==27?'house':i==28?'fashion':'talk';
- const glam=['#c2185b','#7b1fa2','#d4af37','#e91e63','#111','#00897b','#b71c1c'];
- const cfg={hw:()=>({torso:glam[Math.floor(R()*7)],legs:'#222',item:R()<.6?'wine':'purse',hat:R()<.3?'tiara':'',long:1}),
-  vpr:()=>({torso:'#111',legs:'#111',item:R()<.5?'shaker':'tray',long:R()<.5?1:0}),
-  boat:()=>({torso:'#fff',legs:'#0d1b4c',item:['wheel','rope','tray'][Math.floor(R()*3)],hat:R()<.4?'captain':'cap'}),
-  house:()=>({torso:['#4fc3f7','#ff8a65','#aed581','#f06292'][Math.floor(R()*4)],legs:'#795548',item:R()<.5?'champ':'wine',hat:R()<.3?'cap':'',long:R()<.5?1:0}),
-  charm:()=>({torso:['#fce4ec','#bbdefb','#c8e6c9'][Math.floor(R()*3)],legs:'#e0d5b5',item:'wine',long:R()<.5?1:0}),
-  hosp:()=>({torso:'#111',legs:'#111',item:'tray',long:R()<.5?1:0}),
-  med:()=>({torso:'#fff',legs:'#4db6ac',item:R()<.5?'wine':'purse',long:R()<.6?1:0}),
-  chef:()=>({torso:'#fff',legs:'#333',item:'knife',hat:'chef'}),
-  talk:()=>({torso:['#1565c0','#6a1b9a','#c62828'][Math.floor(R()*3)],legs:'#263238',item:R()<.5?'mic':'champ'}),
-  realty:()=>({torso:'#263238',legs:'#263238',item:'key'}),
-  fashion:()=>({torso:['#111','#e91e63','#ffeb3b'][Math.floor(R()*3)],legs:'#111',item:'scissors',hat:R()<.4?'bun':'',long:R()<.5?1:0})}[type];
- const xs=[0,15,63,79];return xs.map((x,k)=>minifig(Object.assign({x,sc:.95+R()*.25,skin:sk(),hair:hc(),flip:k<2?1:-1},cfg()))).join('')}
-
 // --- per-month close-up extras
 function closeExtra(m,d,R){
- if(m==13){const b=BRAVO[d-1],th=THEATRES[d-1];
-  return `<div class="p" style="left:50%;top:30%;transform:translateX(-50%);width:min(92vw,520px);text-align:center;z-index:2">
-  <div style="background:#1b0a10;border:6px solid #ffd34d;border-radius:10px;padding:10px 12px;box-shadow:0 0 30px #ffb300,inset 0 0 18px #ff9d00">
-   <div class="bulbs"></div><div style="font:700 13px Georgia;letter-spacing:3px;color:#ffd34d">THE ${th.toUpperCase()} THEATRE · NOW PLAYING</div>
-   <div style="font:900 clamp(18px,5vw,30px) Georgia;color:#fff;text-shadow:0 0 10px #ff4fa3;margin:4px 0">${b[0]}</div>
-   <div style="font:italic 13px Georgia;color:#ffd9f0">${b[2]}</div></div></div>
-  <div class="p" style="right:4%;bottom:6%;width:120px;z-index:6;background:#fff;color:#111;border-top:22px solid #ffd34d;padding:6px;font:10px/1.3 Georgia;transform:rotate(6deg);box-shadow:0 8px 18px rgba(0,0,0,.6)">
-   <div style="font-weight:900;letter-spacing:2px;margin-top:-20px;color:#111">PLAYBILL</div><b>${b[0]}</b><br><i>Starring</i><br>${b[1].split(' · ').join('<br>')}</div>
-  <div class="p" style="left:0;right:0;bottom:30%;height:6px;background:repeating-linear-gradient(90deg,#ffd34d 0 8px,transparent 8px 16px);animation:chase 1s linear infinite"></div>`+bravoCrew(d)}
+ if(M[m].extra)return M[m].extra(d,R);
  if(m==14)return `<div class="p" style="inset:0;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.35),transparent 60%);animation:fog 5s ease-in-out infinite"></div>`+Array.from({length:12},()=>`<span class="p" style="left:${R()*100}%;bottom:-10%;font-size:${18+R()*26}px;animation:rise ${7+R()*7}s linear ${-R()*10}s infinite">${["💖","💗","💕","🎈"][Math.floor(R()*4)]}</span>`).join('')+(d==14?`<div class="p" style="left:0;right:0;top:44%;text-align:center;font:900 30px Georgia;color:#fff;text-shadow:0 0 18px #ff2f7a">Happy Valentine's Day</div>`:'');
  if(m==15){const b=BARS[d-1];return `<div class="p" style="left:50%;top:32%;transform:translateX(-50%);z-index:2;text-align:center;background:#0b2a14;border:5px solid #c9a227;border-radius:12px;padding:10px 18px;box-shadow:0 0 24px #3ddc6b">
   <div style="font:900 clamp(20px,6vw,34px) Georgia;color:#3ddc6b;text-shadow:0 0 12px #3ddc6b;animation:flick 3s infinite">${b[0]}</div><div style="font:13px Georgia;color:#f5e6b8">${b[1]} · Philadelphia</div>
