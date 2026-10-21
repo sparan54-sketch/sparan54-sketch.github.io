@@ -29,6 +29,7 @@ ul{list-style:none;padding:0;margin:8px 0 0}li{display:flex;gap:8px;align-items:
 li b{min-width:70px;color:var(--accent)}li span{flex:1}li button{background:none;border:0;color:#f88;cursor:pointer;font-size:16px}
 #back{position:absolute;left:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:9}
 .p{position:absolute;pointer-events:none}
+#scene.photo>*:not(.bdimg):not(.figs):not(.pcap){display:none!important}#scene .bdimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;z-index:2}#scene.photo .figs{z-index:5}#scene .pcap{position:absolute;left:50%;top:20%;transform:translateX(-50%);z-index:8;text-align:center;width:min(90vw,520px);color:#fff;background:rgba(0,0,0,.55);border:3px solid var(--accent);border-radius:14px;padding:8px 12px}#scene.photo .figs img{height:min(30vh,44vw)}
 </style></head><body>
 <div id="tabs"></div><div id="board"></div>
 <div id="close"><div id="scene"></div>
@@ -163,6 +164,10 @@ function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[
  h+=`<div class="figs"><img src="${HIM}" alt="Him"><img src="${HER}" alt="Her"></div>`;
  if(m==10)h+=`<div class="p" style="inset:0;background:radial-gradient(ellipse at 50% 70%,transparent 30%,rgba(10,0,20,.75));animation:fog 6s ease-in-out infinite"></div>`;
  const sc=document.getElementById('scene');sc.innerHTML=h;
+ {const [yy,mo]=ym(m),ds=`${yy}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`,im=new Image();sc.classList.remove('photo');
+  im.onload=()=>{if(openDay!==d||cur!==m)return;im.className='bdimg';im.alt='';sc.appendChild(im);const T2=M[m],D2=T2.days&&T2.days[d-1],cap=(T2.photoCap&&T2.photoCap[d-1])||(T2.caps&&T2.caps[d-1])||(D2?D2[1]:'');
+   sc.insertAdjacentHTML('beforeend',`<div class="pcap"><div style="font:900 clamp(18px,5vw,26px) Georgia">${T2.spots[d-1]}</div>${cap?`<div style="font:italic 700 clamp(14px,3.8vw,17px) Georgia;margin-top:4px">${typeof capFix=='function'?capFix(cap):cap}</div>`:''}</div>`);sc.classList.add('photo')};
+  let tried=0;im.onerror=()=>{if(tried++)return;fetch(`assets/backdrops/${ds}.jpg.b64`).then(r=>r.ok?r.text():Promise.reject()).then(t=>{im.src=t.trim()}).catch(()=>{})};im.src=`assets/backdrops/${ds}.jpg`}
  document.getElementById('close').classList.add('open');document.getElementById('f').classList.remove('on');list();
 }
 function list(){const items=(data[key(cur,openDay)]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
