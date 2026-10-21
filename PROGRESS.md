@@ -44,3 +44,9 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Layouts (all different): Oct'26 serpentine · Nov'26 Monopoly square loop · Dec spiral · Jan real Philly map · Feb heart · Mar real Old City map · Apr ring · May steam columns · Jun figure-eight · Jul star · Aug zigzag mountain climb · Sep world route · Oct'27 double orbit · Nov'27 platformer levels.
 - Nov 2027 (key 23, 30 days, starts Mon): original pixel-platformer world — pipes, ? blocks, mushroom village, desert, underwater, clouds, ice, lava castle, dragon finale; unique titles every day. No franchise characters or logos.
 - LIVE: 10–23.
+
+## Round 5 (2026-10-21)
+- Jan + Mar: rebuilt as single to-scale maps from real OpenStreetMap geometry (Overpass: roads + water), no inset, fit-to-map default, zoom. All 31 food + 31 bar addresses re-geocoded via Nominatim; Jan reordered into a route (Roxborough → N Philly → NE → Fishtown → Old City → Reading Terminal → South St → Italian Market → Passyunk → Oregon/Snyder).
+- Oct 21–31, Nov, Dec 2026: every close-up has its own backdrop scene + caption + props (months_2026.js).
+- Aug: couple moved to a summit spot under the subtitle.
+- Dec 2027 (key 24): Christmas + beer winter activities, 🍺 stamp, snowflake layout. LIVE 10–24.
