@@ -22,3 +22,4 @@ function moment(k,d,R){const D=MO[k]&&MO[k][d-1];if(!D)return'';const T=M[k],kin
  `<span class="p" style="left:50%;bottom:46%;transform:translateX(-50%);font-size:min(14vh,20vw);z-index:6;animation:bob 1.6s ease-in-out infinite">${act}</span>`+
  `<div class="p" style="left:50%;top:22%;transform:translateX(-50%);z-index:8;text-align:center;width:min(90vw,520px);background:rgba(0,0,0,.6);border:3px solid ${T.accent};border-radius:14px;padding:8px 12px"><div style="font:900 clamp(18px,5vw,26px) Georgia;color:#fff">${T.spots[d-1]}</div><div style="font:italic 700 clamp(14px,3.8vw,17px) Georgia;color:#fff;margin-top:4px">${capFix(cap)}</div></div></div>`}
 [10,11,12].forEach(k=>{if(!M[k])return;const old=M[k].extra;M[k].extra=(d,R)=>MO[k][d-1]?moment(k,d,R):(old?old(d,R):'')});
+if(M[10]){M[10].photoCap=M[10].photoCap||[];M[10].photoCap[0]="Creepin' down a foggy haunted alley in the dead of night"}
