@@ -21,3 +21,8 @@ Next months (Apr 2027+ = key 16+): add config to months2027.js (or a new file) ,
 
 Note: the GitHub MCP file tool decodes HTML entities (&amp; etc.) – never put literal entities in source.
 Source files: src/app.src.html (+ src/months2027.js injected at /*__M2027__*/).
+
+## Fact-check pass (Oct 21 2026)
+- March bars verified open via web (Inquirer, PhillyMag, official sites, Visit Philly); replaced closed: Sugar Mom's (closed 2013) -> The Victoria Freehouse; Mac's Tavern (closed 2025) -> The Monto (same address); Dark Horse (closed) -> Cavanaugh's Headhouse (same address); The Irish Pub (closed 2019/2020) -> Finn McCool's; McGlinchey's (closed 2025) -> Tír na nÓg; The Black Sheep (fire, May 2026) -> The Goat Rittenhouse; The Bards (closed 2020) -> Molly Malloy's; Doobies (closed) -> The Twisted Tail. Moved: Cavanaugh's Rittenhouse -> 1921 Sansom; City Tap Logan -> 100 N 18th St.
+- March map: OSM Nominatim coords, projected to km and rotated 9.2° to the street grid; streets/avenues placed from geocoded addresses (7th & Pine interpolated). Tiles nudged off true spot when crowded, with a leader line to a gold dot at the true spot.
+- January: casts checked on Bravo/Wikipedia; fixes listed in commit. Minifig-style generic crew per show added (SVG, no logos).
