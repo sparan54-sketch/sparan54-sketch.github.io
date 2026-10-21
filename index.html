@@ -246,7 +246,7 @@ TM(24,{name:"December",accent:"#ffcf3f",stamp:"🍺",sky:["#0b1d3a","#3a6ea5"],g
  days:[["Snowmobile Tailgate","Cold lagers on parked snowmobiles at the trailhead","🛷🍺❄️🌲"],["Ski Lift Toast","Clinking cans halfway up the chairlift","🚡🍺🏔️❄️"],["Après-Ski Lodge","Boots off, pints up by the fireplace","🎿🍻🔥🪵"],["Ice Bar","Drinks served on a bar carved from ice","🧊🍺🧊✨"],["Hot Tub in the Snow","Steaming water, snowflakes and stouts","♨️🍺❄️🌙"],["Sledding Hill","A thermos of cocoa porter at the bottom","🛷🍺⛄😆"],["Snowboard Park","Watching tricks on the halfpipe with a beer","🏂🍺🏔️🎶"],["Cross-Country Trail","A trailside hut pouring winter ales","🎿🍺🌲🛖"],["Ice Fishing Shanty","Lines in the hole and cans on the cooler","🎣🍺🧊🐟"],["Christmas Market","Mulled beer and pretzels between the stalls","🎄🍺🥨🎪"],["Brewery Tree Lighting","A tree made of kegs lights up","🎄🛢️🍺✨"],["Snowshoe Hike","Snowshoes, a summit view and a toast","🥾🍺🏔️❄️"],["Dog Sled Ride","Huskies race us to a cabin with beer","🐕‍🦺🛷🍺🌲"],["Igloo Night","Lantern-lit igloo with winter warmers","🛖🍺🕯️❄️"],["Ice Skating Pond","Laps on the pond, then a pint by the fire barrel","⛸️🍺🔥❄️"],["Ugly Sweater Pub Crawl","Matching terrible sweaters, bar to bar","🧶🍻🎄😂"],["Snowball Fight Break","Truce called for a round of lagers","⛄🍺❄️🏳️"],["Gondola Ride","A cabin in the clouds with craft beer","🚠🍺☁️🏔️"],["Fat-Tire Bike Ride","Snowy trails and a brewery finish line","🚲🍺❄️🏁"],["Tubing Run","Spinning down the lanes, then a can at the top","🛟🍺🏔️😆"],["Winter Solstice Bonfire","The longest night around the fire","🔥🍺🌌🪵"],["Sleigh Ride","Jingle bells, blankets and a growler","🛷🐴🍺🔔"],["Cabin Beer Tasting","A flight of holiday ales by the woodstove","🏡🍻🔥📋"],["Christmas Eve Toast","Stockings hung, Santa's milk swapped for a stout","🎅🍺🧦🌙"],["Christmas Morning","Presents, pancakes and a festive brunch beer","🎁🍺🥞🎄"],["Polar Plunge","A quick dip, then warm towels and a beer","🥶🌊🍺🧣"],["Backcountry Ski","Fresh powder and a summit sip","⛷️🍺🏔️❄️"],["Curling Night","Sweeping stones between rounds","🥌🍺🧹🧊"],["Snow Sculpture Contest","Carving a giant beer-mug snowman","⛄🍺🔨🏆"],["Lantern Ski Parade","Torchlight down the mountain at night","🔦⛷️🍺🌌"],["New Year's Eve Pub","Countdown with a champagne-beer toast","🍻🎆🕛🥂"]]});
 {const ex=M[24].extra;M[24].extra=(d,R)=>{let s=ex(d,R);s+=`<div class="p" style="left:-10%;right:-10%;bottom:18%;height:22%;background:radial-gradient(ellipse at 50% 100%,#fff,#dbeeff);border-radius:50% 50% 0 0;z-index:1"></div>`;for(let i=0;i<30;i++)s+=`<span class="p" style="left:${R()*100}%;top:-8%;font-size:${12+R()*14}px;animation:fall ${6+R()*6}s linear ${-R()*8}s infinite">❄️</span>`;s+=`<div class="p" style="left:50%;top:13%;transform:translateX(-50%);font:900 13px Georgia;color:#fff;background:#b3202a;border-radius:20px;padding:3px 12px;z-index:3">🍺 Winter activity ${d} of 31 · drink responsibly</div>`;return s}}
 // ===== Drawn-scene library (400x300 SVG). Settings, props, foreground pieces, renderer.
-const capFix=c=>{c=c.replace(/^That's us,?\s*/,'').replace(/[.]$/,'');let done=0;c=c.replace(/\b(\w{2,}?)ing\b/g,(m,w)=>{if(done||/^(morn|even|th|k|spr|r|w|ceil|build|s|br|cl|st|sw|str|n|K|Sp|R|W)$/i.test(w))return m;done=1;return w+"in'"});return c.charAt(0).toUpperCase()+c.slice(1)};
+const capFix=c=>{c=c.replace(/^That's us,?\s*/,'').replace(/[.]$/,'');let done=/^\w+in'/.test(c)?1:0;c=c.replace(/\b(\w{2,}?)ing\b/g,(m,w)=>{if(done||/^(morn|even|th|k|spr|r|w|ceil|build|s|br|cl|st|sw|str|n|K|Sp|R|W)$/i.test(w))return m;done=1;return w+"in'"});return c.charAt(0).toUpperCase()+c.slice(1)};
 const A={};
 A.sky=(a,b,id='g')=>`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="400" height="300" fill="url(#${id})"/>`;
 A.stars=(n=40)=>Array.from({length:n},(_,i)=>`<circle cx="${(i*73)%400}" cy="${(i*37)%140}" r="${i%3?.8:1.5}" fill="#fff"><animate attributeName="opacity" values="1;.3;1" dur="${2+i%4}s" repeatCount="indefinite"/></circle>`).join('');
@@ -660,6 +660,35 @@ if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[1]="Pullin' skewers o
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[4]="Tearin' into laffa and hummus at Zahav"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[14]="Bringin' our own wine to Illata"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[16]="Slurpin' coastal seafood at Little Water"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[1]="Sharin' an umbrella in the April showers"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[2]="Strollin' the rainbow rows of the tulip fields"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[3]="Chasin' butterflies through the garden arch"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[4]="Waterin' the hanging flowers in the greenhouse"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[5]="Climbin' the daffodil hill to the big oak"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[6]="Spottin' a rainbow after the rain"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[7]="Visitin' the beehives in the wildflower meadow"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[8]="Watchin' the lilies bloom on the pond"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[9]="Walkin' under the wisteria arbor"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[10]="Plantin' seeds in the garden beds"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[11]="Spreadin' out a spring picnic under the blossoms"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[12]="Strollin' the magnolia walk"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[13]="Peekin' at a robin's nest full of blue eggs"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[14]="Pickin' a bouquet at the flower market"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[15]="Flyin' kites on a breezy hill"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[16]="Smellin' the hyacinths along the garden border"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[17]="Watchin' a duckling parade by the willow"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[18]="Walkin' through the morning dew in the sunlit woods"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[19]="Steppin' through the rose-covered garden gate"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[20]="Splashin' in rain puddles in our yellow boots"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[21]="Plantin' a tree for Earth Day"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[22]="Wanderin' the lavender rows at sunset"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[23]="Strollin' the misty spring orchard"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[24]="Huntin' Easter eggs in the meadow"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[25]="Walkin' the bluebell woods path"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[26]="Discoverin' a tiny fairy garden village"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[27]="Checkin' on the sunflower sprouts at sunrise"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[28]="Explorin' the glass botanical conservatory"}
+if(M[16]){M[16].photoCap=M[16].photoCap||[];M[16].photoCap[29]="Watchin' the spring sunset by the lone tree"}
 // ===== More settings + landmarks for drawn months
 const ST={
  dream:(o={})=>A.sky(o.a||'#ff9ec7',o.b||'#ffe3f0')+A.cloud(70,60,1.4)+A.cloud(300,90,1.8)+A.cloud(200,40,1)+`<path d="M250 230 V150 h14 v-20 l10 -14 10 14 v20 h14 v-30 l10 -14 10 14 v44 h14 v80Z" fill="#fff0f7" stroke="#ffb3d1" stroke-width="2"/>`+A.ground(o.g||'#ffd1e6',230),

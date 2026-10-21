@@ -1,5 +1,5 @@
 // ===== Drawn-scene library (400x300 SVG). Settings, props, foreground pieces, renderer.
-const capFix=c=>{c=c.replace(/^That's us,?\s*/,'').replace(/[.]$/,'');let done=0;c=c.replace(/\b(\w{2,}?)ing\b/g,(m,w)=>{if(done||/^(morn|even|th|k|spr|r|w|ceil|build|s|br|cl|st|sw|str|n|K|Sp|R|W)$/i.test(w))return m;done=1;return w+"in'"});return c.charAt(0).toUpperCase()+c.slice(1)};
+const capFix=c=>{c=c.replace(/^That's us,?\s*/,'').replace(/[.]$/,'');let done=/^\w+in'/.test(c)?1:0;c=c.replace(/\b(\w{2,}?)ing\b/g,(m,w)=>{if(done||/^(morn|even|th|k|spr|r|w|ceil|build|s|br|cl|st|sw|str|n|K|Sp|R|W)$/i.test(w))return m;done=1;return w+"in'"});return c.charAt(0).toUpperCase()+c.slice(1)};
 const A={};
 A.sky=(a,b,id='g')=>`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="400" height="300" fill="url(#${id})"/>`;
 A.stars=(n=40)=>Array.from({length:n},(_,i)=>`<circle cx="${(i*73)%400}" cy="${(i*37)%140}" r="${i%3?.8:1.5}" fill="#fff"><animate attributeName="opacity" values="1;.3;1" dur="${2+i%4}s" repeatCount="indefinite"/></circle>`).join('');
