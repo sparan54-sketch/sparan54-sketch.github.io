@@ -11,9 +11,13 @@ Test: `python3 -m http.server 8765` then `venv/bin/python test_sync.py <url> <mo
 
 ## Status
 - [x] Oct, Nov, Dec 2026 – live
-- [ ] Jan 2027 Bravo on Broadway (key 13)
-- [ ] Feb 2027 Valentine dreamscape (key 14)
-- [ ] Mar 2027 St. Patrick's Philly bar hop on street map (key 15)
+- [x] Jan 2027 Bravo on Broadway (key 13) – live, stamp 🥂, marquee + playbill per day (31 real Bravo shows/casts at 31 real Broadway theatres)
+- [x] Feb 2027 Valentine dreamscape (key 14) – live, stamp 💘, Feb 14 = Valentine's Day Palace
+- [x] Mar 2027 St. Patrick's Philly bar hop (key 15) – live, stamp ☘️, simplified Center City street grid, 31 real bars at approx. real spots, Mar 17 = McGillin's
+- Live sync verified on https://sparan54-sketch.github.io/ (two browsers, add + delete)
 
 ## Next steps
-Add next month config to M in app.src.html, test with ?wip=1, add key to LIVE list in build, push index.html + sources, verify live sync.
+Next months (Apr 2027+ = key 16+): add config to months2027.js (or a new file) , test with ?wip=1, add key to LIVE list in build, push index.html + sources, verify live sync.
+
+Note: the GitHub MCP file tool decodes HTML entities (&amp; etc.) – never put literal entities in source.
+Source files: src/app.src.html (+ src/months2027.js injected at /*__M2027__*/).

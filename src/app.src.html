@@ -58,6 +58,7 @@ const M={
   spots:["Snowy Gate","Pine Grove","Ice Rink","Cocoa Hut","Tree Lot","Candy Cane Lane","Gingerbread Row","Frozen Pond","Sleigh Barn","Lantern Bridge","Snowman Field","Toy Shop","Cabin in the Snow","Reindeer Paddock","Carol Corner","Wreath Market","Ornament Stall","Mitten Mill","North Wind Hill","Twinkle Tunnel","Solstice Night","Stocking Mantel","Cookie Kitchen","Christmas Eve","Christmas Morning","Wrapping Room","Sledding Hill","Ice Palace","Starry Ridge","Midnight Fireworks","New Year's Eve"],
   props:["❄️","⛄","🎁","🦌","🔔","⭐","🎄","🕯️","🧣","🍪"]}
 };
+/*__M2027__*/
 const WIP=new URLSearchParams(location.search).has('wip');
 const ym=k=>k>12?[2027,k-12]:[2026,k]; const nowK=(TODAY.getFullYear()-2026)*12+TODAY.getMonth()+1;
 const SHOW=Object.keys(M).map(Number).filter(k=>WIP||LIVE.includes(k)).sort((a,b)=>a-b);
@@ -84,23 +85,24 @@ function path(n,W,H){const pts=[],rows=Math.ceil(n/7),top=H*.2,bot=H*.93;
 function render(){
  const m=cur,T=M[m];document.documentElement.style.setProperty('--accent',T.accent);
  document.getElementById('tabs').innerHTML=SHOW.map(k=>`<button class="${k==m?'on':''}" onclick="cur=${k};render()">${M[k].name}${k>12?' ’27':''}</button>`).join('');
- const W=innerWidth,H=innerHeight,n=dim(m),pts=path(n,W,H),R=rnd(m*99),ts=Math.min(W/9,(H*.7)/(Math.ceil(n/7))*.55,92);
+ let W=innerWidth,H=innerHeight;const n=dim(m),R=rnd(m*99);let pts,ts,mb;
+ if(T.map){W=Math.max(W,900);H=Math.max(H,640);mb=marchBoard(W,H);pts=mb.P;ts=mb.ts}else{pts=path(n,W,H);ts=Math.min(W/9,(H*.7)/(Math.ceil(n/7))*.55,92)}
  let s=`<svg viewBox="0 0 ${W} ${H}"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.sky[0]}"/><stop offset="1" stop-color="${T.sky[1]}"/></linearGradient>
  <filter id="glow"><feGaussianBlur stdDeviation="4"/></filter></defs><rect width="${W}" height="${H}" fill="url(#sk)"/>`;
- s+=scenery(m,W,H,R);
- s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${T.path}" stroke-width="${ts*.9}" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>
+ s+=T.map?mb.s:scenery(m,W,H,R);
+ s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${T.path}" stroke-width="${T.map?4:ts*.9}" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>
  <polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-dasharray="6 9"/>`;
  s+=`<text x="${W/2}" y="${H*.12}" text-anchor="middle" font-size="${Math.min(W/14,40)}" font-weight="700" fill="#fff" style="paint-order:stroke" stroke="rgba(0,0,0,.5)" stroke-width="4">${T.name} ${ym(m)[0]}</text>
  <text x="${W/2}" y="${H*.12+22}" text-anchor="middle" font-size="14" fill="${T.accent}" font-style="italic">${T.title}</text>`;
  pts.forEach(([x,y],i)=>{const d=i+1,ev=(data[key(m,d)]||[]).length,today=isToday(m,d);
-  s+=`<g class="tile" onclick="openClose(${d})"><rect x="${x-ts/2}" y="${y-ts*.4}" width="${ts}" height="${ts*.8}" rx="9" fill="${T.tile}" stroke="${today?'#fff':T.accent}" stroke-width="${today?4:2}"/>
+  s+=`<g class="tile" onclick="openClose(${d})"><title>${T.spots[i]}</title><rect x="${x-ts/2}" y="${y-ts*.4}" width="${ts}" height="${ts*.8}" rx="9" fill="${T.tile}" stroke="${today?'#fff':T.accent}" stroke-width="${today?4:2}"/>
   <text x="${x}" y="${y-ts*.12}" text-anchor="middle" font-size="${ts*.13}" fill="#fff" opacity=".75">${WD[dow(m,d)].slice(0,3).toUpperCase()}</text>
   <text x="${x}" y="${y+ts*.22}" text-anchor="middle" font-size="${ts*.34}" font-weight="700" fill="#fff">${d}</text>
   ${ev?`<text x="${x+ts*.36}" y="${y-ts*.18}" text-anchor="middle" font-size="${ts*.42}" transform="rotate(-14 ${x+ts*.36} ${y-ts*.18})">${T.stamp}</text>`:''}</g>`;
   if(today){const h=ts*1.5;s+=`<g class="fig"><ellipse cx="${x}" cy="${y-ts*.42+h*.0}" rx="${ts*.6}" ry="${ts*.14}" fill="#000" opacity=".45"/>
    <image href="${HIM}" x="${x-h*.55}" y="${y-ts*.42-h*.78}" height="${h}" width="${h*.54}"/><image href="${HER}" x="${x+h*.02}" y="${y-ts*.42-h*.78}" height="${h}" width="${h*.5}"/></g>`}
  });
- document.getElementById('board').innerHTML=s+'</svg>';
+ const bd=document.getElementById('board');bd.style.overflow=T.map?'auto':'hidden';bd.innerHTML=s.replace('<svg viewBox',T.map?`<svg style="width:${W}px;height:${H}px" viewBox`:'<svg viewBox')+'</svg>';
 }
 function scenery(m,W,H,R){let s='';
  if(m==10){s+=`<circle cx="${W*.82}" cy="${H*.12}" r="${H*.06}" fill="#f5eec0"/><circle cx="${W*.82}" cy="${H*.12}" r="${H*.09}" fill="#f5eec0" opacity=".15" filter="url(#glow)"/>`;
@@ -116,6 +118,14 @@ function scenery(m,W,H,R){let s='';
  if(m==12){s+=`<path d="M0 ${H*.3} L${W*.2} ${H*.17} L${W*.38} ${H*.28} L${W*.6} ${H*.14} L${W*.8} ${H*.27} L${W} ${H*.2} V${H} H0Z" fill="#cfe0f2"/><rect y="${H*.32}" width="${W}" height="${H}" fill="${M[12].ground}"/>`;
   for(let i=0;i<30;i++)s+=`<text x="${R()*W}" y="${H*.32+R()*H*.68}" font-size="${14+R()*18}">${["🌲","⛄","🎄","🏠","🦌","🎁"][i%6]}</text>`;
   for(let i=0;i<40;i++)s+=`<circle r="${1+R()*2}" fill="#fff" cx="${R()*W}"><animate attributeName="cy" from="-5" to="${H}" dur="${6+R()*8}s" begin="-${R()*8}s" repeatCount="indefinite"/></circle>`;}
+ if(m==13){let x=0;while(x<W){const w=30+R()*60,h=H*(.08+R()*.18);s+=`<rect x="${x}" y="${H*.32-h}" width="${w}" height="${h}" fill="#0a0410"/>`;for(let k=0;k<6;k++)s+=`<rect x="${x+4+R()*(w-8)}" y="${H*.32-h+6+R()*(h-10)}" width="3" height="4" fill="#ffd34d" opacity=".7"/>`;x+=w}
+  s+=`<rect y="${H*.32}" width="${W}" height="${H}" fill="${M[13].ground}"/><text x="${W/2}" y="${H*.3}" text-anchor="middle" font-size="12" fill="#ff4fa3" letter-spacing="4">TIMES SQUARE · THEATER DISTRICT</text>`;
+  ["RHONY","RHOBH","PUMP RULES","BELOW DECK","SUMMER HOUSE","SOUTHERN CHARM","WWHL","TOP CHEF"].forEach((t,i)=>{const x=(i+.5)*W/8,y=H*.36+R()*H*.55;s+=`<g opacity=".55"><rect x="${x-34}" y="${y-12}" width="68" height="18" rx="3" fill="#2a0a1a" stroke="#ffd34d"/><text x="${x}" y="${y+1}" font-size="9" text-anchor="middle" fill="#ffd34d">${t}</text></g>`});
+  for(let i=0;i<10;i++)s+=`<circle r="40" fill="#fff" opacity=".05" cx="${R()*W}" cy="${R()*H*.3}"><animate attributeName="opacity" values=".02;.12;.02" dur="${2+R()*3}s" repeatCount="indefinite"/></circle>`}
+ if(m==14){for(let i=0;i<9;i++)s+=`<ellipse cx="${R()*W}" cy="${H*(.05+R()*.3)}" rx="${50+R()*70}" ry="${18+R()*14}" fill="#fff" opacity=".55"><animate attributeName="cx" values="${R()*W};${R()*W};" dur="${30+R()*30}s" repeatCount="indefinite"/></ellipse>`;
+  s+=`<circle cx="${W*.78}" cy="${H*.13}" r="${H*.05}" fill="#fff5fa"/><path d="M0 ${H*.36} Q${W*.25} ${H*.28} ${W*.5} ${H*.34} T${W} ${H*.32} V${H} H0Z" fill="${M[14].ground}"/>`;
+  for(let i=0;i<26;i++)s+=`<text x="${R()*W}" y="${H*.36+R()*H*.64}" font-size="${14+R()*16}" opacity=".85">${["🌹","💗","🌸","🦋","🏰","☁️"][i%6]}</text>`;
+  for(let i=0;i<12;i++)s+=`<text font-size="16" x="${R()*W}"><animate attributeName="y" from="${H}" to="-20" dur="${9+R()*8}s" begin="-${R()*8}s" repeatCount="indefinite"/>💖</text>`}
  return s}
 // ---- close-up street view
 function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[d-1];
@@ -124,16 +134,17 @@ function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[
  const g=T.sky;let h=`<div style="position:absolute;inset:0;background:linear-gradient(${g[0]},${g[1]})"></div>`;
  // far layer, mid layer, ground + props unique per day (seeded)
  const far=[],mid=[];
- const farSet=m==10?["🏛️","🏚️","⛪","🏰"]:m==11?["🌳","🏡","🌲","🛖"]:["🏔️","🌲","🏠","⛪"];
+ const farSet={10:["🏛️","🏚️","⛪","🏰"],11:["🌳","🏡","🌲","🛖"],12:["🏔️","🌲","🏠","⛪"],13:["🏙️","🎭","🏢","🌃"],14:["🏰","☁️","🌈","🎠"],15:["🏘️","🏛️","🏢","🍺"]}[m];
  for(let i=0;i<8;i++)far.push(`<span class="p" style="left:${i*13+R()*5}%;bottom:${48+R()*6}%;font-size:${60+R()*50}px;opacity:.55;filter:${m==10?'brightness(.35) hue-rotate(250deg)':'none'}">${farSet[Math.floor(R()*4)]}</span>`);
  for(let i=0;i<7;i++)mid.push(`<span class="p" style="left:${R()*100}%;bottom:${22+R()*18}%;font-size:${40+R()*40}px">${T.props[Math.floor(R()*T.props.length)]}</span>`);
  h+=`<div class="layer" data-k="8" style="top:0">${m==10?`<div class="p" style="right:15%;top:10%;width:90px;height:90px;border-radius:50%;background:#f5eec0;box-shadow:0 0 60px #f5eec0"></div>`:m==11?`<div class="p" style="left:12%;top:12%;width:100px;height:100px;border-radius:50%;background:#ffd98a;box-shadow:0 0 80px #ffb347"></div>`:''}${far.join('')}</div>`;
  h+=`<div class="layer" data-k="20" style="top:0">${mid.join('')}</div>`;
  h+=`<div class="layer" data-k="35" style="height:30%;background:linear-gradient(${T.path},${T.ground});border-top:6px solid rgba(255,255,255,.12)"></div>`;
  // animated ambient: flying/falling things + lamp flicker
- const amb=m==10?"🦇":m==11?"🍂":"❄️";
+ const amb={10:"🦇",11:"🍂",12:"❄️",13:"✨",14:"🌸",15:"☘️"}[m];
  for(let i=0;i<14;i++){const fall=m!=10;h+=`<span class="p amb" style="font-size:${14+R()*18}px;left:${fall?R()*100:-10}%;top:${fall?-10:10+R()*40}%;animation:${fall?'fall':'fly'} ${6+R()*8}s linear ${-R()*10}s infinite">${amb}</span>`}
  h+=`<div class="p" style="left:18%;bottom:22%;font-size:60px;animation:flick 2.5s infinite">${m==10?'🕯️':m==11?'🏮':'🕯️'}</div><div class="p" style="right:16%;bottom:24%;font-size:70px">${T.props[d%T.props.length]}</div>`;
+ h+=closeExtra(m,d,R);
  h+=`<div class="figs"><img src="${HIM}" alt="Him"><img src="${HER}" alt="Her"></div>`;
  if(m==10)h+=`<div class="p" style="inset:0;background:radial-gradient(ellipse at 50% 70%,transparent 30%,rgba(10,0,20,.75));animation:fog 6s ease-in-out infinite"></div>`;
  const sc=document.getElementById('scene');sc.innerHTML=h;
@@ -142,7 +153,7 @@ function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[
 function list(){const items=(data[key(cur,openDay)]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
  document.getElementById('list').innerHTML=items.length?items.map(e=>`<li><b>${fmt(e.time)}</b><span>${esc(e.text)}</span><button title="Delete" onclick="del('${e.id}')">✕</button></li>`).join(''):'<li style="opacity:.7">Nothing logged yet.</li>'}
 const fmt=t=>{const[h,m]=t.split(':').map(Number);return`${(h%12)||12}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`};
-const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]));
+const esc=s=>s.replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 async function del(id){const k=key(cur,openDay);await mutate(d=>{d[k]=(d[k]||[]).filter(e=>e.id!==id);if(!d[k].length)delete d[k]});list();render()}
 document.getElementById('logbtn').onclick=()=>{document.getElementById('f').classList.toggle('on');document.getElementById('ev').focus()};
 document.getElementById('f').onsubmit=async e=>{e.preventDefault();const k=key(cur,openDay),it={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),text:ev.value.trim(),time:tm.value};
