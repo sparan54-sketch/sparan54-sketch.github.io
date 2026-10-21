@@ -39,3 +39,8 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Apr 🌷 spring (30d, starts Thu) · May ☕ coffee (31d, Sat) · Jun 🌴 tropical beaches (30d, Tue) · Jul 🎆 USA/fireworks (31d, Thu) · Aug 🎂 couple birthdays, enlarged figurines + balloons (31d, Sun) · Sep ✈️ world map, a country/landmark/flag per day (30d, Wed; zoom buttons) · Oct '27 🚀 space (31d, Fri).
 - Verified: day counts match the calendar; all titles are unique within each month.
 - Gaps: flag emoji appear as letters on some devices (e.g. Windows/headless Chrome); June/Sep coordinates were written from general knowledge, not web lookups.
+
+## Round 4 — distinct layouts + Nov 2027 (2026-10-21)
+- Layouts (all different): Oct'26 serpentine · Nov'26 Monopoly square loop · Dec spiral · Jan real Philly map · Feb heart · Mar real Old City map · Apr ring · May steam columns · Jun figure-eight · Jul star · Aug zigzag mountain climb · Sep world route · Oct'27 double orbit · Nov'27 platformer levels.
+- Nov 2027 (key 23, 30 days, starts Mon): original pixel-platformer world — pipes, ? blocks, mushroom village, desert, underwater, clouds, ice, lava castle, dragon finale; unique titles every day. No franchise characters or logos.
+- LIVE: 10–23.
