@@ -66,6 +66,7 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 ## Round 8 (2026-10-21 ~5:50 PM ET) — photo backdrops + drawn months
 - Per-day photo backdrops: assets/backdrops/YYYY-MM-DD.jpg (or .jpg.b64 data-URI fallback; the GitHub MCP can only write text, so we push .b64). Photo mode hides drawn layers; figurines + caption stay. Captions in src/photocaps.js.
 - Workflow: `./addbd.sh YYYY-MM-DD /path.jpg "Caption"` (writes assets/backdrops/*.jpg/.b64 + photocaps.js), move source to incoming/done/, build, push .b64s (≤4 per push) + index.html + photocaps.js, then `python verify_bd.py K D1 D2` on live.
-- LIVE photos: Oct 1–10 2026 (verified live), Apr 1 2027.
+- LIVE photos: Oct 1–10 2026 (verified live), Apr 1 2027. Staged in incoming/ (not yet added, waiting for full Oct 11–31 set): Oct 11–14.
+- March 2027 drawn close-ups LIVE (DRAWN=[14,15]); all pub-interior setting, props vary — could use more setting variety.
 - Build: `DRAWN=[14] python3 build.py "$(cat SYNC_URL.txt)" 10,...,24` — DRAWN lists months whose drawn specs (months_drawn.js DS[k]) are enabled. Feb (14) live. March (15) spec written, under screenshot check.
 - PENDING: Mar–Nov 2027 drawn specs; Oct 11–31 photos as they arrive in incoming/; 2026 drawn upgrade.
