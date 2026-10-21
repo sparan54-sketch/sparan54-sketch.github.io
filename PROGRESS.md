@@ -55,3 +55,10 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Dec 2027: 31 hand-drawn SVG scenes (dec27.js) + "That's us…" captions + foreground pieces (hot tub, lift chair, snowmobile, bar, sled…) and beers in hand. Snowflake path is now continuous (no jumps back to center).
 - Oct 21–Dec 31 2026: one captioned couple moment per day (moments2026.js); random prop scatter hidden.
 - PENDING: Jan–Nov 2027 moment rewrite (captions + composed scenes).
+
+## Round 7 (2026-10-21)
+- Feb: heart tiles evenly spaced by arc length (22 days) + days 23–28 on a drawn Cupid's arrow (arrowhead + fletching).
+- Global no-overlap pass in render (tile size from pairwise spacing + box separation); test_overlap.py checks all months at 390px and 1280px → PASS.
+- Captions: casual implied-subject style everywhere (capFix), no "That's us".
+- art.js drawn-scene library; Jan 2027 moved to drawn food-crawl moments (jan_drawn.js).
+- PENDING: Feb–Nov 2027 drawn moments; Oct 1–20 captions; 2026 upgrade to drawn quality.
