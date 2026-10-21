@@ -87,7 +87,7 @@ function render(){
  const m=cur,T=M[m];document.documentElement.style.setProperty('--accent',T.accent);
  document.getElementById('tabs').innerHTML=SHOW.map(k=>`<button class="${k==m?'on':''}" onclick="cur=${k};render()">${M[k].name}${k>12?' ’27':''}</button>`).join('');
  let W=innerWidth,H=innerHeight;const n=dim(m),R=rnd(m*99);let pts,ts,mb;
- if(T.map){mb=(T.board||marchBoard)(W,H);W=mb.W;H=mb.H;pts=mb.P;ts=mb.ts}else{pts=path(n,W,H);ts=Math.min(W/9,(H*.7)/(Math.ceil(n/7))*.55,92)}
+ if(T.map){mb=(T.board||marchBoard)(W,H);W=mb.W;H=mb.H;pts=mb.P;ts=mb.ts}else if(T.layout&&typeof layPts=='function'){const L=layPts(T,n,W,H);pts=L.P;ts=L.ts}else{pts=path(n,W,H);ts=Math.min(W/9,(H*.7)/(Math.ceil(n/7))*.55,92)}
  let s=`<svg viewBox="0 0 ${W} ${H}"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.sky[0]}"/><stop offset="1" stop-color="${T.sky[1]}"/></linearGradient>
  <filter id="glow"><feGaussianBlur stdDeviation="4"/></filter></defs><rect width="${W}" height="${H}" fill="url(#sk)"/>`;
  s+=T.map?mb.s:(T.deco?themeScenery(T,W,H,R):scenery(m,W,H,R));
