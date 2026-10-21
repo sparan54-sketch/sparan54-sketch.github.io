@@ -88,9 +88,12 @@ function render(){
  document.getElementById('tabs').innerHTML=SHOW.map(k=>`<button class="${k==m?'on':''}" onclick="cur=${k};render()">${M[k].name}${k>12?' ’27':''}</button>`).join('');
  let W=innerWidth,H=innerHeight;const n=dim(m),R=rnd(m*99);let pts,ts,mb;
  if(T.map){mb=(T.board||marchBoard)(W,H);W=mb.W;H=mb.H;pts=mb.P;ts=mb.ts}else if(T.layout&&typeof layPts=='function'){const L=layPts(T,n,W,H);pts=L.P;ts=L.ts}else{pts=path(n,W,H);ts=Math.min(W/9,(H*.7)/(Math.ceil(n/7))*.55,92)}
+ {const mv=!T.map;if(mv){let lim=1e9;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)lim=Math.min(lim,Math.max(Math.abs(pts[i][0]-pts[j][0]),Math.abs(pts[i][1]-pts[j][1])/.8));ts=Math.max(Math.min(ts,lim*.95),Math.min(34,W/11))}
+  const o=pts.map(p=>p.slice());pts=pts.map(p=>p.slice());for(let it=0;it<400;it++){let any=0;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1],px=ts*1.06-Math.abs(dx),py=ts*.86-Math.abs(dy);if(px>0&&py>0){any=1;if(px/ts<py/(.8*ts)){const f=px/2*(dx<0?-1:1)||px/2;pts[i][0]-=f;pts[j][0]+=f}else{const f=py/2*(dy<0?-1:1)||py/2;pts[i][1]-=f;pts[j][1]+=f}}}if(!any)break}
+  pts.forEach((p,i)=>{p[0]=Math.max(ts/2+2,Math.min(W-ts/2-2,p[0]))});if(T.map)window.__lead=o}
  let s=`<svg viewBox="0 0 ${W} ${H}"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.sky[0]}"/><stop offset="1" stop-color="${T.sky[1]}"/></linearGradient>
  <filter id="glow"><feGaussianBlur stdDeviation="4"/></filter></defs><rect width="${W}" height="${H}" fill="url(#sk)"/>`;
- s+=T.map?mb.s:(T.deco?themeScenery(T,W,H,R):scenery(m,W,H,R));
+ s+=T.map?mb.s:(T.deco?themeScenery(T,W,H,R):scenery(m,W,H,R));if(T.ldeco)s+=T.ldeco(W,H);if(T.map&&window.__lead)window.__lead.forEach((p,i)=>{if(Math.hypot(p[0]-pts[i][0],p[1]-pts[i][1])>2)s+=`<line x1="${p[0]}" y1="${p[1]}" x2="${pts[i][0]}" y2="${pts[i][1]}" stroke="${T.accent}" stroke-width="1" opacity=".7"/>`});
  s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${T.path}" stroke-width="${T.map?4:ts*.9}" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>
  <polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-dasharray="6 9"/>`;
  s+=`<text x="${W/2}" y="${H*.12}" text-anchor="middle" font-size="${Math.min(W/14,40)}" font-weight="700" fill="#fff" style="paint-order:stroke" stroke="rgba(0,0,0,.5)" stroke-width="4">${T.name} ${ym(m)[0]}</text>
