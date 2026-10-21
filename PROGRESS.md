@@ -50,3 +50,8 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Oct 21–31, Nov, Dec 2026: every close-up has its own backdrop scene + caption + props (months_2026.js).
 - Aug: couple moved to a summit spot under the subtitle.
 - Dec 2027 (key 24): Christmas + beer winter activities, 🍺 stamp, snowflake layout. LIVE 10–24.
+
+## Round 6 (2026-10-21)
+- Dec 2027: 31 hand-drawn SVG scenes (dec27.js) + "That's us…" captions + foreground pieces (hot tub, lift chair, snowmobile, bar, sled…) and beers in hand. Snowflake path is now continuous (no jumps back to center).
+- Oct 21–Dec 31 2026: one captioned couple moment per day (moments2026.js); random prop scatter hidden.
+- PENDING: Jan–Nov 2027 moment rewrite (captions + composed scenes).
