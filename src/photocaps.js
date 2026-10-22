@@ -454,3 +454,5 @@ if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[21]="Pickin' from the
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[22]="Kickin' back by the bar at The Goat"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[27]="Sneakin' into the dive at Locust Rendezvous"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[26]="Catchin' the game at TenStone"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[8]="Listenin' to the blues at The Twisted Tail"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[6]="Settlin' in by the fire at The Plough & the Stars"}
