@@ -444,3 +444,6 @@ if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[27]="Sharin' veggie s
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[18]="Brunchin' over Rittenhouse Square at Lacroix"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[24]="Pickin' sushi off the boat at Uchi"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[26]="Takin' on the pasta tasting at Vetri Cucina"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[11]="Diggin' into a chef's menu at River Twice"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[5]="Savorin' a tasting menu at Provenance"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[6]="Sippin' cocktails at the Southwark bar"}
