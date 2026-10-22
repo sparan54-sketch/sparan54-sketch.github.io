@@ -8,7 +8,7 @@ with sync_playwright() as p:
     pg=b.new_page(viewport={'width':w,'height':h})
     for k in range(10,25):
       pg.goto(f'{base}?m={k}');pg.wait_for_timeout(400)
-      R=pg.evaluate("[...document.querySelectorAll('#board .tile rect')].map(r=>{const b=r.getBoundingClientRect();return[b.left,b.top,b.right,b.bottom]})")
+      R=pg.evaluate("[...document.querySelectorAll('#board .tile')].map(t=>t.querySelector('rect')).map(r=>{const b=r.getBoundingClientRect();return[b.left,b.top,b.right,b.bottom]})")
       ov=[(i+1,j+1) for i in range(len(R)) for j in range(i+1,len(R)) if R[i][0]<R[j][2]-.5 and R[j][0]<R[i][2]-.5 and R[i][1]<R[j][3]-.5 and R[j][1]<R[i][3]-.5]
       if ov: bad+=1
       print(w,k,len(R),'OVERLAPS' if ov else 'ok',ov[:8])

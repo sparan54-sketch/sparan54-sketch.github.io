@@ -108,3 +108,4 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Mar 24 Cavanaugh's Rittenhouse real user photo (kept though closed, user OK). March complete: all 31 days real photos.
 - Mar 18 Finn McCool's swapped to sharper square user photo.
 - Aug 24 2027 (Amanda's birthday): extravagant board tile (glow gold-pink frame, crown, balloon, cake, 'Birthday!' ribbon, confetti, sparkles; no overlap, all tiles tappable) + user party photo backdrop (contain, banner visible) + figurines holding champagne bottles (him_bday.png/her_bday.png, this day only).
+- Aug 24 2027 board tile redone as a big champagne bottle (~2x wide, ~4x tall: gold foil, 'Amanda's Birthday' label with 24, popping cork + spray, bubbles, balloons, crown, confetti, sparkles, glow). Other Aug tiles re-flow around it (bdFlow); no overlaps, all 31 tappable at 390x844 and 1280x800. Day view unchanged.
