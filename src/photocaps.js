@@ -277,3 +277,33 @@ if(M[20]){M[20].photoCap=M[20].photoCap||[];M[20].photoCap[27]="Escapin' to a ca
 if(M[20]){M[20].photoCap=M[20].photoCap||[];M[20].photoCap[28]="Raisin' a birthday toast with champagne"}
 if(M[20]){M[20].photoCap=M[20].photoCap||[];M[20].photoCap[29]="Makin' a wish and blowin' out the candles"}
 if(M[20]){M[20].photoCap=M[20].photoCap||[];M[20].photoCap[30]="Toastin' to us under the string lights"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[0]="Watchin' the Eiffel Tower glow at dusk"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[1]="Strollin' the cobblestones by the Colosseum"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[2]="Gazin' up at the Sagrada Fam\u00edlia spires"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[3]="Catchin' Big Ben's lights over the Thames"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[4]="Standin' at the edge of the Cliffs of Moher"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[5]="Wanderin' the Parthenon at golden hour"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[6]="Watchin' the sun sink behind the Pyramids"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[7]="Snackin' our way through Jemaa el-Fnaa at night"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[8]="Chasin' a Maasai Mara sunset"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[9]="Admirin' Table Mountain from across the water"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[10]="Walkin' the reflecting pool at the Taj Mahal"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[11]="Hikin' the Great Wall through autumn colors"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[12]="Spottin' Mount Fuji behind the pagoda"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[13]="Explorin' the palace grounds at Gyeongbokgung"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[14]="Watchin' Wat Arun light up the river"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[15]="Sunrise-watchin' at Angkor Wat"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[16]="Seein' the Sydney Opera House by night"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[17]="Cruisin' the misty peaks of Milford Sound"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[18]="Lookin' out over Rio toward Christ the Redeemer"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[19]="Takin' in Machu Picchu above the clouds"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[20]="Chasin' rainbows at Iguaz\u00fa Falls"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[21]="Climbin' the view at Chich\u00e9n Itz\u00e1"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[22]="Watchin' Niagara Falls glow in rainbow lights"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[23]="Salutin' Lady Liberty from the harbor"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[24]="Dancin' under the northern lights at Hallgr\u00edmskirkja"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[25]="Driftin' through the Geirangerfjord"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[26]="Strollin' past the Kinderdijk windmills at sunset"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[27]="Spottin' Neuschwanstein through the mountain fog"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[28]="Admirin' Hagia Sophia under a purple sky"}
+if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[29]="Steppin' into the glowing Treasury at Petra"}
