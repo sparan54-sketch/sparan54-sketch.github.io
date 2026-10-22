@@ -436,3 +436,4 @@ if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[7]="Twirlin' handmade
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[3]="Toastin' with French bistro bites at Forsythia"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[13]="Breakin' into a British meat pie at Stargazy"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[17]="Splittin' a steak at Barclay Prime"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[23]="Passin' plates at the Her Place supper club"}
