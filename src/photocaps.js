@@ -448,3 +448,5 @@ if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[11]="Diggin' into a c
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[5]="Savorin' a tasting menu at Provenance"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[6]="Sippin' cocktails at the Southwark bar"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[5]="Grabbin' a craft pint at Khyber Pass Pub"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[18]="Grabbin' a pint inside Reading Terminal at Molly Malloy's"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[20]="Toastin' St. Paddy's week at Con Murphy's"}
