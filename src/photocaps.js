@@ -460,3 +460,5 @@ if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[29]="Endin' the crawl
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[25]="Grabbin' a corner booth at Grace Tavern"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[7]="Raisin' a pint at Cavanaugh's Headhouse"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[28]="Clinkin' Guinness pints at Fad\u00f3"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[9]="Catchin' a game over pints at O'Neals"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[17]="Warmin' up with a Guinness at Finn McCool's"}
