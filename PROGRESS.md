@@ -112,3 +112,4 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Aug 24 day view: caption card removed (this day only); top panel + Back kept.
 - Aug 24 Mario bottle redrawn: upright/toasting, fist wrapped over body (him_bday.png).
 - Month names now carry year suffix everywhere (tabs, board header, day title): October ’26 … December ’27 (MN helper). Day titles shrink to fit one line, else break cleanly after the date.
+- Aug 24: Mario bottle removed; Mario now a dancing pose (generated body + his original clay head composited, him_bday.png) with a sway/bounce animation. Peach + bottle unchanged.
