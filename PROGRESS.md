@@ -101,3 +101,4 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Mar 9 The Twisted Tail real user photo (original, top-aligned).
 - Mar 7 The Plough & the Stars real user photo (interior, centered).
 - Mar 30 Misconduct Tavern real user photo (original, top-aligned).
+- Mar 26 Grace Tavern real user photo (original, top-aligned).

@@ -457,3 +457,4 @@ if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[26]="Catchin' the gam
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[8]="Listenin' to the blues at The Twisted Tail"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[6]="Settlin' in by the fire at The Plough & the Stars"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[29]="Endin' the crawl with a round at Misconduct Tavern"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[25]="Grabbin' a corner booth at Grace Tavern"}
