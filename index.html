@@ -978,6 +978,7 @@ if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[29]="Grabbin' sourdou
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[27]="Sharin' veggie small plates at Vedge"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[18]="Brunchin' over Rittenhouse Square at Lacroix"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[24]="Pickin' sushi off the boat at Uchi"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[26]="Takin' on the pasta tasting at Vetri Cucina"}
 // ===== More settings + landmarks for drawn months
 const ST={
  dream:(o={})=>A.sky(o.a||'#ff9ec7',o.b||'#ffe3f0')+A.cloud(70,60,1.4)+A.cloud(300,90,1.8)+A.cloud(200,40,1)+`<path d="M250 230 V150 h14 v-20 l10 -14 10 14 v20 h14 v-30 l10 -14 10 14 v44 h14 v80Z" fill="#fff0f7" stroke="#ffb3d1" stroke-width="2"/>`+A.ground(o.g||'#ffd1e6',230),
@@ -1202,7 +1203,7 @@ function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[
  document.getElementById('close').classList.add('open');document.getElementById('f').classList.remove('on');list();
 }
 
-window.BDCAPHI=[];window.BDPOS={};window.BDCENTER=['19/13','30/13','18/13','4/13','22/13','11/13','26/13','29/13','31/13'];
+window.BDCAPHI=[];window.BDPOS={};window.BDCENTER=['27/13','19/13','30/13','18/13','4/13','22/13','11/13','26/13','29/13','31/13'];
 function capCards(){return [...document.querySelectorAll('#scene .pcap,#scene [style*="translateX(-50%)"]')].filter(e=>e.offsetParent&&e.textContent.trim()&&getComputedStyle(e).display!='none'&&!e.closest('.figs'))}
 function fixCapOverlap(){const pn=document.querySelector('#close .panel');if(!pn)return;const pb=pn.getBoundingClientRect();
  const sc=document.getElementById('scene');if(sc.classList.contains('real')&&sc.classList.contains('photo')){const st=sc.getBoundingClientRect(),bi=sc.querySelector('.bdimg'),pc=sc.querySelector('.pcap'),fg=sc.querySelector('.figs'),bk=[...document.querySelectorAll('#close button')].find(b=>/Back/.test(b.textContent));const t=Math.ceil(pb.bottom-st.top+4);if(bi){bi.style.top=t+'px';bi.style.height=`calc(100% - ${t}px)`;bi.style.objectPosition=(window.BDPOS||{})[openDay+'/'+cur]||((window.BDCENTER||[]).includes(openDay+'/'+cur)?'50% 50%':'50% 0');bi.style.objectFit=(cur==15||cur==13)?'contain':'cover'}if(pc){let lim=st.bottom;[fg,bk].forEach(x=>{if(x){const xr=x.getBoundingClientRect();if(xr.height)lim=Math.min(lim,xr.top)}});pc.dataset.ot=pc.dataset.ot??'';pc.style.top=((window.BDCAPHI||[]).includes(openDay+'/'+cur)?t+250:Math.max(t,Math.floor(lim-st.top-pc.offsetHeight-8)))+'px'}return}
