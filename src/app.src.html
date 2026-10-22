@@ -38,6 +38,15 @@ li b{min-width:70px;color:var(--accent)}li span{flex:1}li button{background:none
 #back{position:absolute;left:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:9}
 .p{position:absolute;pointer-events:none}
 #scene.photo>*:not(.bdimg):not(.figs):not(.pcap){display:none!important}#scene .bdimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;z-index:2}#scene.photo .figs{z-index:5}#scene.real.photo{background:#141414!important}#scene .pcap{position:absolute;left:50%;top:20%;transform:translateX(-50%);z-index:8;text-align:center;width:min(90vw,520px);color:#fff;background:rgba(0,0,0,.55);border:3px solid var(--accent);border-radius:14px;padding:8px 12px}#scene.photo .figs img{height:min(30vh,44vw)}
+#upbtn{position:fixed;left:10px;bottom:10px;z-index:20;border:0;font:12px sans-serif;color:#fff;background:rgba(0,0,0,.5);padding:6px 10px;border-radius:14px;cursor:pointer}
+#up{display:none;position:fixed;left:8px;right:8px;bottom:44px;z-index:30;max-width:460px;background:rgba(15,15,20,.94);border-radius:16px;padding:10px 14px 6px;box-shadow:0 6px 24px rgba(0,0,0,.5)}#up.on{display:block}
+.uph{display:flex;justify-content:space-between;align-items:center;font-size:16px}.uph button{background:none;border:0;color:#fff;font-size:16px;cursor:pointer}
+#uplist li{gap:10px}#uplist .go{flex:1;text-align:left;background:none;border:0;color:#fff;font:15px Georgia;cursor:pointer;padding:0}#uplist .go small{display:block;opacity:.7;font-size:12px}
+#uplist .ics{flex:0 0 auto;font:12px sans-serif;color:#111;background:var(--accent,#ffb000);border-radius:10px;padding:6px 8px}
+li i.by{font:12px sans-serif;opacity:.75;font-style:normal}li button.ed{color:#ddd}
+#toasts{position:fixed;left:50%;transform:translateX(-50%);top:calc(max(8px,env(safe-area-inset-top)) + 46px);z-index:40;display:flex;flex-direction:column;gap:6px;width:min(92vw,420px);pointer-events:none}
+.toast{background:rgba(20,20,25,.95);color:#fff;border-left:4px solid var(--accent,#ffb000);padding:10px 12px;border-radius:10px;font:14px Georgia;animation:tin .3s}@keyframes tin{from{opacity:0;transform:translateY(-8px)}}
+body.dayopen #upbtn,body.dayopen #up{display:none}
 </style></head><body>
 <div id="tabs"></div><div id="board"></div>
 <div id="close"><div id="scene"></div>
@@ -47,6 +56,7 @@ li b{min-width:70px;color:var(--accent)}li span{flex:1}li button{background:none
   <ul id="list"></ul></div>
  <button class="btn ghost" id="back">← Back to month</button></div>
 <div id="sync" title="Shared sync settings"></div>
+<button id="upbtn" aria-expanded="false">📅 Coming up</button><div id="up" role="dialog" aria-label="Coming up"><div class="uph"><b>Coming up</b><button id="upx" aria-label="Close">✕</button></div><ul id="uplist"></ul></div><div id="toasts" aria-live="polite"></div>
 <script>
 const HIM="__HIM__",HER="__HER__",HIMBD="__HIMBD__",HERBD="__HERBD__";
 const TODAY=new Date();
@@ -137,16 +147,54 @@ function MN(k){return `${M[k].name} ’${String(ym(k)[0]).slice(2)}`}
 function stampSvg(x,y,fs,T){return `<text class="stamp" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" opacity=".8" pointer-events="none" style="--sg:${T.accent}">${T.stamp}</text>`}
 function rnd(s){return()=>(s=(s*16807)%2147483647)/2147483647}
 // ---- storage
-async function load(){data=JSON.parse(localStorage.getItem('cal')||'{}');
- if(SYNC_URL){try{const r=await fetch(SYNC_URL,{cache:'no-store'});if(r.ok){const t=await r.text();const j=t?JSON.parse(t):{};data=j&&j.events?j.events:data;localStorage.setItem('cal',JSON.stringify(data));stat('Shared ✓')}}catch(e){stat('Offline – saved here')}}else stat('This device only · tap to share')}
-async function mutate(fn){ // re-fetch, apply, write (minimizes overwriting partner's edits)
- if(SYNC_URL){try{const r=await fetch(SYNC_URL,{cache:'no-store'});if(r.ok){const t=await r.text();const j=t?JSON.parse(t):{};if(j.events)data=j.events}}catch(e){}}
- fn(data);localStorage.setItem('cal',JSON.stringify(data));
- if(SYNC_URL){try{const w=await fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({events:data})});if(!w.ok)throw 0;stat('Shared ✓')}catch(e){stat('Sync failed – saved here')}}
-}
+const Q=()=>JSON.parse(localStorage.getItem('q')||'[]'),setQ=q=>localStorage.setItem('q',JSON.stringify(q));
+function applyOp(d,o){for(const k of Object.keys(d)){d[k]=(d[k]||[]).filter(e=>e.id!==o.id||(o.op==='edit'&&k===o.k));if(!d[k].length)delete d[k]}
+ if(o.op==='del')return;const L=(d[o.k]=d[o.k]||[]),i=L.findIndex(e=>e.id===o.id);if(i<0)L.push({...o.it});else L[i]={...L[i],...o.it}}
+function hasOp(d,o){const all=Object.entries(d).flatMap(([k,L])=>L.map(e=>[k,e])),f=all.find(([k,e])=>e.id===o.id);
+ if(o.op==='del')return!f;return!!f&&f[0]===o.k&&Object.keys(o.it).every(x=>f[1][x]===o.it[x])}
+async function getRemote(){const r=await fetch(SYNC_URL,{cache:'no-store'});if(!r.ok)throw 0;const t=await r.text(),j=t?JSON.parse(t):{};return j&&j.events?j.events:{}}
+async function putRemote(ev){const w=await fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({events:ev})});if(!w.ok)throw 0}
+function withQueue(ev){const d=JSON.parse(JSON.stringify(ev));Q().forEach(o=>applyOp(d,o));return d}
+function qstat(){const n=Q().length;if(n)stat(`${n} change${n>1?'s':''} waiting to sync`);return n}
+let flushing=null;
+async function flush(){if(!SYNC_URL){stat('This device only · tap to share');return}if(flushing)return flushing;
+ flushing=(async()=>{const q=Q();if(!q.length)return;try{let rem=await getRemote();q.forEach(o=>applyOp(rem,o));await putRemote(rem);
+  let chk=await getRemote();let miss=q.filter(o=>!hasOp(chk,o));
+  if(miss.length){miss.forEach(o=>applyOp(chk,o));await putRemote(chk);chk=await getRemote();miss=q.filter(o=>!hasOp(chk,o))}
+  const done=q.filter(o=>!miss.includes(o)).map(o=>o.qid);setQ(Q().filter(o=>!done.includes(o.qid)));
+  seenAdd(chk);data=withQueue(chk);localStorage.setItem('cal',JSON.stringify(data));if(!qstat())stat('Shared ✓')}
+ catch(e){qstat()}})().finally(()=>{flushing=null});return flushing}
+async function save(o){o.qid=Date.now().toString(36)+Math.random().toString(36).slice(2,5);setQ([...Q(),o]);applyOp(data,o);localStorage.setItem('cal',JSON.stringify(data));qstat();refreshUI();await flush();refreshUI()}
+const seen=()=>JSON.parse(localStorage.getItem('seen')||'null');
+function seenAdd(ev){const s=new Set(seen()||[]);Object.values(ev).flat().forEach(e=>s.add(e.id));localStorage.setItem('seen',JSON.stringify([...s]))}
+async function load(){data=withQueue(JSON.parse(localStorage.getItem('cal')||'{}'));
+ if(!SYNC_URL){stat('This device only · tap to share');return}
+ try{const rem=await getRemote();const old=seen(),me=localStorage.getItem('lastBy');
+  if(old){const os=new Set(old);Object.values(rem).flat().filter(e=>!os.has(e.id)&&e.by&&e.by!==me).forEach(e=>toast(`${e.by} just added: ${e.text}`))}
+  seenAdd(rem);data=withQueue(rem);localStorage.setItem('cal',JSON.stringify(data));if(!qstat())stat('Shared ✓');await flush()}
+ catch(e){if(!qstat())stat('Offline – saved here')}}
+function upEvents(){const t=new Date(),td=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+ return Object.entries(data).filter(([k])=>k>=td).flatMap(([k,L])=>L.map(e=>({...e,k}))).sort((a,b)=>(a.k+a.time).localeCompare(b.k+b.time)).slice(0,5)}
+function cdown(e){const[y,m,d]=e.k.split('-').map(Number),t=new Date(),n=Math.round((new Date(y,m-1,d)-new Date(t.getFullYear(),t.getMonth(),t.getDate()))/864e5);return`${e.text} ${n===0?'today':n===1?'tomorrow':`in ${n} days`}`}
+function upcoming(){const L=upEvents(),b=document.getElementById('upbtn');b.textContent=`📅 Coming up${L.length?` · ${L.length}`:''}`;requestAnimationFrame(placeUp);
+ document.getElementById('uplist').innerHTML=L.length?L.map(e=>{const[y,m,d]=e.k.split('-').map(Number);return`<li><button class="go" onclick="goDay(${(y-2026)*12+m},${d})">${esc(cdown(e))}<small>${new Date(y,m-1,d).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${fmt(e.time)}</small></button><button class="ics" onclick="ics('${e.id}')">Add to my calendar</button></li>`}).join(''):'<li style="opacity:.7">Nothing coming up yet.</li>'}
+function goDay(k,d){document.getElementById('up').classList.remove('on');if(!SHOW.includes(k))return;cur=k;render();openClose(d)}
+function ics(id){const e=upEvents().find(x=>x.id===id)||Object.entries(data).flatMap(([k,L])=>L.map(x=>({...x,k}))).find(x=>x.id===id);if(!e)return;
+ const[y,m,d]=e.k.split('-').map(Number),[h,mi]=e.time.split(':').map(Number),p=n=>String(n).padStart(2,'0'),f=dt=>`${dt.getFullYear()}${p(dt.getMonth()+1)}${p(dt.getDate())}T${p(dt.getHours())}${p(dt.getMinutes())}00`,st=new Date(y,m-1,d,h,mi),en=new Date(y,m-1,d,h+1,mi),now=new Date(),z=n=>n.toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',tx=s=>s.replace(/[\\;,]/g,c=>'\\'+c).replace(/\n/g,'\\n');
+ const c=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Our Calendar//EN','CALSCALE:GREGORIAN','BEGIN:VTIMEZONE','TZID:America/New_York','BEGIN:DAYLIGHT','TZOFFSETFROM:-0500','TZOFFSETTO:-0400','TZNAME:EDT','DTSTART:19700308T020000','RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU','END:DAYLIGHT','BEGIN:STANDARD','TZOFFSETFROM:-0400','TZOFFSETTO:-0500','TZNAME:EST','DTSTART:19701101T020000','RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU','END:STANDARD','END:VTIMEZONE',
+  'BEGIN:VEVENT',`UID:${e.id}@our-calendar`,`DTSTAMP:${z(now)}`,`DTSTART;TZID=America/New_York:${f(st)}`,`DTEND;TZID=America/New_York:${f(en)}`,`SUMMARY:${tx(e.text)}`,...(e.by?[`DESCRIPTION:${tx('Posted by '+e.by)}`]:[]),'END:VEVENT','END:VCALENDAR'].join('\r\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/calendar'}));a.download=(e.text.replace(/[^\w\- ]+/g,'').trim().slice(0,40)||'event')+'.ics';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+document.getElementById('upbtn').onclick=()=>{const u=document.getElementById('up'),on=u.classList.toggle('on');document.getElementById('upbtn').setAttribute('aria-expanded',on);upcoming()};
+document.getElementById('upx').onclick=()=>document.getElementById('up').classList.remove('on');
+function placeUp(){const b=document.getElementById('upbtn'),sy=document.getElementById('sync').getBoundingClientRect(),tiles=[...document.querySelectorAll('#board .tile')].map(t=>t.getBoundingClientRect());
+ const X=(a,c)=>a.left<c.right+2&&a.right>c.left-2&&a.top<c.bottom+2&&a.bottom>c.top-2;
+ for(const L of [10,(innerWidth-b.offsetWidth)/2,sy.left-b.offsetWidth-8]){b.style.left=Math.max(4,L)+'px';const a=b.getBoundingClientRect();if(!tiles.some(t=>X(a,t))&&!X(a,sy))return}b.style.left='10px'}
+function refreshUI(){render();if(openDay)list();upcoming()}
+function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),6000)}
+let lastPoll=0;async function poll(){if(document.hidden||Date.now()-lastPoll<5000)return;lastPoll=Date.now();await load();refreshUI()}
+addEventListener('online',()=>flush().then(refreshUI));addEventListener('focus',poll);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});setInterval(()=>{if(!document.hidden){lastPoll=0;poll()}},60000);
 function stat(t){document.getElementById('sync').textContent='⟳ '+t}
 document.getElementById('sync').onclick=()=>{const u=prompt('Shared storage URL (GET returns JSON, POST replaces it). Both of you enter the same one. Leave blank for this device only.',SYNC_URL||'');if(u===null)return;SYNC_URL=u.trim();localStorage.setItem('syncUrl',SYNC_URL);load().then(render)};
-setInterval(()=>{if(SYNC_URL&&!document.hidden)load().then(()=>{render();if(openDay)list()})},20000);
 // ---- 2D board: winding path of tiles
 function path(n,W,H){const pts=[],rows=Math.ceil(n/7),top=H*.2,bot=H*.93;
  for(let i=0;i<n;i++){const r=Math.floor(i/7),c=i%7,cc=r%2?6-c:c;const x=W*.1+cc*(W*.8/6),y=top+(r+.5)*((bot-top)/rows)+Math.sin(cc*1.3+r)*H*.012;pts.push([x,y])}return pts}
@@ -235,7 +283,7 @@ function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[
   im.onload=()=>{if(openDay!==d||cur!==m)return;im.className='bdimg';im.alt='';sc.appendChild(im);const T2=M[m],D2=T2.days&&T2.days[d-1],cap=(T2.photoCap&&T2.photoCap[d-1])||(T2.caps&&T2.caps[d-1])||(D2?D2[1]:'');
    sc.insertAdjacentHTML('beforeend',`<div class="pcap"><div style="font:900 clamp(18px,5vw,26px) Georgia">${T2.spots[d-1]}</div>${cap?`<div style="font:italic 700 clamp(14px,3.8vw,17px) Georgia;margin-top:4px">${typeof capFix=='function'?capFix(cap):cap}</div>`:''}</div>`);if(m==20&&d==24){sc.querySelectorAll(':scope>.pcap,:scope>.p').forEach(e=>{if(e.classList.contains('pcap')||(/translateX\(-50%\)/.test(e.getAttribute('style')||'')&&e.textContent.trim()))e.remove()})}sc.classList.add('photo');sc.classList.toggle('real',m==13||m==15||(m==20&&d==24));requestAnimationFrame(fixCapOverlap);setTimeout(fixCapOverlap,400)};
   let tried=0;im.onerror=()=>{if(tried++)return;fetch(`assets/backdrops/${ds}.jpg.b64`).then(r=>r.ok?r.text():Promise.reject()).then(t=>{im.src=t.trim()}).catch(()=>{})};im.src=`assets/backdrops/${ds}.jpg`}
- document.getElementById('close').classList.add('open');document.getElementById('f').classList.remove('on');list();
+ document.getElementById('close').classList.add('open');document.body.classList.add('dayopen');resetForm();list();
 }
 
 window.BDCAPHI=[];window.BDPOS={};window.BDCENTER=['7/15','22/15','23/15','7/13','27/13','19/13','30/13','18/13','4/13','22/13','11/13','26/13','29/13','31/13'];
@@ -246,18 +294,24 @@ function fixCapOverlap(){const pn=document.querySelector('#close .panel');if(!pn
   if(r.top<pb.bottom+6&&r.bottom>pb.top&&r.left<pb.right&&r.right>pb.left){const sh=pb.bottom+8-r.top,pr=e.offsetParent.getBoundingClientRect();e.style.top=Math.ceil(r.top-pr.top+sh)+'px'}})}
 addEventListener('resize',()=>{if(openDay)fixCapOverlap()});
 function list(){const items=(data[key(cur,openDay)]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
- document.getElementById('list').innerHTML=items.length?items.map(e=>`<li><b>${fmt(e.time)}</b><span>${esc(e.text)}</span><button title="Delete" onclick="del('${e.id}')">✕</button></li>`).join(''):'<li style="opacity:.7">Nothing logged yet.</li>';requestAnimationFrame(fixCapOverlap)}
+ document.getElementById('list').innerHTML=items.length?items.map(e=>`<li><b>${fmt(e.time)}</b><span>${esc(e.text)}</span>${e.by?`<i class="by">${esc(e.by)}</i>`:''}<button class="ed" title="Edit" aria-label="Edit" onclick="edit('${e.id}')">✎</button><button title="Delete" aria-label="Delete" onclick="del('${e.id}')">✕</button></li>`).join(''):'<li style="opacity:.7">Nothing logged yet.</li>';requestAnimationFrame(fixCapOverlap)}
 const fmt=t=>{const[h,m]=t.split(':').map(Number);return`${(h%12)||12}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`};
 const esc=s=>s.replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
-async function del(id){const k=key(cur,openDay);await mutate(d=>{d[k]=(d[k]||[]).filter(e=>e.id!==id);if(!d[k].length)delete d[k]});list();render()}
+async function del(id){if(editing===id)resetForm();await save({op:'del',k:key(cur,openDay),id})}
+let editing=null;function resetForm(){editing=null;ev.value='';tm.value='';document.querySelector('#f .btn').textContent='Submit';document.getElementById('f').classList.remove('on')}
+function edit(id){const e=(data[key(cur,openDay)]||[]).find(x=>x.id===id);if(!e)return;editing=id;ev.value=e.text;tm.value=e.time;const r=document.querySelector(`#by input[value="${e.by||localStorage.getItem('lastBy')||'Joe'}"]`);if(r)r.checked=true;document.querySelector('#f .btn').textContent='Save changes';document.getElementById('f').classList.add('on');ev.focus()}
 {const lb=localStorage.getItem('lastBy')||'Joe',r=document.querySelector(`#by input[value="${lb}"]`);if(r)r.checked=true}
-document.getElementById('logbtn').onclick=()=>{document.getElementById('f').classList.toggle('on');document.getElementById('ev').focus()};
-document.getElementById('f').onsubmit=async e=>{e.preventDefault();const k=key(cur,openDay),it={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),text:ev.value.trim(),time:tm.value};const bw=document.querySelector('#by input:checked');if(bw){it.by=bw.value;localStorage.setItem('lastBy',bw.value)}
- if(!it.text||!it.time)return;await mutate(d=>{(d[k]=d[k]||[]).push(it)});ev.value='';tm.value='';e.target.classList.remove('on');list();render()};
-document.getElementById('back').onclick=()=>{document.getElementById('close').classList.remove('open');openDay=null};
+document.getElementById('logbtn').onclick=()=>{if(editing){resetForm();return}document.getElementById('f').classList.toggle('on');document.getElementById('ev').focus()};
+document.getElementById('f').onsubmit=async e=>{e.preventDefault();const k=key(cur,openDay),it={text:ev.value.trim(),time:tm.value};if(!it.text||!it.time)return;
+ const bw=document.querySelector('#by input:checked');if(bw){it.by=bw.value;localStorage.setItem('lastBy',bw.value)}
+ const o=editing?{op:'edit',k,id:editing,it}:{op:'add',k,id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),it:{id:'',...it}};if(o.op==='add')o.it.id=o.id;
+ resetForm();await save(o)};
+document.getElementById('back').onclick=()=>{document.getElementById('close').classList.remove('open');document.body.classList.remove('dayopen');openDay=null;upcoming()};
 addEventListener('pointermove',e=>{if(!openDay)return;const dx=e.clientX/innerWidth-.5;document.querySelectorAll('.layer').forEach(l=>l.style.transform=`translateX(${-dx*l.dataset.k}px)`)});
 addEventListener('resize',render);
 document.head.insertAdjacentHTML('beforeend',`<style>@keyframes fall{to{transform:translate(40px,110vh) rotate(360deg)}}@keyframes fly{to{transform:translate(120vw,-10vh)}}@keyframes flick{50%{opacity:.55}}@keyframes fog{50%{opacity:.75}}</style>`);
-load().then(render);render();{const q=new URLSearchParams(location.search);if(q.get("m"))cur=+q.get("m"),render();if(q.get("day"))openClose(+q.get("day"))}
+{const _r=render;render=function(){_r.apply(this,arguments);requestAnimationFrame(placeUp)}}
+addEventListener('resize',()=>requestAnimationFrame(placeUp));
+load().then(refreshUI);render();upcoming();{const q=new URLSearchParams(location.search);if(q.get("m"))cur=+q.get("m"),render();if(q.get("day"))openClose(+q.get("day"))}
 </script><script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>
 </body></html>
