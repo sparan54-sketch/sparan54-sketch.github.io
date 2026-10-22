@@ -115,3 +115,4 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Aug 24: Mario bottle removed; Mario now a dancing pose (generated body + his original clay head composited, him_bday.png) with a sway/bounce animation. Peach + bottle unchanged.
 - Aug 24 dancing Mario: fixed neck seam (removed shoulder lump/generated-head remnants, inpainted join).
 - Jan map: all 31 pins snapped onto their real named street centerline (Overpass); 28 missing street segments (e.g. S 9th St at Mawn) added to the drawn map; every dot now <1px from a drawn street.
+- Logged days: month stamp emoji drawn as large centered overlay on the tile with pulsing theme-color glow (all months, incl. Aug 24 bottle tile); day number stroked for legibility.
