@@ -106,3 +106,4 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Mar 29 Fadó real user photo (original, top-aligned).
 - Mar 10 O'Neals + Mar 18 Finn McCool's real user photos (originals, top-aligned).
 - Mar 24 Cavanaugh's Rittenhouse real user photo (kept though closed, user OK). March complete: all 31 days real photos.
+- Mar 18 Finn McCool's swapped to sharper square user photo.
