@@ -94,3 +94,4 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Removed all hand/floating props beside figurines in day view (CSS kills .figs::before/::after); verified 8 days across months.
 - Jan map audit: 31 addresses re-geocoded via Nominatim (29 exact, Barclay Prime 49m, Alpen Rose 75m: both on the correct block, unchanged); grid/rivers/Broad/Market/I-95 match OSM; test_mapanchor + test_overlap PASS.
 - Mar 6 Khyber Pass Pub real user photo (1500x1500 original, top-aligned).
+- Mar 19 Molly Malloy's + Mar 21 Con Murphy's real user photos (originals).
