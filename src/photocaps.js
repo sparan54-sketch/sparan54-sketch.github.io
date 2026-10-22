@@ -307,3 +307,4 @@ if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[26]="Strollin' past t
 if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[27]="Spottin' Neuschwanstein through the mountain fog"}
 if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[28]="Admirin' Hagia Sophia under a purple sky"}
 if(M[21]){M[21].photoCap=M[21].photoCap||[];M[21].photoCap[29]="Steppin' into the glowing Treasury at Petra"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[22]="Feastin' on seafood high up at Vernick Fish"}
