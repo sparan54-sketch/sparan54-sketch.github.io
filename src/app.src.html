@@ -41,7 +41,7 @@ li b{min-width:70px;color:var(--accent)}li span{flex:1}li button{background:none
  <button class="btn ghost" id="back">← Back to month</button></div>
 <div id="sync" title="Shared sync settings"></div>
 <script>
-const HIM="__HIM__",HER="__HER__";
+const HIM="__HIM__",HER="__HER__",HIMBD="__HIMBD__",HERBD="__HERBD__";
 const TODAY=new Date();
 const LIVE=__LIVE__; // month keys shipped live; others only with ?wip=1
 // ---- Shared storage: set SYNC_URL to a JSON endpoint (GET returns JSON, PUT replaces). Empty = this device only.
@@ -70,6 +70,29 @@ const key=(k,d)=>{const[y,m]=ym(k);return`${y}-${String(m).padStart(2,'0')}-${St
 const dim=k=>{const[y,m]=ym(k);return new Date(y,m,0).getDate()}, dow=(k,d)=>{const[y,m]=ym(k);return new Date(y,m-1,d).getDay()};
 const WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const isToday=(k,d)=>nowK===k&&TODAY.getDate()===d;
+function bdayDeco(pts,ts,i){const [x,y]=pts[i],tw=ts,th=ts*.8,bx=[];
+ const others=pts.filter((p,j)=>j!==i).map(([a,b])=>[a-tw/2-3,b-th/2-3,a+tw/2+3,b+th/2+3]);
+ const free=(x0,y0,x1,y1)=>!others.some(r=>x0<r[2]&&x1>r[0]&&y0<r[3]&&y1>r[1]);
+ let gap=1e9;others.forEach(r=>{const gx=Math.max(r[0]-(x+tw/2),(x-tw/2)-r[2],0),gy=Math.max(r[1]-(y+th/2),(y-th/2)-r[3],0);gap=Math.min(gap,Math.max(gx,gy))});
+ const e=Math.max(2,Math.min(gap-1,ts*.22));let s=`<g class="bday" style="pointer-events:none">`;
+ s+=`<rect x="${x-tw/2-e}" y="${y-th/2-e}" width="${tw+2*e}" height="${th+2*e}" rx="${9+e}" fill="none" stroke="#ffd34d" stroke-width="${Math.max(2,e*.6)}" filter="url(#glow)"><animate attributeName="opacity" values=".5;1;.5" dur="1.6s" repeatCount="indefinite"/></rect>`;
+ s+=`<rect x="${x-tw/2-1}" y="${y-th*.4-1}" width="${tw+2}" height="${th+2}" rx="10" fill="none" stroke="url(#bdg)" stroke-width="4"/>`;
+ const used=[[x-tw/2-2,y-th/2-2,x+tw/2+2,y+th/2+2]],clr=(x0,y0,x1,y1)=>!used.some(r=>x0<r[2]&&x1>r[0]&&y0<r[3]&&y1>r[1]);const item=(cx,cy,w,h,svg,conf)=>{const bb=[cx-w/2,cy-h/2,cx+w/2,cy+h/2];if(free(...bb)&&(!conf||clr(...bb))){if(!conf)used.push(bb);s+=svg;return 1}return 0};
+ // crown on top (or inside top if blocked)
+ const cs=ts*.42;if(!item(x,y-th/2-cs*.45,cs,cs*.8,`<text x="${x}" y="${y-th/2+cs*.05}" text-anchor="middle" font-size="${cs}">👑</text>`))s+=`<text x="${x+tw*.32}" y="${y-th*.12}" text-anchor="middle" font-size="${ts*.26}">👑</text>`;
+ // balloons: try both upper corners
+ const bs=ts*.4;[[-1],[1]].forEach(([sd])=>{const cx=x+sd*(tw/2+bs*.35),cy=y-th/2-bs*.3;item(cx,cy,bs*.8,bs,`<text x="${cx}" y="${cy+bs*.35}" text-anchor="middle" font-size="${bs}"><animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="2.4s" repeatCount="indefinite"/>🎈</text>`)});
+ // ribbon below; fall back to inside bottom band
+ const rw=tw*1.1,rh=ts*.24;if(!item(x,y+th/2+rh*.55,rw,rh,`<g><path d="M${x-rw/2} ${y+th/2+rh*.05} h${rw} l-${rh*.4} ${rh*.5} l${rh*.4} ${rh*.5} h-${rw} l${rh*.4} -${rh*.5}z" fill="#e0457b" stroke="#ffd34d" stroke-width="1.5"/><text x="${x}" y="${y+th/2+rh*.75}" text-anchor="middle" font-size="${rh*.62}" font-weight="900" fill="#fff">Birthday!</text></g>`))
+  s+=`<rect x="${x-tw/2+2}" y="${y+th*.25}" width="${tw-4}" height="${th*.22}" rx="4" fill="#e0457b" stroke="#ffd34d" stroke-width="1"/><text x="${x}" y="${y+th*.41}" text-anchor="middle" font-size="${ts*.13}" font-weight="900" fill="#fff">Birthday!</text>`;
+ // cake inside tile corner
+ s+=`<text x="${x-tw*.32}" y="${y-th*.12}" text-anchor="middle" font-size="${ts*.24}">🎂</text>`;
+ // confetti + sparkles in free space around
+ const R=rnd(2427),C=['#ffd34d','#ff4f9a','#4fc3f7','#81c784','#fff'];
+ for(let k=0;k<160;k++){const a=R()*6.283,r=tw*(.55+R()*.9),cx=x+Math.cos(a)*r,cy=y+Math.sin(a)*r*.8,w=3+R()*3;
+  if(item(cx,cy,w+4,w+4,'',1))s+=`<rect x="${cx}" y="${cy}" width="${w}" height="${w*.5}" fill="${C[k%5]}" transform="rotate(${R()*180} ${cx} ${cy})"><animate attributeName="opacity" values="1;.2;1" dur="${1+R()*1.5}s" repeatCount="indefinite"/></rect>`}
+ for(let k=0;k<6;k++){const cx=x+(R()-.5)*tw*.9,cy=y+(R()-.5)*th*.8;s+=`<text x="${cx}" y="${cy}" text-anchor="middle" font-size="${ts*.12}" fill="#fff">✦<animate attributeName="opacity" values="0;1;0" dur="${1.2+R()}s" begin="${R()}s" repeatCount="indefinite"/></text>`}
+ return s+`</g>`}
 function rnd(s){return()=>(s=(s*16807)%2147483647)/2147483647}
 // ---- storage
 async function load(){data=JSON.parse(localStorage.getItem('cal')||'{}');
@@ -94,7 +117,7 @@ function render(){
   const o=pts.map(p=>p.slice());pts=pts.map(p=>p.slice());for(let it=0;it<400;it++){let any=0;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1],px=ts*1.06-Math.abs(dx),py=ts*.86-Math.abs(dy);if(px>0&&py>0){any=1;const pi=T.pin&&T.pin.includes(i),pj=T.pin&&T.pin.includes(j);if(pi&&pj)continue;const wi=pi?0:pj?2:1,wj=pj?0:pi?2:1;if(px/ts<py/(.8*ts)){const f=px/2*(dx<0?-1:1)||px/2;pts[i][0]-=f*wi;pts[j][0]+=f*wj}else{const f=py/2*(dy<0?-1:1)||py/2;pts[i][1]-=f*wi;pts[j][1]+=f*wj}}}if(!any)break}
   pts.forEach((p,i)=>{p[0]=Math.max(ts/2+2,Math.min(W-ts/2-2,p[0]))});if(T.map)window.__lead=o}
  let s=`<svg viewBox="0 0 ${W} ${H}"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.sky[0]}"/><stop offset="1" stop-color="${T.sky[1]}"/></linearGradient>
- <filter id="glow"><feGaussianBlur stdDeviation="4"/></filter></defs><rect width="${W}" height="${H}" fill="url(#sk)"/>`;
+ <filter id="glow"><feGaussianBlur stdDeviation="4"/></filter><linearGradient id="bdg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd34d"/><stop offset=".5" stop-color="#ff7eb6"/><stop offset="1" stop-color="#ffd34d"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#sk)"/>`;
  s+=T.map?mb.s:(T.deco?themeScenery(T,W,H,R):scenery(m,W,H,R));if(T.ldeco)s+=T.ldeco(W,H);if(T.map&&window.__lead)window.__lead.forEach((p,i)=>{if(Math.hypot(p[0]-pts[i][0],p[1]-pts[i][1])>2)s+=`<line x1="${p[0]}" y1="${p[1]}" x2="${pts[i][0]}" y2="${pts[i][1]}" stroke="${T.accent}" stroke-width="1" opacity=".7"/>`});
  s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${T.path}" stroke-width="${T.map?4:ts*.9}" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>
  <polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-dasharray="6 9"/>`;
@@ -107,7 +130,7 @@ function render(){
   ${ev?`<text x="${x+ts*.36}" y="${y-ts*.18}" text-anchor="middle" font-size="${ts*.42}" transform="rotate(-14 ${x+ts*.36} ${y-ts*.18})">${T.stamp}</text>`:''}</g>`;
   if(today){const h=ts*1.5;s+=`<g class="fig"><ellipse cx="${x}" cy="${y-ts*.42+h*.0}" rx="${ts*.6}" ry="${ts*.14}" fill="#000" opacity=".45"/>
    <image href="${HIM}" x="${x-h*.55}" y="${y-ts*.42-h*.78}" height="${h}" width="${h*.54}"/><image href="${HER}" x="${x+h*.02}" y="${y-ts*.42-h*.78}" height="${h}" width="${h*.5}"/></g>`}
- });
+ });if(m==20&&pts[23])s+=bdayDeco(pts,ts,23);
  const bd=document.getElementById('board');bd.style.overflow='hidden';bd.style.background=T.map?T.ground:'#000';bd.innerHTML=s.replace('<svg viewBox',T.map?'<svg id="msvg" style="touch-action:none" preserveAspectRatio="xMidYMid meet" viewBox':'<svg viewBox')+'</svg>'+(T.map?'<div id="zbtn"><button onclick="zoomBy(1.5)">+</button><button onclick="zoomBy(1/1.5)">−</button><button onclick="zoomFit()">Fit whole map</button></div>':'');
  if(T.map)setupZoom(W,H);
 }
@@ -162,12 +185,12 @@ function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[
  for(let i=0;i<14;i++){const fall=m!=10;h+=`<span class="p amb" style="font-size:${14+R()*18}px;left:${fall?R()*100:-10}%;top:${fall?-10:10+R()*40}%;animation:${fall?'fall':'fly'} ${6+R()*8}s linear ${-R()*10}s infinite">${amb}</span>`}
  h+=`<div class="p" style="left:18%;bottom:22%;font-size:60px;animation:flick 2.5s infinite">${m==10?'🕯️':m==11?'🏮':'🕯️'}</div><div class="p" style="right:16%;bottom:24%;font-size:70px">${T.props[d%T.props.length]}</div>`;
  h+=closeExtra(m,d,R);
- h+=`<div class="figs"><img src="${HIM}" alt="Him"><img src="${HER}" alt="Her"></div>`;
+ h+=`<div class="figs"><img src="${m==20&&d==24?HIMBD:HIM}" alt="Him"><img src="${m==20&&d==24?HERBD:HER}" alt="Her"></div>`;
  if(m==10)h+=`<div class="p" style="inset:0;background:radial-gradient(ellipse at 50% 70%,transparent 30%,rgba(10,0,20,.75));animation:fog 6s ease-in-out infinite"></div>`;
  const sc=document.getElementById('scene');sc.innerHTML=h;sc.classList.remove('real');
  {const [yy,mo]=ym(m),ds=`${yy}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`,im=new Image();sc.classList.remove('photo');
   im.onload=()=>{if(openDay!==d||cur!==m)return;im.className='bdimg';im.alt='';sc.appendChild(im);const T2=M[m],D2=T2.days&&T2.days[d-1],cap=(T2.photoCap&&T2.photoCap[d-1])||(T2.caps&&T2.caps[d-1])||(D2?D2[1]:'');
-   sc.insertAdjacentHTML('beforeend',`<div class="pcap"><div style="font:900 clamp(18px,5vw,26px) Georgia">${T2.spots[d-1]}</div>${cap?`<div style="font:italic 700 clamp(14px,3.8vw,17px) Georgia;margin-top:4px">${typeof capFix=='function'?capFix(cap):cap}</div>`:''}</div>`);sc.classList.add('photo');sc.classList.toggle('real',m==13||m==15);requestAnimationFrame(fixCapOverlap);setTimeout(fixCapOverlap,400)};
+   sc.insertAdjacentHTML('beforeend',`<div class="pcap"><div style="font:900 clamp(18px,5vw,26px) Georgia">${T2.spots[d-1]}</div>${cap?`<div style="font:italic 700 clamp(14px,3.8vw,17px) Georgia;margin-top:4px">${typeof capFix=='function'?capFix(cap):cap}</div>`:''}</div>`);sc.classList.add('photo');sc.classList.toggle('real',m==13||m==15||(m==20&&d==24));requestAnimationFrame(fixCapOverlap);setTimeout(fixCapOverlap,400)};
   let tried=0;im.onerror=()=>{if(tried++)return;fetch(`assets/backdrops/${ds}.jpg.b64`).then(r=>r.ok?r.text():Promise.reject()).then(t=>{im.src=t.trim()}).catch(()=>{})};im.src=`assets/backdrops/${ds}.jpg`}
  document.getElementById('close').classList.add('open');document.getElementById('f').classList.remove('on');list();
 }
@@ -175,7 +198,7 @@ function openClose(d){openDay=d;const m=cur,T=M[m],R=rnd(m*1000+d),spot=T.spots[
 window.BDCAPHI=[];window.BDPOS={};window.BDCENTER=['7/15','22/15','23/15','7/13','27/13','19/13','30/13','18/13','4/13','22/13','11/13','26/13','29/13','31/13'];
 function capCards(){return [...document.querySelectorAll('#scene .pcap,#scene [style*="translateX(-50%)"]')].filter(e=>e.offsetParent&&e.textContent.trim()&&getComputedStyle(e).display!='none'&&!e.closest('.figs'))}
 function fixCapOverlap(){const pn=document.querySelector('#close .panel');if(!pn)return;const pb=pn.getBoundingClientRect();
- const sc=document.getElementById('scene');if(sc.classList.contains('real')&&sc.classList.contains('photo')){const st=sc.getBoundingClientRect(),bi=sc.querySelector('.bdimg'),pc=sc.querySelector('.pcap'),fg=sc.querySelector('.figs'),bk=[...document.querySelectorAll('#close button')].find(b=>/Back/.test(b.textContent));const t=Math.ceil(pb.bottom-st.top+4);if(bi){bi.style.top=t+'px';bi.style.height=`calc(100% - ${t}px)`;bi.style.objectPosition=(window.BDPOS||{})[openDay+'/'+cur]||((window.BDCENTER||[]).includes(openDay+'/'+cur)?'50% 50%':'50% 0');bi.style.objectFit=(cur==15||cur==13)?'contain':'cover'}if(pc){let lim=st.bottom;[fg,bk].forEach(x=>{if(x){const xr=x.getBoundingClientRect();if(xr.height)lim=Math.min(lim,xr.top)}});pc.dataset.ot=pc.dataset.ot??'';pc.style.top=((window.BDCAPHI||[]).includes(openDay+'/'+cur)?t+250:Math.max(t,Math.floor(lim-st.top-pc.offsetHeight-8)))+'px'}return}
+ const sc=document.getElementById('scene');if(sc.classList.contains('real')&&sc.classList.contains('photo')){const st=sc.getBoundingClientRect(),bi=sc.querySelector('.bdimg'),pc=sc.querySelector('.pcap'),fg=sc.querySelector('.figs'),bk=[...document.querySelectorAll('#close button')].find(b=>/Back/.test(b.textContent));const t=Math.ceil(pb.bottom-st.top+4);if(bi){bi.style.top=t+'px';bi.style.height=`calc(100% - ${t}px)`;bi.style.objectPosition=(window.BDPOS||{})[openDay+'/'+cur]||((window.BDCENTER||[]).includes(openDay+'/'+cur)?'50% 50%':'50% 0');bi.style.objectFit=(cur==15||cur==13||(cur==20&&openDay==24))?'contain':'cover'}if(pc){let lim=st.bottom;[fg,bk].forEach(x=>{if(x){const xr=x.getBoundingClientRect();if(xr.height)lim=Math.min(lim,xr.top)}});pc.dataset.ot=pc.dataset.ot??'';pc.style.top=((window.BDCAPHI||[]).includes(openDay+'/'+cur)?t+250:Math.max(t,Math.floor(lim-st.top-pc.offsetHeight-8)))+'px'}return}
  capCards().forEach(e=>{if(e.dataset.ot===undefined)e.dataset.ot=e.style.top||'';e.style.top=e.dataset.ot;const r=e.getBoundingClientRect();
   if(r.top<pb.bottom+6&&r.bottom>pb.top&&r.left<pb.right&&r.right>pb.left){const sh=pb.bottom+8-r.top,pr=e.offsetParent.getBoundingClientRect();e.style.top=Math.ceil(r.top-pr.top+sh)+'px'}})}
 addEventListener('resize',()=>{if(openDay)fixCapOverlap()});

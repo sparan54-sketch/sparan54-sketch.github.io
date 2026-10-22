@@ -463,3 +463,4 @@ if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[28]="Clinkin' Guinnes
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[9]="Catchin' a game over pints at O'Neals"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[17]="Warmin' up with a Guinness at Finn McCool's"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[23]="Hangin' out on Sansom at Cavanaugh's Rittenhouse"}
+if(M[20]){M[20].photoCap=M[20].photoCap||[];M[20].photoCap[23]="Poppin' bottles for Amanda's birthday"}
