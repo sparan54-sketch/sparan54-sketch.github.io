@@ -414,3 +414,5 @@ if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[14]="Sippin' a Guinne
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[30]="Endin' the bar hop with a burger at Good Dog"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[30]="Endin' the bar hop with a burger at Good Dog"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[30]="Endin' the bar hop with a burger at Good Dog"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[20]="Pilin' toppings on toasts at Vernick Food & Drink"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[15]="Sharin' dinner and cocktails at Friday Saturday Sunday"}
