@@ -26,6 +26,7 @@
 .panel h2{margin:0 0 2px;font-size:22px}.panel .sub{opacity:.8;font-size:14px;margin-bottom:8px}
 .btn{border:0;border-radius:12px;padding:9px 14px;font:700 14px Georgia;cursor:pointer;background:var(--accent);color:#111}
 .ghost{background:rgba(255,255,255,.15);color:#fff}
+#by{flex:1 1 100%;display:flex;gap:6px;align-items:center;flex-wrap:wrap}#by span{font-size:14px;opacity:.85;margin-right:2px}#by label{flex:0 0 auto;cursor:pointer}#by input{position:absolute;opacity:0;width:1px;height:1px;flex:none;padding:0}#by label{padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.15);color:#fff;font:14px Georgia}#by label:has(input:checked){background:var(--accent);color:#111;font-weight:bold}#by label:has(input:focus-visible){outline:2px solid #fff}
 form{display:none;gap:6px;flex-wrap:wrap;margin:8px 0}form.on{display:flex}
 input{flex:1 1 120px;padding:9px;border-radius:10px;border:0;font:15px Georgia}
 ul{list-style:none;padding:0;margin:8px 0 0}li{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid rgba(255,255,255,.15)}
@@ -38,7 +39,7 @@ li b{min-width:70px;color:var(--accent)}li span{flex:1}li button{background:none
 <div id="close"><div id="scene"></div>
  <div class="panel"><h2 id="ttl"></h2><div class="sub" id="sub"></div>
   <button class="btn" id="logbtn">Log event and time</button>
-  <form id="f"><input id="ev" placeholder="Event" required maxlength="120"><input id="tm" type="time" required style="flex:0 1 120px"><button class="btn">Submit</button></form>
+  <form id="f"><input id="ev" placeholder="Event" required maxlength="120"><input id="tm" type="time" required style="flex:0 1 120px"><div id="by" role="radiogroup" aria-label="Who's posting?"><span>Who's posting?</span><label><input type="radio" name="by" value="Joe">Joe</label><label><input type="radio" name="by" value="Amanda">Amanda</label></div><button class="btn">Submit</button></form>
   <ul id="list"></ul></div>
  <button class="btn ghost" id="back">← Back to month</button></div>
 <div id="sync" title="Shared sync settings"></div>
@@ -1299,8 +1300,9 @@ function list(){const items=(data[key(cur,openDay)]||[]).slice().sort((a,b)=>a.t
 const fmt=t=>{const[h,m]=t.split(':').map(Number);return`${(h%12)||12}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`};
 const esc=s=>s.replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 async function del(id){const k=key(cur,openDay);await mutate(d=>{d[k]=(d[k]||[]).filter(e=>e.id!==id);if(!d[k].length)delete d[k]});list();render()}
+{const lb=localStorage.getItem('lastBy')||'Joe',r=document.querySelector(`#by input[value="${lb}"]`);if(r)r.checked=true}
 document.getElementById('logbtn').onclick=()=>{document.getElementById('f').classList.toggle('on');document.getElementById('ev').focus()};
-document.getElementById('f').onsubmit=async e=>{e.preventDefault();const k=key(cur,openDay),it={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),text:ev.value.trim(),time:tm.value};
+document.getElementById('f').onsubmit=async e=>{e.preventDefault();const k=key(cur,openDay),it={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),text:ev.value.trim(),time:tm.value};const bw=document.querySelector('#by input:checked');if(bw){it.by=bw.value;localStorage.setItem('lastBy',bw.value)}
  if(!it.text||!it.time)return;await mutate(d=>{(d[k]=d[k]||[]).push(it)});ev.value='';tm.value='';e.target.classList.remove('on');list();render()};
 document.getElementById('back').onclick=()=>{document.getElementById('close').classList.remove('open');openDay=null};
 addEventListener('pointermove',e=>{if(!openDay)return;const dx=e.clientX/innerWidth-.5;document.querySelectorAll('.layer').forEach(l=>l.style.transform=`translateX(${-dx*l.dataset.k}px)`)});

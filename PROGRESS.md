@@ -116,3 +116,4 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Aug 24 dancing Mario: fixed neck seam (removed shoulder lump/generated-head remnants, inpainted join).
 - Jan map: all 31 pins snapped onto their real named street centerline (Overpass); 28 missing street segments (e.g. S 9th St at Mawn) added to the drawn map; every dot now <1px from a drawn street.
 - Logged days: month stamp emoji drawn as large centered overlay on the tile with pulsing theme-color glow (all months, incl. Aug 24 bottle tile); day number stroked for legibility.
+- Event form: "Who's posting?" Joe/Amanda pill toggle; saved as `by` on new events; defaults to last choice on device (localStorage lastBy). Existing events untouched. Tested with mocked sync only (no live writes — an email routine watches the textdb).
