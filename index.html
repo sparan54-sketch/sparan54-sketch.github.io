@@ -44,8 +44,8 @@ li b{min-width:70px;color:var(--accent)}li span{flex:1}li button{background:none
 #uplist li{gap:10px}#uplist .go{flex:1;text-align:left;background:none;border:0;color:#fff;font:15px Georgia;cursor:pointer;padding:0}#uplist .go small{display:block;opacity:.7;font-size:12px}
 #uplist .ics{flex:0 0 auto;font:12px sans-serif;color:#111;background:var(--accent,#ffb000);border-radius:10px;padding:6px 8px}
 li i.by{font:12px sans-serif;opacity:.75;font-style:normal}li button.ed{color:#ddd}
-#toasts{position:fixed;left:50%;transform:translateX(-50%);top:calc(max(8px,env(safe-area-inset-top)) + 46px);z-index:40;display:flex;flex-direction:column;gap:6px;width:min(92vw,420px);pointer-events:none}
-.toast{background:rgba(20,20,25,.95);color:#fff;border-left:4px solid var(--accent,#ffb000);padding:10px 12px;border-radius:10px;font:14px Georgia;animation:tin .3s}@keyframes tin{from{opacity:0;transform:translateY(-8px)}}
+#toasts{position:fixed;left:0;right:0;top:0;z-index:21;display:none;padding:max(8px,env(safe-area-inset-top)) 8px 8px;pointer-events:none}#toasts.on{display:block}body.toasting #tabs{visibility:hidden}
+.toast{background:rgba(20,20,25,.95);color:#fff;border-left:4px solid var(--accent,#ffb000);padding:7px 12px;border-radius:14px;font:600 14px Georgia;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:tin .3s}@keyframes tin{from{opacity:0}}
 body.dayopen #upbtn,body.dayopen #up{display:none}
 </style></head><body>
 <div id="tabs"></div><div id="board"></div>
@@ -1244,7 +1244,9 @@ function placeUp(){const b=document.getElementById('upbtn'),sy=document.getEleme
  const X=(a,c)=>a.left<c.right+2&&a.right>c.left-2&&a.top<c.bottom+2&&a.bottom>c.top-2;
  for(const L of [10,(innerWidth-b.offsetWidth)/2,sy.left-b.offsetWidth-8]){b.style.left=Math.max(4,L)+'px';const a=b.getBoundingClientRect();if(!tiles.some(t=>X(a,t))&&!X(a,sy))return}b.style.left='10px'}
 function refreshUI(){render();if(openDay)list();upcoming()}
-function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),6000)}
+const TQ=[];let tOn=false;function toast(t){TQ.push(t);if(!tOn)nextToast()}
+function nextToast(){const box=document.getElementById('toasts');if(!TQ.length){tOn=false;box.classList.remove('on');document.body.classList.remove('toasting');return}tOn=true;
+ const tb=document.getElementById('tabs').getBoundingClientRect();box.style.height=tb.height+'px';box.innerHTML='';const el=document.createElement('div');el.className='toast';el.textContent=TQ.shift();box.appendChild(el);box.classList.add('on');document.body.classList.add('toasting');setTimeout(nextToast,5000)}
 let lastPoll=0;async function poll(){if(document.hidden||Date.now()-lastPoll<5000)return;lastPoll=Date.now();await load();refreshUI()}
 addEventListener('online',()=>flush().then(refreshUI));addEventListener('focus',poll);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});setInterval(()=>{if(!document.hidden){lastPoll=0;poll()}},60000);
 function stat(t){document.getElementById('sync').textContent='⟳ '+t}
