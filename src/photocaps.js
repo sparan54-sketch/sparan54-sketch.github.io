@@ -409,3 +409,8 @@ if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[16]="Raisin' a pint a
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[11]="Grabbin' the Special at Bob & Barbara's Lounge"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[10]="Hittin' the pinball and tots at Tattooed Mom"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[10]="Grabbin' a Trenton tomato pie at CJ & D's"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[13]="Singin' along at the Tavern on Camac piano bar"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[14]="Sippin' a Guinness under the gold Moriarty's sign"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[30]="Endin' the bar hop with a burger at Good Dog"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[30]="Endin' the bar hop with a burger at Good Dog"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[30]="Endin' the bar hop with a burger at Good Dog"}
