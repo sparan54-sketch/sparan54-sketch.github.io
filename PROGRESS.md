@@ -122,3 +122,4 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Coming up (F): "📅 Coming up · N" pill (auto-placed to avoid tiles) opens a sheet with the next 5 events, countdowns, tap → day, "Add to my calendar" .ics (TZID America/New_York + VTIMEZONE, 1h).
 - TESTING: page.route does NOT intercept service-worker fetches — always use service_workers='block' in Playwright tests. /tmp/sync_t.py = mocked sync suite.
 - Toast now replaces the month-tab bar while showing (tabs hidden, one toast at a time for 5s), so it covers no titles or tiles. Test: /tmp/toast_t.py.
+- Sharpness pass: figurines now inlined from 600px sources (him.png/her.png, him_dance_full.png for Aug 24 Mario) — displayed ~173 CSS px tall needs ~520px at DPR3. Mar 11/12/17 backdrops now original bytes (Mar 17 was downscaled 1280→1160). SW cache cal-v3. Generated 720x1280 backdrops are native generator size (can't improve).
