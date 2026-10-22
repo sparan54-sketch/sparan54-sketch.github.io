@@ -82,3 +82,10 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Jan real photos collected in incoming/ (2027-01-17 Little Water, landscape). Deploy in batches.
 - 6:58 PM: Feb 2027 photos all 28 live (Feb 14 = generated chocolates photo), Feb arrow pinned straight (M[14].pin, app nudge respects T.pin). Close-up caption fix: fixCapOverlap() in app.src.html moves a caption card under the panel only when they overlap; test_capoverlap.py PASS all months at 390x844. test_mapanchor.py PASS. Jan real photos live: 1,2,5,15,17.
 - MBARS (March bar coords) now lives at top of months_osm.js — don't drop it.
+
+## Round 10 (Oct 21 2026, evening): real photos for Jan + Mar
+- Jan 2027 real user photos (original files, no recompression, contain-fit below the top panel, caption low): days 1, 2, 3, 5, 9, 11, 15, 16, 17, 20, 21, 22, 23, 26, 29, 31. Centered: 11, 22, 26, 29, 31.
+- Mar 2027 real bar exteriors (contain-fit, sign fully visible): 1 Paddy's, 2 Victoria Freehouse, 3 Monto, 4 National Mechanics, 5 Sassafras, 11 Tattooed Mom, 12 Bob & Barbara's, 14 Tavern on Camac, 15 Moriarty's, 16 Fergie's, 17 McGillin's, 25 Bonner's, 31 Good Dog. 11/12/17 from Commons/official sites; 14/15/31 from official sites; others are user photos.
+- Mar days still needing photos: 6-10, 13 (Dirty Franks has no sign), 18-24, 26-30.
+- Low-res sources (upscaled ~1.1-2x at DPR 3): Jan 2; Mar 1, 2, 3, 4, 5, 16, 25.
+- Oct 19 (Masonic Temple) and Oct 29 (bowling) use real user photos. Sep-Dec 2027 all live; sync test PASS.

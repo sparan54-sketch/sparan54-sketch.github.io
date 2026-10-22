@@ -429,3 +429,4 @@ if(M[15]){M[15].photoCap[3]="Grabbin' a pint between the columns at National Mec
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[24]="Pourin' a pint of the black stuff at Bonner's"}
 if(M[15]){M[15].photoCap[2]="Raisin' a Guinness at The Monto"}
 if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[0]="Kickin' off the bar hop at Paddy's Pub"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[15]="Catchin' a trad session at Fergie's Pub"}
