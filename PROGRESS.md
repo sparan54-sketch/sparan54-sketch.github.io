@@ -111,3 +111,4 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Aug 24 2027 board tile redone as a big champagne bottle (~2x wide, ~4x tall: gold foil, 'Amanda's Birthday' label with 24, popping cork + spray, bubbles, balloons, crown, confetti, sparkles, glow). Other Aug tiles re-flow around it (bdFlow); no overlaps, all 31 tappable at 390x844 and 1280x800. Day view unchanged.
 - Aug 24 day view: caption card removed (this day only); top panel + Back kept.
 - Aug 24 Mario bottle redrawn: upright/toasting, fist wrapped over body (him_bday.png).
+- Month names now carry year suffix everywhere (tabs, board header, day title): October ’26 … December ’27 (MN helper). Day titles shrink to fit one line, else break cleanly after the date.
