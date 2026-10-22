@@ -421,3 +421,7 @@ if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[21]="Pullin' kebabs o
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[0]="Scoopin' hummus and za'atar flatbread at Suraya"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[1]="Pullin' skewers off the grill at Laser Wolf"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[2]="Sharin' plant-based plates at Pietramala"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[1]="Toastin' with a proper pint at The Victoria Freehouse"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[2]="Raisin' a Guinness under The Monto's hangin' sign"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[4]="Sippin' cocktails under the Sassafras Bar awning"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[3]="Grabbin' a pint in the old bank at National Mechanics"}
