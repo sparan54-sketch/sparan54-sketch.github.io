@@ -401,3 +401,11 @@ if(M[24]){M[24].photoCap=M[24].photoCap||[];M[24].photoCap[28]="Sculptin' snow f
 if(M[24]){M[24].photoCap=M[24].photoCap||[];M[24].photoCap[29]="Carryin' lanterns in the ski parade"}
 if(M[24]){M[24].photoCap=M[24].photoCap||[];M[24].photoCap[30]="Ringin' in the New Year at the pub"}
 if(M[22]){M[22].photoCap[14]="Chillin' by icy blue Uranus"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[25]="Sippin' martinis at Mr. Edison"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[28]="Slicin' a porterhouse at Alpen Rose"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[30]="Endin' the crawl with omakase at Morimoto"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[8]="Slurpin' Cambodian noodles at Mawn"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[16]="Raisin' a pint at McGillin's, Philly's oldest tavern"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[11]="Grabbin' the Special at Bob & Barbara's Lounge"}
+if(M[15]){M[15].photoCap=M[15].photoCap||[];M[15].photoCap[10]="Hittin' the pinball and tots at Tattooed Mom"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[10]="Grabbin' a Trenton tomato pie at CJ & D's"}
