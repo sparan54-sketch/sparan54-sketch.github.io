@@ -67,7 +67,7 @@ function themeExtra(T,d,R){const D=T.days[d-1],em=[...D[2]];let h='';
 document.head.insertAdjacentHTML('beforeend','<style>.fw{width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 -40px 0 var(--c),0 40px 0 var(--c),40px 0 0 var(--c),-40px 0 0 var(--c),28px 28px 0 var(--c),-28px 28px 0 var(--c),28px -28px 0 var(--c),-28px -28px 0 var(--c);animation:boom 2.4s ease-out infinite}@keyframes boom{0%{transform:scale(.1);opacity:1}70%{opacity:1}100%{transform:scale(1.4);opacity:0}}</style>');
 function TM(k,o){o.spots=o.days.map(x=>x[0]);o.props=o.props||[...o.days.map(x=>[...x[2]][0])];o.extra=(d,R)=>themeExtra(M[k],d,R);M[k]=o}
 // ---- January 2027: Philly food crawl (map month)
-M[13]={name:"January",accent:"#ffb300",stamp:"🥨",sky:["#3b1d0e","#7a3b12"],ground:"#f3ead7",path:"#c0392b",tile:"#a8321f",
+M[13]={name:"January",accent:"#ffb300",stamp:"🍽️",sky:["#3b1d0e","#7a3b12"],ground:"#f3ead7",path:"#c0392b",tile:"#a8321f",
  title:"Philly Food Crawl",map:true,board:phillyBoard,spots:FOOD.map(f=>f[0]),props:["🥩","🥨","🍝","🧁","🍕","🥪"],far:["🏘️","🏪","🏙️","🚋"],amb:"❄️",
  extra:(d,R)=>{const f=FOOD[d-1],seas=/seasonal/.test(f[0]);return `<div class="p" style="left:50%;top:30%;transform:translateX(-50%);z-index:2;text-align:center;background:#fff8e7;color:#3b1d0e;border:5px solid #c0392b;border-radius:12px;padding:10px 16px;box-shadow:0 10px 30px rgba(0,0,0,.5)">
   <div style="font:900 clamp(20px,5.5vw,32px) Georgia;color:#c0392b">${f[0]}</div><div style="font:14px Georgia">${f[1]} · Philadelphia</div><div style="font:italic 13px Georgia">Stop ${d} of 31 · ${f[3]}${seas?' · opens for the season in spring':''}</div></div>

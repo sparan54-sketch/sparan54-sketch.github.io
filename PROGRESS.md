@@ -90,3 +90,6 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Low-res sources (upscaled ~1.1-2x at DPR 3): Jan 2; Mar 1, 2, 3, 4, 5, 16, 25.
 - Oct 19 (Masonic Temple) and Oct 29 (bowling) use real user photos. Sep-Dec 2027 all live; sync test PASS.
 - Jan 2027: all 31 days have real user photos.
+- Stamps: Oct🎃 Nov🦃 Dec🎄 Jan🍽️ Feb💘 Mar☘️ Apr🌷 May☕ Jun🌴 Jul🎆 Aug🎂 Sep✈️ Oct🚀 Nov⭐ Dec🍺 (verified locally w/ mocked sync, no live writes)
+- Removed all hand/floating props beside figurines in day view (CSS kills .figs::before/::after); verified 8 days across months.
+- Jan map audit: 31 addresses re-geocoded via Nominatim (29 exact, Barclay Prime 49m, Alpen Rose 75m: both on the correct block, unchanged); grid/rivers/Broad/Market/I-95 match OSM; test_mapanchor + test_overlap PASS.
