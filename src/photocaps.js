@@ -419,3 +419,5 @@ if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[15]="Sharin' dinner a
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[19]="Clinkin' glasses over French plates at My Loup"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[21]="Pullin' kebabs off the grill at Dear Daphni"}
 if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[0]="Scoopin' hummus and za'atar flatbread at Suraya"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[1]="Pullin' skewers off the grill at Laser Wolf"}
+if(M[13]){M[13].photoCap=M[13].photoCap||[];M[13].photoCap[2]="Sharin' plant-based plates at Pietramala"}
