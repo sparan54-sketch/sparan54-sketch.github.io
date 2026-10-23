@@ -124,3 +124,9 @@ Next: write months_themes.js (TM(key,{...days:[[title,subtitle,emojis]...]})), a
 - Toast now replaces the month-tab bar while showing (tabs hidden, one toast at a time for 5s), so it covers no titles or tiles. Test: /tmp/toast_t.py.
 - Sharpness pass: figurines now inlined from 600px sources (him.png/her.png, him_dance_full.png for Aug 24 Mario) — displayed ~173 CSS px tall needs ~520px at DPR3. Mar 11/12/17 backdrops now original bytes (Mar 17 was downscaled 1280→1160). SW cache cal-v3. Generated 720x1280 backdrops are native generator size (can't improve).
 - Oct 19/29 backdrops now serve the q95 originals (incoming/done/*.real.jpg), same framing (approved exception). SW cal-v4.
+- Oct 19/29 backdrops now serve the q95 originals (incoming/done/*.real.jpg), same framing (approved exception). SW cal-v4.
+
+## Oct 23, 2026 — sharpened all generated day backdrops
+- 380 generated 720x1280 backdrops upscaled (realesr-general-x4v3, 4x then Lanczos to 1440x2560), saved as WebP q85 data URIs in assets/backdrops/DATE.jpg.b64. Pushed softest-first in 4-file commits.
+- October 2026 backdrops left untouched ("don't change October photos"); real/uploaded photos, Aug 24 assets and figurines excluded.
+- sw.js: cal-v6 on the first batch, cal-v7 on the final push. Originals backed up on the box in /workspace/before_esr/.
