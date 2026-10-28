@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hurry Up! Countdown</title>
+<meta name="description" content="A countdown to when you finally show up.">
+<meta property="og:title" content="Tick tock... I'm waiting!">
+<meta property="og:description" content="Open to see exactly how long until it's time.">
+<meta name="theme-color" content="#ffcc00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌚</text></svg>">
+<style>
+:root{--ink:#1d1033;--sun:#ffcc00;--pink:#ff3d7f;--teal:#00c2a8;--paper:#fffaf0}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Trebuchet MS","Avenir Next",system-ui,sans-serif;color:var(--ink);min-height:100vh;
+ background:var(--sun);background-image:radial-gradient(circle at 20% 10%,#ffe066 0 14%,transparent 15%),radial-gradient(circle at 85% 30%,#ffd23f 0 10%,transparent 11%),repeating-linear-gradient(45deg,transparent 0 22px,rgba(255,255,255,.18) 22px 44px);
+ display:flex;justify-content:center;padding:16px 14px 40px}
+.wrap{width:100%;max-width:520px}
+.card{background:var(--paper);border:4px solid var(--ink);border-radius:26px;box-shadow:8px 8px 0 var(--ink);padding:18px 18px 22px;margin-top:12px}
+h1{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(30px,9vw,46px);letter-spacing:1px;margin:6px 0 2px;text-align:center;line-height:1.05;text-transform:uppercase;
+ color:var(--pink);-webkit-text-stroke:2px var(--ink);text-shadow:4px 4px 0 var(--ink);word-wrap:break-word}
+.sub{text-align:center;font-weight:700;margin:6px 0 12px;font-size:16px}
+.hero{display:block;width:100%;max-width:340px;margin:0 auto;height:auto}
+.clock{display:flex;justify-content:center;gap:6px;margin:10px 0 6px}
+.unit{background:var(--ink);color:#fff;border-radius:14px;padding:10px 6px 6px;min-width:0;flex:1;max-width:110px;text-align:center;box-shadow:4px 4px 0 var(--pink)}
+.unit b{display:block;font-family:"Courier New",ui-monospace,monospace;font-weight:900;font-size:clamp(34px,12vw,56px);line-height:1;font-variant-numeric:tabular-nums}
+.unit span{font-size:11px;letter-spacing:2px;text-transform:uppercase;opacity:.8}
+.sep{font-family:Impact,sans-serif;font-size:clamp(30px,10vw,48px);align-self:center;padding-bottom:16px}
+.target{text-align:center;font-weight:700;margin:12px 0 2px}
+.target small{display:block;font-weight:400;opacity:.75;margin-top:3px}
+.quip{text-align:center;font-style:italic;min-height:1.4em;margin:10px 0 0}
+label{display:block;font-weight:800;margin:14px 0 6px;font-size:15px}
+input,select{width:100%;font:inherit;font-size:18px;padding:12px 12px;border:3px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);appearance:none;-webkit-appearance:none}
+input:focus,select:focus{outline:none;box-shadow:0 0 0 4px var(--teal)}
+.row{display:flex;gap:10px}.row>div{flex:1;min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{border:2px solid var(--ink);background:#fff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px;cursor:pointer}
+.chip:active{transform:translateY(2px)}
+.btn{display:block;width:100%;font:inherit;font-weight:900;font-size:19px;letter-spacing:.5px;text-transform:uppercase;padding:14px;margin-top:14px;border:3px solid var(--ink);border-radius:16px;cursor:pointer;
+ background:var(--pink);color:#fff;box-shadow:5px 5px 0 var(--ink);transition:transform .08s,box-shadow .08s;text-decoration:none;text-align:center}
+.btn:active{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--ink)}
+.btn.alt{background:var(--teal)}
+.btn.ghost{background:#fff;color:var(--ink)}
+.btns{display:flex;gap:10px}.btns .btn{flex:1}
+.linkbox{margin-top:16px;padding:12px;border:3px dashed var(--ink);border-radius:14px;background:#fff5d6;word-break:break-all;font-size:14px;font-family:ui-monospace,monospace}
+.err{color:#c0002a;font-weight:700;text-align:center;margin-top:10px;min-height:1.2em}
+.foot{text-align:center;font-size:13px;margin-top:16px;opacity:.8}
+.foot a{color:var(--ink)}
+.hidden{display:none!important}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-weight:700;transition:transform .25s;z-index:9}
+.toast.show{transform:translateX(-50%) translateY(0)}
+/* ===== character animation ===== */
+.foot-tap{transform-origin:212px 300px;animation:tap .45s ease-in-out infinite}
+@keyframes tap{0%,100%{transform:rotate(0)}50%{transform:rotate(-16deg)}}
+.body-bob{animation:bob .9s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+.pupils{animation:glance 3s ease-in-out infinite}
+@keyframes glance{0%,40%{transform:translate(3px,4px)}50%,85%{transform:translate(-3px,-1px)}95%,100%{transform:translate(3px,4px)}}
+.minute{transform-origin:150px 132px;animation:spin 2s linear infinite}
+.hour{transform-origin:150px 132px;animation:spin 24s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sweat{animation:drip 1.8s ease-in infinite}
+@keyframes drip{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(26px);opacity:0}}
+.steam{animation:puff 1.6s ease-out infinite;opacity:0}
+.steam.s2{animation-delay:.8s}
+@keyframes puff{0%{transform:translateY(0) scale(.6);opacity:0}30%{opacity:.9}100%{transform:translateY(-26px) scale(1.2);opacity:0}}
+.tick{animation:tick 1s steps(1) infinite}
+@keyframes tick{50%{opacity:0}}
+.brow{animation:brow 3s ease-in-out infinite}
+@keyframes brow{0%,40%,100%{transform:translateY(0)}50%,85%{transform:translateY(-2px)}}
+/* done state */
+.done .clock .unit{background:var(--teal);box-shadow:4px 4px 0 var(--ink)}
+.done .foot-tap{animation:none}
+.done .body-bob{animation:jump .6s ease-in-out infinite}
+@keyframes jump{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.done .wait-only{display:none}
+.party-only{display:none}
+.done .party-only{display:inline}
+.done h1{animation:wobble .8s ease-in-out infinite}
+@keyframes wobble{0%,100%{transform:rotate(-3deg) scale(1)}50%{transform:rotate(3deg) scale(1.06)}}
+.confetti{position:fixed;top:-20px;width:10px;height:16px;z-index:8;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+
+<!-- Impatient waiter illustration (inline SVG, animated) -->
+<svg class="hero" viewBox="0 0 300 330" role="img" aria-label="Cartoon of an impatient person tapping their foot and staring at their watch">
+  <ellipse cx="150" cy="318" rx="95" ry="10" fill="#1d1033" opacity=".18"/>
+  <!-- speech bubble -->
+  <g>
+    <path d="M196 22h86a12 12 0 0 1 12 12v30a12 12 0 0 1-12 12h-50l-16 14 3-14h-23a12 12 0 0 1-12-12V34a12 12 0 0 1 12-12z" fill="#fff" stroke="#1d1033" stroke-width="4"/>
+    <text x="239" y="56" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="20" fill="#ff3d7f" class="wait-only">ANY DAY</text>
+    <text x="239" y="56" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="20" fill="#00a08a" class="party-only">FINALLY!!</text>
+  </g>
+  <g class="body-bob">
+    <!-- standing leg -->
+    <path d="M128 230 L124 298" stroke="#1d1033" stroke-width="22" stroke-linecap="round"/>
+    <path d="M128 230 L124 298" stroke="#3a4fb8" stroke-width="15" stroke-linecap="round"/>
+    <path d="M104 304 q0-14 20-14 h8 q6 0 6 8 v6z" fill="#1d1033"/>
+    <!-- tapping leg -->
+    <g class="foot-tap">
+      <path d="M166 230 L176 298" stroke="#1d1033" stroke-width="22" stroke-linecap="round"/>
+      <path d="M166 230 L176 298" stroke="#3a4fb8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M168 304 v-6 q0-8 8-8 h8 q22 0 22 14z" fill="#1d1033"/>
+    </g>
+    <!-- torso -->
+    <path d="M104 150 q46-22 92 0 l-6 92 h-80z" fill="#ff3d7f" stroke="#1d1033" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M132 146 l18 22 18-22" fill="none" stroke="#1d1033" stroke-width="4" stroke-linejoin="round"/>
+    <!-- left arm on hip -->
+    <path d="M108 160 q-30 30 -10 58 q10 6 20 -6" fill="none" stroke="#1d1033" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M108 160 q-30 30 -10 58 q10 6 20 -6" fill="none" stroke="#ff3d7f" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- right arm raised to look at watch -->
+    <path d="M192 160 q28 22 6 52 l-44 -66" fill="none" stroke="#1d1033" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M192 160 q28 22 6 52 l-44 -66" fill="none" stroke="#ff3d7f" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- big watch -->
+    <g>
+      <rect x="140" y="112" width="20" height="40" rx="5" fill="#1d1033"/>
+      <circle cx="150" cy="132" r="19" fill="#ffcc00" stroke="#1d1033" stroke-width="5"/>
+      <circle cx="150" cy="132" r="13" fill="#fff"/>
+      <line class="hour" x1="150" y1="132" x2="150" y2="124" stroke="#1d1033" stroke-width="3" stroke-linecap="round"/>
+      <line class="minute" x1="150" y1="132" x2="150" y2="120" stroke="#ff3d7f" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="150" cy="132" r="2" fill="#1d1033"/>
+    </g>
+    <circle cx="144" cy="150" r="9" fill="#f2b48a" stroke="#1d1033" stroke-width="4"/>
+    <!-- head -->
+    <g>
+      <rect x="140" y="92" width="20" height="18" fill="#f2b48a" stroke="#1d1033" stroke-width="4"/>
+      <circle cx="140" cy="70" r="38" fill="#f2b48a" stroke="#1d1033" stroke-width="5"/>
+      <path d="M104 62 q4-36 40-38 q34 0 36 30 q-14-14 -30-10 q-20-14 -46 18z" fill="#1d1033"/>
+      <!-- eyes -->
+      <ellipse cx="128" cy="72" rx="9" ry="10" fill="#fff" stroke="#1d1033" stroke-width="3"/>
+      <ellipse cx="152" cy="72" rx="9" ry="10" fill="#fff" stroke="#1d1033" stroke-width="3"/>
+      <g class="pupils"><circle cx="128" cy="72" r="4" fill="#1d1033"/><circle cx="152" cy="72" r="4" fill="#1d1033"/></g>
+      <!-- annoyed brows -->
+      <g class="brow wait-only"><path d="M118 58 l18 6" stroke="#1d1033" stroke-width="5" stroke-linecap="round"/><path d="M162 58 l-18 6" stroke="#1d1033" stroke-width="5" stroke-linecap="round"/></g>
+      <!-- mouth -->
+      <path class="wait-only" d="M128 94 q12 -6 24 0" fill="none" stroke="#1d1033" stroke-width="4" stroke-linecap="round"/>
+      <path class="party-only" d="M124 88 q16 18 32 0z" fill="#1d1033"/>
+      <!-- sweat drop -->
+      <path class="sweat wait-only" d="M178 60 q6 10 0 14 q-6 -4 0 -14z" fill="#6ec6ff" stroke="#1d1033" stroke-width="2"/>
+      <!-- steam puffs -->
+      <g class="wait-only">
+        <circle class="steam" cx="100" cy="34" r="8" fill="#fff" stroke="#1d1033" stroke-width="2"/>
+        <circle class="steam s2" cx="182" cy="30" r="7" fill="#fff" stroke="#1d1033" stroke-width="2"/>
+      </g>
+    </g>
+  </g>
+  <!-- tap marks -->
+  <g class="wait-only tick" stroke="#1d1033" stroke-width="4" stroke-linecap="round">
+    <path d="M214 300 l12 -6"/><path d="M218 312 l14 0"/>
+  </g>
+</svg>
+
+<!-- ============ COUNTDOWN MODE ============ -->
+<div class="card hidden" id="countView">
+  <h1 id="cTitle">Tick tock…</h1>
+  <p class="sub" id="cSub">Not that I'm counting, but…</p>
+  <div class="clock" aria-live="polite">
+    <div class="unit hidden" id="dUnit"><b id="dd">0</b><span>days</span></div>
+    <div class="unit"><b id="hh">00</b><span>hrs</span></div>
+    <div class="sep">:</div>
+    <div class="unit"><b id="mm">00</b><span>min</span></div>
+    <div class="sep">:</div>
+    <div class="unit"><b id="ss">00</b><span>sec</span></div>
+  </div>
+  <div class="target" id="cTarget"></div>
+  <p class="quip" id="quip"></p>
+  <div class="btns">
+    <button class="btn alt" id="shareAgain">Share</button>
+    <a class="btn ghost" href="./">New timer</a>
+  </div>
+</div>
+
+<!-- ============ SETTER MODE ============ -->
+<div class="card hidden" id="setView">
+  <h1>Hurry Up! Timer</h1>
+  <p class="sub">Pick a time, grab the link, and let them feel the pressure.</p>
+
+  <label for="title">What are we waiting for? <span style="font-weight:400">(optional)</span></label>
+  <input id="title" maxlength="60" placeholder="Waiting for Joe">
+
+  <div class="row">
+    <div><label for="date">Date</label><input type="date" id="date"></div>
+    <div><label for="time">Time</label><input type="time" id="time" value="17:55"></div>
+  </div>
+  <div class="chips" id="chips">
+    <button class="chip" data-add="5">+5 min</button>
+    <button class="chip" data-add="15">+15 min</button>
+    <button class="chip" data-add="30">+30 min</button>
+    <button class="chip" data-add="60">+1 hr</button>
+  </div>
+
+  <label for="tz">Time zone</label>
+  <select id="tz">
+    <option value="America/New_York">Eastern (New York)</option>
+    <option value="America/Chicago">Central (Chicago)</option>
+    <option value="America/Denver">Mountain (Denver)</option>
+    <option value="America/Phoenix">Arizona (Phoenix)</option>
+    <option value="America/Los_Angeles">Pacific (Los Angeles)</option>
+    <option value="America/Anchorage">Alaska</option>
+    <option value="Pacific/Honolulu">Hawaii</option>
+    <option value="Europe/London">London</option>
+    <option value="UTC">UTC</option>
+  </select>
+
+  <button class="btn" id="make">Make my link</button>
+  <div class="err" id="err"></div>
+
+  <div id="result" class="hidden">
+    <div class="linkbox" id="link"></div>
+    <div class="btns">
+      <button class="btn alt" id="copy">Copy link</button>
+      <button class="btn" id="share">Share</button>
+    </div>
+    <a class="btn ghost" id="preview" href="#">Preview it</a>
+  </div>
+</div>
+
+<p class="foot">Made by Cal · <a href="../">back to the calendar</a></p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const DEFAULT_TZ = 'America/New_York';
+  const params = new URLSearchParams(location.search);
+
+  function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800);}
+
+  // Offset (ms) of a zone at a given instant: wallclock(zone) - UTC
+  function tzOffset(ms, tz){
+    const f = new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const p = {}; f.formatToParts(new Date(ms)).forEach(x=>p[x.type]=x.value);
+    const asUTC = Date.UTC(+p.year, +p.month-1, +p.day, +p.hour%24, +p.minute, +p.second);
+    return asUTC - Math.floor(ms/1000)*1000;
+  }
+  // Convert wall-clock date+time in tz to absolute epoch ms
+  function zonedToEpoch(y,mo,d,h,mi,tz){
+    const guess = Date.UTC(y,mo-1,d,h,mi);
+    let ms = guess - tzOffset(guess,tz);
+    ms = guess - tzOffset(ms,tz); // second pass handles DST edges
+    return ms;
+  }
+  function partsInTz(ms,tz){
+    const f = new Intl.DateTimeFormat('en-CA',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const p={}; f.formatToParts(new Date(ms)).forEach(x=>p[x.type]=x.value);
+    return {date:`${p.year}-${p.month}-${p.day}`, time:`${p.hour}:${p.minute}`};
+  }
+  function fmt(ms,tz){
+    return new Date(ms).toLocaleString('en-US',{timeZone:tz,weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+  }
+  function validTz(tz){try{new Intl.DateTimeFormat('en-US',{timeZone:tz});return true}catch(e){return false}}
+
+  function parseTarget(raw){
+    if(!raw) return NaN;
+    if(/^\d{9,}$/.test(raw)) return +raw;          // epoch ms
+    const ms = Date.parse(raw);                     // ISO w/ offset
+    return ms;
+  }
+
+  const tParam = params.get('t');
+  if (tParam !== null) countdown(); else setter();
+
+  // ================= COUNTDOWN =================
+  function countdown(){
+    const target = parseTarget(tParam);
+    const view = $('countView'); view.classList.remove('hidden');
+    if (isNaN(target)) { $('cTitle').textContent='Hmm…'; $('cSub').textContent="This link's time looks broken."; return; }
+    let tz = params.get('z') || DEFAULT_TZ; if(!validTz(tz)) tz = DEFAULT_TZ;
+    const title = (params.get('n')||'').trim();
+    $('cTitle').textContent = title || 'Tick tock…';
+    document.title = (title || 'Countdown') + ' ⌚';
+    const viewerTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const tzHtml = 'Showtime: ' + fmt(target,tz) +
+      ((viewerTz && fmt(target,viewerTz) !== fmt(target,tz)) ? '<small>(' + fmt(target,viewerTz) + ' your time)</small>' : '');
+    $('cTarget').innerHTML = tzHtml;
+
+    const quips = ["Not that I'm counting, but…","*taps foot aggressively*","I've checked my watch 47 times.","Any day now…","I could've learned a language by now.","My watch is judging you.","Still here. Still waiting.","Time is a construct. Lateness is not."];
+    let qi = 0; $('quip').textContent = quips[0];
+    setInterval(()=>{ if(!done){ qi=(qi+1)%quips.length; $('quip').textContent=quips[qi]; } }, 4500);
+
+    let done = false;
+    const pad = n => String(n).padStart(2,'0');
+    function tick(){
+      let diff = target - Date.now();
+      if (diff <= 0){
+        if(!done){ done = true; finish(); }
+        diff = 0;
+      }
+      const s = Math.floor(diff/1000);
+      const d = Math.floor(s/86400), h = Math.floor(s%86400/3600), m = Math.floor(s%3600/60), sec = s%60;
+      $('dUnit').classList.toggle('hidden', d===0);
+      $('dd').textContent = d; $('hh').textContent = pad(h); $('mm').textContent = pad(m); $('ss').textContent = pad(sec);
+      if(!done) document.title = `${d?d+'d ':''}${pad(h)}:${pad(m)}:${pad(sec)} · ${title||'Countdown'}`;
+    }
+    function finish(){
+      $('app').classList.add('done');
+      $('cSub').textContent = 'FINALLY! 🎉';
+      $('quip').textContent = "Took you long enough. Let's go!";
+      document.title = '🎉 Finally! · ' + (title||'Countdown');
+      // only celebrate if the page was open within a minute of zero
+      if (Date.now() - target < 60*60*1000) confetti();
+      if (navigator.vibrate) try{navigator.vibrate([120,60,120])}catch(e){}
+    }
+    function confetti(){
+      const colors=['#ff3d7f','#00c2a8','#1d1033','#ffffff','#6ec6ff','#ff9f1c'];
+      for(let i=0;i<120;i++){
+        const c=document.createElement('div'); c.className='confetti';
+        c.style.left=Math.random()*100+'vw'; c.style.background=colors[i%colors.length];
+        c.style.animationDuration=(2.2+Math.random()*2.5)+'s'; c.style.animationDelay=(Math.random()*1.2)+'s';
+        c.style.borderRadius = Math.random()<.4?'50%':'2px';
+        document.body.appendChild(c); setTimeout(()=>c.remove(),6000);
+      }
+    }
+    tick(); setInterval(tick, 250);
+    $('shareAgain').onclick = () => doShare(location.href, title);
+  }
+
+  // ================= SETTER =================
+  function setter(){
+    $('setView').classList.remove('hidden');
+    const tzSel = $('tz');
+    const viewerTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    tzSel.value = DEFAULT_TZ;
+    // today's date in the selected zone; if 5:55 PM already passed, use tomorrow
+    function setDefaults(){
+      const now = Date.now();
+      const p = partsInTz(now, tzSel.value);
+      $('date').value = p.date;
+      const [y,mo,d] = p.date.split('-').map(Number), [h,mi] = $('time').value.split(':').map(Number);
+      if (zonedToEpoch(y,mo,d,h,mi,tzSel.value) <= now) {
+        $('date').value = partsInTz(now + 86400000, tzSel.value).date;
+      }
+    }
+    setDefaults();
+
+    document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
+      const p = partsInTz(Date.now() + (+b.dataset.add)*60000, tzSel.value);
+      $('date').value=p.date; $('time').value=p.time; make();
+    });
+
+    function buildLink(){
+      const dv=$('date').value, tv=$('time').value;
+      if(!dv||!tv) return {err:'Pick a date and a time first.'};
+      const [y,mo,d]=dv.split('-').map(Number), [h,mi]=tv.split(':').map(Number);
+      const ms = zonedToEpoch(y,mo,d,h,mi,tzSel.value);
+      const u = new URL(location.href.split('?')[0].split('#')[0]);
+      u.searchParams.set('t', String(ms));
+      if (tzSel.value !== DEFAULT_TZ) u.searchParams.set('z', tzSel.value);
+      const n = $('title').value.trim(); if(n) u.searchParams.set('n', n);
+      return {url:u.toString(), ms, n};
+    }
+    function make(){
+      const r = buildLink();
+      $('err').textContent = r.err || (r.ms <= Date.now() ? "Heads up: that time already passed — they'll see “Finally!” right away." : '');
+      if(r.err){ $('result').classList.add('hidden'); return; }
+      $('link').textContent = r.url;
+      $('preview').href = r.url;
+      $('result').classList.remove('hidden');
+      $('copy').onclick = () => copy(r.url);
+      $('share').onclick = () => doShare(r.url, r.n);
+      $('share').classList.toggle('hidden', !navigator.share);
+      return r;
+    }
+    $('make').onclick = make;
+  }
+
+  function copy(text){
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(()=>toast('Link copied!'),()=>fallback());
+    } else fallback();
+    function fallback(){
+      const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
+      try{document.execCommand('copy'); toast('Link copied!');}catch(e){toast('Press and hold to copy');} ta.remove();
+    }
+  }
+  function doShare(url, n){
+    const text = n ? `${n} — countdown is on ⌚` : "Tick tock… here's how long you've got ⌚";
+    if (navigator.share) navigator.share({title: n || 'Countdown', text, url}).catch(()=>{});
+    else copy(url);
+  }
+})();
+</script>
+</body>
+</html>
