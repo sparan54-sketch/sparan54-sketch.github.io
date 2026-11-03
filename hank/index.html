@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Adventures of Hank and Sparky</title>
+<style>
+html,body{margin:0;height:100%;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#111}
+#bar{position:sticky;top:0;z-index:5;background:#111;display:flex;gap:6px;overflow-x:auto;padding:8px;align-items:center}
+#bar button{flex:0 0 auto;border:0;border-radius:999px;padding:8px 14px;background:#2d2d2d;color:#ddd;font-size:14px;cursor:pointer}
+#bar button.on{background:#fbbf24;color:#111;font-weight:700}
+#tot{flex:0 0 auto;color:#fbbf24;font-size:13px;margin-left:auto;padding-left:10px;white-space:nowrap}
+iframe{border:0;width:100%;height:calc(100% - 52px);display:block;background:#faf7f0}
+</style></head><body>
+<div id="bar"><button data-d="2026-11-03">Tue Nov 3</button><span id="tot">🐶 0-0 · 0.00u</span></div>
+<iframe id="f" title="Day"></iframe>
+<script>
+const bs=[...document.querySelectorAll('#bar button')],f=document.getElementById('f');
+function show(d){bs.forEach(b=>b.classList.toggle('on',b.dataset.d===d));f.src='days/'+d+'.html?v=2026-11-03';history.replaceState(null,'','#'+d);}
+bs.forEach(b=>b.onclick=()=>show(b.dataset.d));
+const h=location.hash.slice(1);show(bs.some(b=>b.dataset.d===h)?h:bs[0].dataset.d);
+</script></body></html>
