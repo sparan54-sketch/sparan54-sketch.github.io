@@ -15,4 +15,4 @@ const bs=[...document.querySelectorAll('#bar button')],f=document.getElementById
 function show(d){bs.forEach(b=>b.classList.toggle('on',b.dataset.d===d));f.src='days/'+d+'.html?v=2026-11-03';history.replaceState(null,'','#'+d);}
 bs.forEach(b=>b.onclick=()=>show(b.dataset.d));
 const h=location.hash.slice(1);show(bs.some(b=>b.dataset.d===h)?h:bs[0].dataset.d);
-</script></body></html>
+</script><!-- build 2026-11-03 --></body></html>
