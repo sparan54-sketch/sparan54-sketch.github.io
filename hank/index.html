@@ -9,11 +9,11 @@ html,body{margin:0;height:100%;font-family:system-ui,-apple-system,Segoe UI,Robo
 #tot{flex:0 0 auto;color:#fbbf24;font-size:13px;margin-left:auto;padding-left:10px;white-space:nowrap}
 iframe{border:0;width:100%;height:calc(100% - 52px);display:block;background:#faf7f0}
 </style></head><body>
-<div id="bar"><button data-d="2026-11-03">Tue Nov 3</button><span id="tot">🐶 0-0 · 0.00u</span></div>
+<div id="bar"><button data-d="2026-11-04">Wed Nov 4</button><button data-d="2026-11-03">Tue Nov 3</button><span id="tot">🐶 0-3 · -5.00u</span></div>
 <iframe id="f" title="Day"></iframe>
 <script>
 const bs=[...document.querySelectorAll('#bar button')],f=document.getElementById('f');
-function show(d){bs.forEach(b=>b.classList.toggle('on',b.dataset.d===d));f.src='days/'+d+'.html?v=2026-11-03';history.replaceState(null,'','#'+d);}
+function show(d){bs.forEach(b=>b.classList.toggle('on',b.dataset.d===d));f.src='days/'+d+'.html?v=2026-11-04';history.replaceState(null,'','#'+d);}
 bs.forEach(b=>b.onclick=()=>show(b.dataset.d));
 const h=location.hash.slice(1);show(bs.some(b=>b.dataset.d===h)?h:bs[0].dataset.d);
-</script><!-- build 2026-11-03 --></body></html>
+</script><!-- build 2026-11-04 --></body></html>
