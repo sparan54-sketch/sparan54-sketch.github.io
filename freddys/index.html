@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bunny on the Clock</title>
+<meta name="description" content="Unofficial fan-parody night shift comedy. Play as Bhad Bunny from midnight to 6 AM at a neon pizzeria.">
+<meta name="theme-color" content="#14080f">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bunny Clock">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect fill='%2314080f' width='64' height='64' rx='14'/%3E%3Ccircle cx='32' cy='32' r='16' fill='none' stroke='%23ff4d8d' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%23ffb703'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#story">Skip to story</a>
+<header class="top">
+  <p class="eyebrow">Unofficial fan parody</p>
+  <h1 class="logo">Bunny on the Clock</h1>
+  <p class="tag">A silly choose-your-path night shift. The clock moves only when you choose.</p>
+  <p class="disclaimer">Unofficial fan parody. Not affiliated with or endorsed by Scott Cawthon, Steel Wool Studios, or the owners of Five Nights at Freddy's. Original interface. All five photos are shown exactly as supplied, full frame, never cropped or redrawn.</p>
+  <button type="button" id="btn-sound" class="sound" aria-pressed="false">Sound off</button>
+</header>
+<div id="app">
+  <div id="crew" class="crew" role="list" aria-label="Tonight's crew"></div>
+  <p id="toast" class="toast" hidden></p>
+  <div class="layout">
+    <section class="stage" aria-label="Scene portrait">
+      <div class="hero" id="hero"></div>
+      <p id="hero-name" class="hero-name"></p>
+    </section>
+    <section class="status" aria-label="Shift status">
+      <div class="stat"><span>Clock</span><strong id="clock">12:00 AM</strong></div>
+      <div class="stat"><span>Turn</span><strong id="turn">0</strong></div>
+      <div class="stat" id="power-card"><span>Power <em id="power-word"></em></span><strong id="power">76%</strong><div id="pips" class="pips" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="76" aria-label="Power remaining"></div></div>
+      <div class="stat" id="room-card"><span>You are in</span><strong id="room">Office</strong></div>
+    </section>
+    <section class="sheet">
+      <article id="story"></article>
+      <div id="choices" class="choices" role="group" aria-label="Choices"></div>
+    </section>
+  </div>
+</div>
+<nav class="toolbar" aria-label="Game controls">
+  <button type="button" id="btn-cams">Cams</button>
+  <button type="button" id="btn-pockets">Pockets</button>
+  <button type="button" id="btn-people">People</button>
+  <button type="button" id="btn-save">Save</button>
+  <button type="button" id="btn-cast">Cast</button>
+  <button type="button" id="btn-restart">Restart</button>
+</nav>
+<p class="footer-note">Not affiliated with or endorsed by Scott Cawthon, Steel Wool Studios, or the owners of Five Nights at Freddy's. Fan parody for laughs: workplace, pizza, and bathroom nonsense. Everyone on this shift is an adult. Flirting is a choice, and anybody can shut it down. Sound stays off until you turn it on. No strobes, no timers, no jumps.</p>
+<div id="modal" class="modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-head">
+      <h2 id="modal-title">Menu</h2>
+      <button type="button" id="modal-x">Close</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+<div id="live" class="sr-only" aria-live="polite"></div>
+<noscript><p class="disclaimer">This shift needs JavaScript. It still stays on your phone: no account, no network calls.</p></noscript>
+<script type="module" src="game.js"></script>
+</body>
+</html>
