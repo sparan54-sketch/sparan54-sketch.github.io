@@ -26,7 +26,7 @@ export function freshState() {
   const state = {
     node: 'clock-in',
     minutes: 0,
-    power: 76,
+    power: 50,
     inventory: [],
     rel: { bubba: 0, tiggy: 0, pete: 0, joey: 0 },
     flags: {},
@@ -132,10 +132,13 @@ export function applyChoice(state, choiceId) {
   const pre = state;
   const next = cloneState(pre);
   const timeDelta = choice.time == null ? 15 : call(choice.time, pre);
-  const powerDelta = choice.power == null ? -1 : call(choice.power, pre);
+  const powerDelta = choice.power == null ? -2 : call(choice.power, pre);
   next.minutes = clamp(pre.minutes + timeDelta, 0, 360);
   next.power = clamp(pre.power + powerDelta, 0, 100);
-  if (choice.setMinutes != null) next.minutes = clamp(choice.setMinutes, 0, 360);
+  if (choice.setMinutes != null) {
+    const snapped = call(choice.setMinutes, pre);
+    if (typeof snapped === 'number') next.minutes = clamp(snapped, 0, 360);
+  }
   if (choice.setPower != null) next.power = clamp(choice.setPower, 0, 100);
 
   const removes = new Set(asList(choice.remove, pre));
@@ -152,9 +155,11 @@ export function applyChoice(state, choiceId) {
 
   let dest = typeof choice.to === 'function' ? choice.to(pre) : choice.to;
   const forced = typeof choice.force === 'function' ? !!choice.force(pre) : !!choice.force;
-  if (!forced) {
-    if (next.minutes >= 360) dest = pickDawn(next);
-    else if (next.power <= 0) dest = pickBlackout(next);
+  const destIsEnding = Boolean(NODES[dest] && NODES[dest].ending);
+  if (next.power <= 0 && !destIsEnding) dest = pickBlackout(next);
+  else if (!forced && !destIsEnding) {
+    if (!next.flags.tatterCleared && next.minutes >= 300) dest = 'tatter-arrival';
+    else if (next.minutes >= 360) dest = pickDawn(next);
   }
   if (!NODES[dest]) throw new Error(`Bad destination ${dest} from ${pre.node}:${choice.id}`);
   next.node = dest;

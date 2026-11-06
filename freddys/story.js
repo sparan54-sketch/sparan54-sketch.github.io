@@ -18,6 +18,7 @@ export const PEOPLE = {
   tiggy: 'Ticklish Tiggy',
   pete: 'Chicken Pete',
   joey: 'Joey Cha-Cha',
+  tatter: 'Tatter Tot Tat',
 };
 
 export function station(state, person, room) {
@@ -103,6 +104,15 @@ export const CAST = [
     alt: 'Joey Cha-Cha, a bearded human face in a captain hat on a glittery pink, blue, and gold robot body, one arm raised in a dance pose, star on the chest.',
     blurb: 'Human face, beard, captain hat, a cigarette held like a baton, glittery pink-blue-gold body and a star on the chest. He loves dancing and will call a dance break in the middle of any crisis, including the crisis of you trying to leave.',
   },
+  {
+    id: 'tatter',
+    name: 'Tatter Tot Tat',
+    short: 'Tatter',
+    file: 'assets/tatter-tot-tat.jpg',
+    role: 'Night auditor, final boss',
+    alt: 'Tatter Tot Tat, long dark hair and blue eyeshadow, smiling in a draped brown dress, seated on an ornate dark throne.',
+    blurb: 'Final boss, not the closer. Long dark hair, blue eyeshadow, a draped brown dress, and a carved throne she brought into a pizza place. She smiles like the franchise already lost. The joke is her paperwork, her stamp, and her fake health code. Bhad Bunny is still the one on the clock.',
+  },
 ];
 
 export const SECRETS = [
@@ -118,11 +128,21 @@ export const SECRETS = [
   { id: 'poweredUp', name: 'Cheese fuse', detail: 'You found voltage hiding behind the mozzarella and seated it properly.' },
   { id: 'secretCone', name: 'Cone chaperone', detail: 'Joey bedazzled a traffic cone and you played along. The cone is fine.' },
   { id: 'curbToast', name: 'Parking-line toast', detail: 'You toasted a parking line with Bubba, who takes beer and paint seriously.' },
+  { id: 'tatterCleared', name: 'Stamp missed', detail: 'You passed Tatter Tot Tat’s audit. The throne had to share the room with morning.' },
 ];
 
 function lines(...parts) {
   return parts;
 }
+
+function auditVictory(state) {
+  if (state.flags.picnic) return 'ending-staff-picnic';
+  if (state.flags.dateJoey) return 'ending-parking-joey';
+  if (state.flags.dateBubba) return 'ending-parking-bubba';
+  return 'ending-dawn-closer';
+}
+
+const AUDIT_WINS = ['ending-dawn-closer', 'ending-staff-picnic', 'ending-parking-joey', 'ending-parking-bubba', 'ending-audit-failed', 'tatter-offering'];
 
 export const NODES = {
   'clock-in': {
@@ -132,10 +152,10 @@ export const NODES = {
     who: 'Bhad Bunny',
     body: () => lines(
       'The plastic clock clicks to 12:00 AM like it is proud of being a problem. You are Bhad Bunny, night closer: bunny ears on, white outfit still somehow unstained, swirl lollipop held like a scepter you could also eat. The pizzeria is locked. The neon did not get the memo.',
-      'Four other adults are loose in here with you. Joey Cha-Cha is already glittering on the show stage, captain hat tilted, one arm up as if the night asked him to dance. Bubba Beer Bot is in the kitchen with a beer in a metal hand, guarding dough like it pays his salary. Chicken Pete is in the restroom, headset on, furious in advance. Ticklish Tiggy is installed in Parts and Service on his round base, claws out, reaching, and not arriving. You have until 6:00 AM. Power is a budget. Nothing lunges unless you pick a stupid idea on purpose.',
+      'Four coworkers are already loose in here with you. Joey Cha-Cha is glittering on the show stage, captain hat tilted, one arm up. Bubba Beer Bot is in the kitchen, beer in a metal hand, guarding dough. Chicken Pete is in the restroom, headset on, furious in advance. Ticklish Tiggy is installed in Parts and Service, claws out, reaching, not arriving. The sixth name is not on the floor yet: Tatter Tot Tat, night auditor, who brings her own throne when the grease clock nears 5:00 AM. You have until 6:00 AM only if you can pass her. Power is scarce. Staring at cameras and locking doors spends it. Breadsticks and signs do not respawn.',
     ),
     choices: [
-      { id: 'read-note', label: 'Read the corporate note out loud', hint: 'Someone laminated this. That is a threat.', to: 'corporate-note', time: 10, power: -1 },
+      { id: 'read-note', label: 'Read the corporate note out loud', hint: 'The auditor’s three rules are on it. Read them before 5.', to: 'corporate-note', time: 12, power: -2, flag: { readRules: true } },
       { id: 'open-cams', label: 'Check the floor board first', hint: 'See who is posing in which room. Costs a little power.', to: 'first-cams', time: 12, power: -6 },
       { id: 'strut', label: 'Strut to the show stage', hint: 'Joey is already dancing at nobody. Join the nobody.', to: 'dining-welcome', time: 15, power: -1 },
       { id: 'pa-hello', label: 'Hop on the PA and say you clocked in', hint: 'The whole building will hear your bit.', to: 'pa-announcement', time: 10, power: -4 },
@@ -147,8 +167,8 @@ export const NODES = {
     speaker: 'bhad',
     who: 'The corporate note',
     body: () => lines(
-      'The note says: Night closer, keep the power above embarrassing, do not unionize the toppings, and flush once for yes. If the tiger asks you to step closer, that is a you problem. If the captain calls a dance break, you may survive it. Management went home at five and left the building to its hobbies.',
-      'You read it in your best HR voice, which is mostly lollipop and menace. The laminate reflects your bunny ears like they are also policy. Somewhere a soap dispenser is about to ruin a man’s evening, and the note does not mention soap. That feels like an oversight you could either obey, kiss, or walk away from.',
+      'The note says: Night closer, keep the power above embarrassing, do not unionize the toppings, and flush once for yes. If the tiger asks you to step closer, that is a you problem, because Ticklish Tiggy does not commute. If the captain calls a dance break, an eight-count is legal. The party banner is missing an H. Management went home and left the hobbies.',
+      'Under that, in smaller laminate: Tatter Tot Tat audits any closer still here when the clock nears 5:00 AM. She will ask for those three house rules. Flush once for yes. The tiger does not commute. The banner is missing an H. She accepts one proof of work: a real pizza slice, the cheese fuse if the lights were actually saved, Joey’s eight-count if you danced it, or Pete’s real grievance, which is the soap angle and not the chair. Guesses are how she tats a failure. She smiles the whole time. The smile is not the puzzle.',
     ),
     choices: [
       { id: 'lipstick', label: 'Kiss the corner and amend it', hint: 'Charm becomes written policy. A secret, if you like secrets.', to: 'lipstick-amendment', time: 10, power: 0, flag: { lipstickLaw: true } },
@@ -181,13 +201,13 @@ export const NODES = {
     speaker: 'bhad',
     who: 'Bhad Bunny',
     body: () => lines(
-      'You shut the office like a person who has read a manual. The locks drink a little power and give you a hum in return. It is the hum of a building waiting for you to admit you did not take this job to sit. A breadstick in the drawer has been emergency equipment since a previous closer’s regrettable optimism.',
-      'On the floor board, four adults continue their nonsense without your supervision, which is both rude and impressive. You can watch, unlock, eat the carbs, or reread the threat. None of these are a personality. Together they are a shift.',
+      'You shut the office like a person who has read a manual. The locks drink power and give you a hum. A single emergency breadstick lives in the drawer. It is one breadstick. The drawer is not a bakery.',
+      'On the floor board, the four coworkers continue without you, and Tatter Tot Tat’s nameplate stays dark. You can watch, unlock, eat the carbs once, or reread the threat. Locking yourself in is not a strategy. It is a bill.',
     ),
     choices: [
       { id: 'watch-board', label: 'Watch the floor board from the chair', hint: 'Cameras cost a sip of power.', to: 'first-cams', time: 12, power: -6 },
       { id: 'unlock-hall', label: 'Unlock and patrol the west hall', hint: 'Give the locks their power back, mostly.', to: 'hall-patrol', time: 15, power: 3 },
-      { id: 'breadstick', label: 'Eat the emergency breadstick', hint: 'Carbs are voltage. A tiny secret.', to: 'office-hold', time: 10, power: 6, add: ['breadstick'], flag: { ateBread: true } },
+      { id: 'breadstick', label: 'Eat the emergency breadstick', hint: 'Once. A second bite is the wrapper. Not a power farm.', to: 'office-hold', time: 10, power: (s) => (s.flags.ateBread ? -3 : 8), add: ['breadstick'], flag: { ateBread: true } },
       { id: 'reread-note', label: 'Reread the laminated note', hint: 'It has not become kinder.', to: 'corporate-note', time: 10, power: 0 },
     ],
   },
@@ -197,8 +217,8 @@ export const NODES = {
     speaker: 'bhad',
     who: 'Bhad Bunny',
     body: () => lines(
-      'The floor board is not a horror monitor. It is a hostess station with delusions. Show stage: Joey Cha-Cha, glitter doing cardio, cigarette bobbing like a conductor who refuses to ash early. Kitchen: Bubba Beer Bot toasting a pizza peel with a beer. Restrooms: Chicken Pete squared to the grout, negotiating with soap. Parts and Service: Ticklish Tiggy, arms out, gaining zero ground on the air.',
-      'Tiggy waves at the lens. The wave ends several inches short of the lens, which he seems to find romantic. You can go to a room, or you can keep flipping feeds until the breaker takes it personally. Peeking once was the price of this scene. Obsessing is a different hobby.',
+      'The floor board is a hostess station with delusions, and it costs power to light. Show stage: Joey Cha-Cha, glitter doing cardio. Kitchen: Bubba Beer Bot toasting a peel. Restrooms: Chicken Pete squared to the grout, negotiating with soap, not with his chair. Parts and Service: Ticklish Tiggy, arms out, gaining zero ground. A sixth nameplate is dark: Tatter Tot Tat. NOT CLOCKED IN. The throne is not a camera yet.',
+      'Tiggy waves at the lens and misses it, which he will later describe as policy. If you stare at all of this until the breaker files for divorce, that is a choice with a price. One look is reconnaissance. A marathon is how closers black out before the auditor even sits down.',
     ),
     choices: [
       { id: 'to-joey', label: 'Go to Joey on the show stage', hint: 'He has already saved you a dance you did not request.', to: 'dining-welcome', time: 12, power: -1 },
@@ -377,7 +397,7 @@ export const NODES = {
     who: 'Bubba Beer Bot',
     body: () => lines(
       'Bubba Beer Bot stands in the kitchen doorway like a polite eclipse. Shirtless, bearded, cyborg knees whirring, beer held at a respectful height. "Bun," he says. "You are early or the dough is late. One of you is a problem." Behind him the walk-in ticks. The pizza peel has been toasted. He did that for morale.',
-      'He offers the night in four shapes: talk about the beer, flirt like adults, step into the cooler with him, or leave him to his yeast and go see why the restroom is filing paperwork. None of these involve him putting the beer down. The beer has tenure.',
+      'He offers the night in four shapes: talk about the beer, flirt like adults, step into the cooler with him, or leave him and go see why the restroom is filing paperwork. He adds, almost shy, "If an auditor asks what I hid, it is the fuse behind the cheese. If she asks for leverage, a slice is leverage. I do not mean a person."',
     ),
     choices: [
       { id: 'beer-talk', label: 'Ask him about the beer and the night', hint: 'He will answer both with the same sentence.', to: 'bubba-beer-talk', time: 15, power: -1 },
@@ -396,7 +416,7 @@ export const NODES = {
       'Steam, yeast, and a little honesty fog the pass. A sip would be a joke and a battery. A slice would be lunch and leverage. Asking about the dough would be how people join cults that only meet in walk-ins. Declining is also a kind of respect, and he will clock it.',
     ),
     choices: [
-      { id: 'take-sip', label: 'Take one sip. For science.', hint: 'A little power, a little regret, more trust.', to: 'bubba-trust-cooler', time: 12, power: 8, rel: { bubba: 1 }, flag: { sipped: true, coolerTrust: true } },
+      { id: 'take-sip', label: 'Take one sip. For science.', hint: 'Once. A little power, then the can is a prop.', to: 'bubba-trust-cooler', time: 12, power: (s) => (s.flags.sipped ? -2 : 6), rel: { bubba: 1 }, flag: { sipped: true, coolerTrust: true } },
       { id: 'take-slice', label: 'Ask for a slice, no philosophy', hint: 'Goes in your pocket. He likes being useful.', to: 'hall-patrol', time: 12, power: -1, rel: { bubba: 2 }, add: ['slice'] },
       { id: 'ask-dough', label: 'Ask what the dough has been saying', hint: 'This is how secrets start. Yeast-based.', to: 'dough-whisper', time: 12, power: -1, flag: { doughHeard: true } },
       { id: 'decline-beer', label: 'Decline. Keep it kind.', hint: 'He respects a no more than a performance.', to: 'hall-patrol', time: 12, power: -1, rel: { bubba: 1 }, flag: { politeSip: true } },
@@ -430,7 +450,7 @@ export const NODES = {
     choices: [
       { id: 'listen-dough', label: 'Listen to the dough', hint: 'It has a platform. You may regret literacy.', to: 'dough-whisper', time: 12, power: -1, flag: { listenedDough: true } },
       { id: 'cheese-fuse', label: 'Pocket the fuse behind the cheese', hint: 'Voltage, mozzarella-scented. Then the breaker box.', to: 'fuse-box', time: 12, power: -1, add: ['fuse'] },
-      { id: 'foam-now', label: 'Take the Foam Manager title tonight', hint: 'Ends the shift. Silly, sincere, sudsy.', to: 'ending-foam-manager', time: 10, power: -1, force: true, flag: { foamBoss: true } },
+      { id: 'foam-now', label: 'Take the Foam Manager title tonight', hint: 'Only after you have heard the dough or shared the sip. Otherwise he sends you back to listen.', to: (s) => ((s.flags.listenedDough || s.flags.sipped) ? 'ending-foam-manager' : 'dough-whisper'), edges: ['ending-foam-manager', 'dough-whisper'], time: 10, power: -2, force: (s) => Boolean(s.flags.listenedDough || s.flags.sipped), flag: (s) => ((s.flags.listenedDough || s.flags.sipped) ? { foamBoss: true } : {}) },
       { id: 'cams-from-cooler', label: 'Leave the cold and stare at cams', hint: 'Power-hungry. The beer will not save the lights.', to: 'cam-marathon', time: 10, power: -8 },
     ],
   },
@@ -462,7 +482,7 @@ export const NODES = {
         here
           ? 'Chicken Pete has the sunglasses, the headset, the lollipop, and a grievance with a pulse. He is parked square to the grout line, bird feet resting on the footplates, talons quiet until the soap disappoints him again. "THIS SOAP," he says, at a volume that is a choice, "HAS A VIBE. THE VIBE IS WRONG."'
           : 'Pete is not in the restroom. The soap is worse without an audience, which would delight him and ruin you. His voice still arrives through the headset from wherever the party dragged him. The toilet plays one exploratory note, like a tuba paying rent.',
-        'His anger is about one degree of pump angle, not about the chair, not about the bird legs, not about you existing. You can fix the soap, audit a napkin, hide in a stall, or tell him it is just a bathroom and accept the weather that follows. The lollipop clicks against nothing. He is ready to gavel.',
+        'His anger is about one degree of pump angle, not about the chair, not about the bird legs, not about you existing. He will say this again if you let him: if the auditor asks, the grievance is the soap. You can fix the soap, audit a napkin, hide in a stall, or tell him it is just a bathroom and accept the weather. The lollipop clicks. He is ready to gavel.',
       );
     },
     choices: [
@@ -624,7 +644,7 @@ export const NODES = {
     who: 'Ticklish Tiggy',
     body: () => lines(
       'Ticklish Tiggy is exactly where the building installed him: round, tiger-striped, top hat level, blue bowtie shining, claws open, round metal base planted in the checkered floor. No legs, no commute, no apology. "Hello, ears," he says, delighted. "I would tickle you hello, but distance has unionized against me."',
-      'The reach stops short of your elbow by a polite, infuriating gap. He looks at the gap like it owes him money and also like he is fond of it. You can step into the radius, flirt from the safe inch outside it, ask what he needs from a shelf he cannot touch, or respect the radius and leave him waving like a king.',
+      'The reach stops short of your elbow by a polite, infuriating gap. He looks at the gap like it owes him money and also like he is fond of it. "An auditor cited me once for being furniture," he adds. "I do not commute. If she asks, that is the whole statute. Tell her the base is a base." You can step into the radius, flirt from outside it, ask about the shelf, or respect the radius and leave.',
     ),
     choices: [
       { id: 'step-in', label: 'Step into his radius', hint: 'He can finally boop an elbow. This matters to him.', to: 'tiggy-step-in', time: 12, power: -1, rel: { tiggy: 3 }, flag: { tickled: true } },
@@ -729,7 +749,7 @@ export const NODES = {
     ),
     choices: [
       { id: 'take-ticket', label: 'Pocket a golden ticket sticker', hint: 'Mostly fake gold. Real pocket weight.', to: 'prize-corner', time: 10, power: 0, add: ['ticket'] },
-      { id: 'climb-bin', label: 'Climb into the prize bin and stay', hint: 'Ends the shift at 6:00 AM among the toys.', to: 'ending-prize-locked', time: 0, setMinutes: 360, power: -1, force: true, flag: { binned: true } },
+      { id: 'climb-bin', label: 'Climb into the prize bin and stay', hint: 'Quits the shift among the toys. This does not pass the auditor.', to: 'ending-prize-locked', time: 0, setMinutes: 360, power: -1, force: true, flag: { binned: true } },
       { id: 'call-tiggy', label: 'Leave the toys and go to Tiggy', hint: 'He cannot come here. You can go there.', to: 'parts-service', time: 12, power: -3 },
       { id: 'leave-prize', label: 'Back to the hall, sticker or not', hint: 'Patrol is less fuzzy.', to: 'hall-patrol', time: 12, power: -1 },
     ],
@@ -1016,19 +1036,19 @@ export const NODES = {
     who: 'Bhad Bunny',
     body: (s) => lines(
       s.minutes >= 240
-        ? 'The neon has gone from party to witness protection. You mop the same reflection until it files a complaint. The clock is close enough to smell morning. It still will not move unless you work.'
-        : 'The building is still in its opening argument. A heroic closer would mop the long way, invite someone to the curb, waste a little power on the board, or check the toilet one last time. You are that closer, unfortunately.',
-      'Joey is a glitter thought. Bubba is a temperature. Pete is a right angle somewhere behind you. Tiggy is on his base, reaching at a morning he cannot walk toward. You are Bhad Bunny with a lollipop and a job. Six o’clock is a door, not a monster.',
+        ? 'The neon has gone from party to witness protection. You are close to 5:00 AM, which is when Tatter Tot Tat sits her throne and asks for the laminated rules. Mopping does not skip her. It delivers you.'
+        : 'The building is still in its opening argument. You can mop, invite someone to the curb, spend power on the board, or check the toilet. Six o’clock is behind an audit, not behind a mop alone.',
+      'Joey’s eight-count, Pete’s soap angle, Bubba’s slice or fuse: those are proofs, not vibes. Tiggy stays on the base. You are Bhad Bunny, and the throne is not yours yet.',
     ),
     choices: [
       {
         id: 'long-mop',
-        label: 'Mop the long way toward 6:00 AM',
-        hint: 'Burns a big chunk of night. Morning is the ending.',
+        label: 'Mop the long way toward the audit',
+        hint: 'Moves the clock toward 5:00 AM. Tatter Tot Tat takes the floor then. This does not skip her.',
         to: 'last-hour',
-        edges: ['last-hour', 'ending-dawn-closer', 'ending-parking-joey', 'ending-parking-bubba', 'ending-staff-picnic'],
-        time: 180,
-        power: -2,
+        edges: ['last-hour', 'tatter-arrival', 'ending-dawn-closer', 'ending-parking-joey', 'ending-parking-bubba', 'ending-staff-picnic'],
+        time: 45,
+        power: -3,
       },
       { id: 'floor-board', label: 'Burn time on the floor board', hint: 'Costs power. The rooms are the same and nosy.', to: 'cam-marathon', time: 20, power: -12 },
       { id: 'invite-out', label: 'Invite someone to the parking lot', hint: 'Dates, picnics, or a solo closer mood.', to: 'date-plan', time: 15, power: -1 },
@@ -1086,10 +1106,10 @@ export const NODES = {
       {
         id: 'wait-joey',
         label: 'Wait with him until the real six',
-        hint: 'A long wait. The ending is the curb.',
+        hint: 'A long wait. Around 5:00 AM the auditor interrupts the date.',
         to: 'waiting-curb-joey',
-        edges: ['waiting-curb-joey', 'ending-parking-joey', 'ending-dawn-closer', 'ending-staff-picnic', 'ending-parking-bubba'],
-        time: 200,
+        edges: ['waiting-curb-joey', 'tatter-arrival', 'ending-parking-joey', 'ending-dawn-closer', 'ending-staff-picnic', 'ending-parking-bubba'],
+        time: 80,
         power: -1,
       },
       { id: 'back-inside', label: 'Go back in. The date can keep', hint: 'The flag stays. Morning still remembers.', to: 'last-hour', time: 10, power: 0 },
@@ -1114,10 +1134,10 @@ export const NODES = {
       {
         id: 'wait-bubba',
         label: 'Wait with him until 6:00 AM',
-        hint: 'The curb becomes the ending.',
+        hint: 'The curb is the reward after the audit, not instead of it.',
         to: 'waiting-curb-bubba',
-        edges: ['waiting-curb-bubba', 'ending-parking-bubba', 'ending-dawn-closer', 'ending-staff-picnic', 'ending-parking-joey'],
-        time: 200,
+        edges: ['waiting-curb-bubba', 'tatter-arrival', 'ending-parking-bubba', 'ending-dawn-closer', 'ending-staff-picnic', 'ending-parking-joey'],
+        time: 80,
         power: -1,
       },
       { id: 'toast-line', label: 'Toast the parking line', hint: 'A secret. He takes paint seriously.', to: 'waiting-curb-bubba', time: 10, power: 0, flag: { curbToast: true }, rel: { bubba: 1 } },
@@ -1135,12 +1155,12 @@ export const NODES = {
       'No one out here is hunting you. The comedy stayed inside, where the wages are. Still, the dock is part of the job: air, trash, and the knowledge that 6:00 AM will look like this, plus birds who are not Pete.',
     ),
     choices: [
-      { id: 'kill-sign', label: 'Switch off the useless sign', hint: 'Saves a little power. The parking lot survives.', to: 'loading-dock', time: 10, power: 8, flag: { savedPower: true } },
+      { id: 'kill-sign', label: 'Switch off the useless sign', hint: 'Once. The sign stays off. Flipping it again just spends power.', to: 'loading-dock', time: 10, power: (s) => (s.flags.savedPower ? -4 : 6), flag: { savedPower: true } },
       { id: 'yell-bubba', label: 'Yell for Bubba like he is a bellhop', hint: 'He will meet you in the kitchen, not as a bellhop.', to: 'kitchen-threshold', time: 12, power: -1 },
       {
         id: 'eat-slice',
         label: 'Eat a slice in the night air',
-        hint: 'If you have one. If not, you bite the air and learn.',
+        hint: 'Heals a little if you have a slice. You spend it, so the auditor cannot be paid with it later.',
         to: 'loading-dock',
         time: 12,
         power: (s) => (s.inventory.includes('slice') ? 6 : -1),
@@ -1151,16 +1171,163 @@ export const NODES = {
     ],
   },
 
+  'tatter-arrival': {
+    title: 'The throne clocks in',
+    location: 'Dining Hall',
+    speaker: 'tatter',
+    who: 'Tatter Tot Tat',
+    onEnter(state) {
+      station(state, PEOPLE.tatter, 'Dining Hall');
+    },
+    body: (s) => lines(
+      'The dining hall grows a throne. Tatter Tot Tat is in it, long dark hair over a draped brown dress, blue eyeshadow like dress code, smile already stamped approved. She did not walk in so much as the building made room. A clipboard rests on the carved arm. A paper cup of tater tots sits where a gavel would, and she taps it once. "I am the night auditor. The night is in arrears. You are Bhad Bunny, and I am not replacing you. I am grading you."',
+      s.flags.readRules
+        ? 'You can still see the laminate: flush once for yes, the tiger does not commute, the banner is missing an H. She will want those words, then one piece of proof. Slice, fuse, eight-count, or Pete’s soap angle. She looks delighted to be the obstacle. The delight is professional.'
+        : 'She does not read the rules for free. "They were laminated," she says, cheerful as a fine. "Laminate is my love language. You may try, you may ask me to recite, or you may slip once toward the kitchen. A second slip is contempt of clipboard." The smile does not mean the quiz is optional.',
+    ),
+    choices: [
+      { id: 'face-rules', label: 'Take the house-rules quiz', hint: 'The note listed three. She wants those, not a vibe.', to: 'tatter-rules', time: 10, power: -2, force: true },
+      { id: 'ask-recite', label: 'Ask her to recite the rules', hint: 'Costs power. She loves reading aloud. This is not a wrong answer.', to: 'tatter-rules', time: 8, power: -8, force: true, flag: { rulesReadAloud: true } },
+      { id: 'bluff-smile', label: 'Smile back and hope charm is a rule', hint: 'It is not. Costs power, and you still have to take the quiz.', to: 'tatter-rules', time: 8, power: -8, force: true, flag: { bluffedAudit: true } },
+      { id: 'slip-kitchen', label: 'Slip once toward the kitchen', hint: 'One prep trip. Doing it twice fails the audit on purpose.', to: (s) => (s.flags.preppedOnce ? 'ending-audit-failed' : 'tatter-prep'), edges: ['tatter-prep', 'ending-audit-failed'], time: 8, power: -4, force: true },
+    ],
+  },
+  'tatter-rules': {
+    title: 'Three rules, no vibes',
+    location: 'Dining Hall',
+    speaker: 'tatter',
+    who: 'Tatter Tot Tat',
+    body: (s) => lines(
+      'Tatter Tot Tat crosses her ankles on the throne and aims the smile at you like a stamp. "Three house rules. In order is nice. Accurate is required. I allow one wrong sheet. The second wrong sheet becomes your whole employment." A tot clicks against the clipboard. It is a sound effect, not a riddle about anyone’s body.',
+      s.flags.rulesReadAloud || s.flags.auditStrike
+        ? 'She recites, sweetly, because you asked or because you already missed: flush once for yes. The tiger does not commute. The banner is missing an H. "Pete’s chair is not the grievance. Joey’s jazz is not the statute. I wrote this down while eating nothing symbolic."'
+        : 'She does not list them. If you read the note, the laminate is still in your head. If you listened to Tiggy, he does not commute. If you listened to Pete, the soap is the grievance and the chair is not. Pick the set that matches the building, not the loudest coworker.',
+    ),
+    choices: [
+      {
+        id: 'rules-right',
+        label: 'Flush once for yes. The tiger does not commute. The banner is missing an H.',
+        hint: 'This is the laminate. The other buttons are other people’s bad advice.',
+        to: 'tatter-offering',
+        time: 12,
+        power: -2,
+        force: true,
+        flag: { rulesPassed: true },
+      },
+      {
+        id: 'rules-jazz',
+        label: 'The tiger should come to you. The typo is jazz. Flush if you feel like it.',
+        hint: 'Joey energy. Not the statute. One miss is allowed.',
+        to: (s) => (s.flags.auditStrike ? 'ending-audit-failed' : 'tatter-rules'),
+        edges: ['tatter-rules', 'ending-audit-failed'],
+        time: 10,
+        power: -4,
+        force: true,
+        flag: { auditStrike: true },
+      },
+      {
+        id: 'rules-chair',
+        label: 'Pete is angry about the chair. The dough is management. Power is a rumor.',
+        hint: 'This contradicts Pete and the power meter. One miss is allowed.',
+        to: (s) => (s.flags.auditStrike ? 'ending-audit-failed' : 'tatter-rules'),
+        edges: ['tatter-rules', 'ending-audit-failed'],
+        time: 10,
+        power: -4,
+        force: true,
+        flag: { auditStrike: true },
+      },
+      { id: 'rules-slow', label: 'Ask her to say the three rules slower', hint: 'Spends power. Does not spend your one mistake.', to: 'tatter-rules', time: 8, power: -6, force: true, flag: { rulesReadAloud: true } },
+    ],
+  },
+  'tatter-offering': {
+    title: 'Proof of work',
+    location: 'Dining Hall',
+    speaker: 'tatter',
+    who: 'Tatter Tot Tat',
+    body: (s) => lines(
+      '"Rules are the mouth," Tatter Tot Tat says. "Proof is the hand." She wants one real thing you did tonight: the slice Bubba called leverage, the fuse from behind the cheese, the eight-count you actually danced with Joey, or Pete’s grievance named correctly because you fixed the soap or the napkin. Empty hands are a miss. She allows one empty miss. The tots do not vote.',
+      s.flags.offeringMiss
+        ? 'She already watched you present nothing. "Kitchen for a slice or a fuse. Stage if you danced. Restroom if you fixed his actual problem. I am not subtle. I am a throne with a clipboard."'
+        : 'The labels say what works. If you prepared none of it, you may still slip to the kitchen once. A second slip, or a second empty offering, and she stamps the shift failed with obvious joy.',
+    ),
+    choices: [
+      {
+        id: 'present-slice',
+        label: 'Pay the fine with the pizza slice',
+        hint: 'Only if a slice is in your pocket. Saying "slice" is not a slice.',
+        to: (s) => (s.inventory.includes('slice') ? auditVictory(s) : (s.flags.offeringMiss ? 'ending-audit-failed' : 'tatter-offering')),
+        edges: AUDIT_WINS,
+        time: 10,
+        power: -2,
+        force: true,
+        remove: (s) => (s.inventory.includes('slice') ? ['slice'] : []),
+        flag: (s) => (s.inventory.includes('slice') ? { tatterCleared: true, offeringSlice: true } : { offeringMiss: true }),
+        setMinutes: (s) => (s.inventory.includes('slice') ? 360 : null),
+      },
+      {
+        id: 'present-fuse',
+        label: 'Show the cheese fuse, pocket or already seated',
+        hint: 'Works if you are carrying it, or you already installed it in the box.',
+        to: (s) => ((s.inventory.includes('fuse') || s.flags.poweredUp) ? auditVictory(s) : (s.flags.offeringMiss ? 'ending-audit-failed' : 'tatter-offering')),
+        edges: AUDIT_WINS,
+        time: 10,
+        power: -2,
+        force: true,
+        remove: (s) => (s.inventory.includes('fuse') ? ['fuse'] : []),
+        flag: (s) => ((s.inventory.includes('fuse') || s.flags.poweredUp) ? { tatterCleared: true, offeringFuse: true } : { offeringMiss: true }),
+        setMinutes: (s) => ((s.inventory.includes('fuse') || s.flags.poweredUp) ? 360 : null),
+      },
+      {
+        id: 'present-work',
+        label: 'Show the eight-count, or Pete’s soap-and-napkin work',
+        hint: 'Works if you danced with Joey, or you fixed Pete’s soap or napkin. Not the chair.',
+        to: (s) => ((s.flags.dancedOnce || s.flags.soapFixed || s.flags.napkinFixed) ? auditVictory(s) : (s.flags.offeringMiss ? 'ending-audit-failed' : 'tatter-offering')),
+        edges: AUDIT_WINS,
+        time: 10,
+        power: -2,
+        force: true,
+        flag: (s) => ((s.flags.dancedOnce || s.flags.soapFixed || s.flags.napkinFixed) ? { tatterCleared: true, offeringWork: true } : { offeringMiss: true }),
+        setMinutes: (s) => ((s.flags.dancedOnce || s.flags.soapFixed || s.flags.napkinFixed) ? 360 : null),
+      },
+      {
+        id: 'slip-for-proof',
+        label: 'Slip to the kitchen for proof',
+        hint: 'One trip. A second trip is how she fails you.',
+        to: (s) => (s.flags.preppedOnce ? 'ending-audit-failed' : 'tatter-prep'),
+        edges: ['tatter-prep', 'ending-audit-failed'],
+        time: 8,
+        power: -4,
+        force: true,
+      },
+    ],
+  },
+  'tatter-prep': {
+    title: 'One trip, then the throne',
+    location: 'Kitchen',
+    speaker: 'bubba',
+    who: 'Bubba Beer Bot',
+    body: () => lines(
+      'Bubba Beer Bot meets you at the pass like a man who heard a throne scrape and decided to be useful. "She is not subtle," he says. "Slice is in my hand if you need leverage. Fuse is behind the cheese if the lights are your argument. I will not fight her. I will hand you the prop." Joey’s voice, from the stage, offers a fast eight-count through the pass if you still need the dance on the books.',
+      'This is the one prep the auditor allowed. Take what you are missing and go back. Staying here to farm voltage will not work. The sign, the breadstick, and the sip already told you the building does not respawn favors.',
+    ),
+    choices: [
+      { id: 'prep-slice', label: 'Take Bubba’s leverage slice', hint: 'Puts a slice in your pocket if you do not already have one.', to: 'tatter-offering', time: 12, power: -6, force: true, add: ['slice'], flag: { preppedOnce: true } },
+      { id: 'prep-fuse', label: 'Pocket the cheese fuse', hint: 'If you already seated one, this is just the walk back.', to: 'tatter-offering', time: 12, power: -6, force: true, add: ['fuse'], flag: { preppedOnce: true } },
+      { id: 'prep-count', label: 'Let Joey count eight through the pass', hint: 'Puts the dance on the books. Costs power.', to: 'tatter-offering', time: 12, power: -8, force: true, flag: { preppedOnce: true, dancedOnce: true } },
+      { id: 'prep-back', label: 'Go back with whatever you already had', hint: 'Uses up your one trip.', to: 'tatter-offering', time: 8, power: -4, force: true, flag: { preppedOnce: true } },
+    ],
+  },
+
   'ending-dawn-closer': {
     title: 'Clock-out with powdered sugar',
     location: 'Dining Hall',
     speaker: 'bhad',
     who: 'Bhad Bunny',
     ending: true,
-    epilogue: 'You clock out at 6:00 AM with sugar on your socks and the building still a pizza place.',
+    epilogue: 'You passed Tatter Tot Tat’s audit and clocked out at 6:00 AM with the building still a pizza place.',
     body: (s) => lines(
-      '6:00 AM arrives like a manager who is late and still wants credit. The lights are on because you did not stare them to death. The floor is mopped in the specific way of a person who was distracted by four adults and did it anyway. You hang the lollipop stick in the trash like a sword retired with honor.',
-      `Joey’s glitter is in the grout and he is proud. Bubba raises the last inch of beer. Pete signs the night log in block letters that could cut glass. On the cam, Tiggy waves at dawn and misses it by inches, pleased. Relationships this shift: Joey ${s.rel.joey}, Bubba ${s.rel.bubba}, Pete ${s.rel.pete}, Tiggy ${s.rel.tiggy}. You, Bhad Bunny, are still the closer. The powdered sugar is a medal. The door unlocks for the morning crew, who will understand none of this.`,
+      '6:00 AM arrives only after Tatter Tot Tat’s stamp misses you. She stays on the throne a moment, smile gone professional, clipboard marked PASSED in tiny furious letters. "The rules were the rules," she says. "I hate that for me." The throne does not follow you out. The tots stay in the cup. Nobody’s body was the bit. The paperwork was.',
+      `The lights are on because you did not stare them to death. Joey’s glitter is in the grout. Bubba raises the last inch of beer. Pete signs the log in block letters. On the cam, Tiggy waves and misses dawn by inches, pleased he did not have to commute. Relationships: Joey ${s.rel.joey}, Bubba ${s.rel.bubba}, Pete ${s.rel.pete}, Tiggy ${s.rel.tiggy}. You, Bhad Bunny, are still the closer. The morning crew will understand none of this, which is traditional.`,
     ),
     choices: [],
   },
@@ -1291,7 +1458,7 @@ export const NODES = {
     ending: true,
     epilogue: 'Six in the morning, a bedazzled cone, and a captain who asked before every step.',
     body: () => lines(
-      '6:00 AM paints the parking lot the color of a diner coffee. Joey Cha-Cha bows, waits, and only then offers the last eight-count of the night. The cone chaperone sparkles illegally. You dance small, because the asphalt is honest and your knees work retail. He laughs when you step on him and calls it percussion, as promised.',
+      '6:00 AM paints the parking lot the color of a diner coffee, and only because Tatter Tot Tat already lost the audit. Joey Cha-Cha bows, waits, and only then offers the last eight-count. The cone chaperone sparkles illegally. You dance small. He laughs when you step on him and calls it percussion, as promised. The throne is inside, invoicing nobody.',
       'No crisis interrupts. Pete is inside, probably alphabetizing the air. Bubba is a warm light in the kitchen window. Tiggy is a wave on a camera you do not need anymore. Joey walks you to the curb’s edge and stops, because an ending can be a gentleman. "Same time if the building misbehaves," he says. You tell him the building is the misbehavior. He looks delighted. The cigarette finally, finally ashes, and only because the song is over.',
     ),
     choices: [],
@@ -1304,7 +1471,7 @@ export const NODES = {
     ending: true,
     epilogue: 'You and Bubba watch 6:00 AM happen to a parking line.',
     body: () => lines(
-      'Morning finds you and Bubba Beer Bot on the curb like a song that forgot its chorus and decided the curb was enough. The beer is empty. He recycles it with religious care. Your white socks have dock dust. He apologizes to the socks. You tell the socks to unionize, and he almost smiles, which on him is a parade with fewer permits than Joey’s.',
+      'Morning finds you and Bubba on the curb only after the auditor’s stamp missed. The beer is empty. He recycles it. Tatter Tot Tat does not get a plus-one. This is two adults and a finished audit.',
       'He does not ask you to quit on the spot. Foam Manager can wait in the cold. This is just two adults and a finished night. Inside, a tiger misses a wave, a captain stretches, a man with a headset begins to distrust the sunrise for being one degree off. You bump Bubba’s metal knuckles with the lollipop, gentle. "Good shift," he says. It was. The clock agrees and finally shuts up.',
     ),
     choices: [],
@@ -1317,7 +1484,7 @@ export const NODES = {
     ending: true,
     epilogue: 'Everybody who can travel comes outside. Tiggy attends by speaker and by force of personality.',
     body: () => lines(
-      'You called a picnic and the building, shockingly, came. Joey brings glitter and a cone. Pete brings napkins folded into shapes that are not swans and a speech about how picnics are contracts. Bubba brings the last honest slice and breaks it like a coach who has never coached. Tiggy attends through somebody’s phone, propped on a crate, claws failing to reach the camera and wishing you a nice egg.',
+      'You called a picnic and, after Tatter Tot Tat failed to fail you, the building came. Joey brings glitter and a cone. Pete brings napkins that are not swans. Bubba brings the last honest slice. Tiggy attends by phone, claws missing the camera, wishing you a nice egg. The throne is not invited.',
       'It is 6:00 AM. The food is bad. The company files no complaints that matter. You sit on the bumper, bunny ears crooked, and watch four adults be ridiculous in your direction on purpose. The morning crew arrives, sees the picnic, and decides to come back in ten minutes. You let them. The shift is over. The group chat, tragically, is forever.',
     ),
     choices: [],
@@ -1332,6 +1499,19 @@ export const NODES = {
     body: () => lines(
       'You climb into the prize bin and the bin accepts you with a plastic sigh. Tickets stick to your knees. A bear with a dead-eyed smile becomes your supervisor. Time does a weird courtesy and leaps toward morning because you asked it to, which is the opposite of a scare and the same as a nap. Joey finds you and refuses to rescue you until he has choreographed the extraction. You decline the extraction.',
       'Pete writes you up for improper prize posture and then, ashamed of his own fondness, adds a commendation for commitment. Bubba lowers a slice in a basket like you are a storybook. Tiggy says, over the cam, that he respects a person who chooses a container. At 6:00 AM you are still in the bin, fully employed in spirit, slightly less employed in the handbook. The toys know what you did. They are not telling. They are toys.',
+    ),
+    choices: [],
+  },
+  'ending-audit-failed': {
+    title: 'Stamped in arrears',
+    location: 'Dining Hall',
+    speaker: 'tatter',
+    who: 'Tatter Tot Tat',
+    ending: true,
+    epilogue: 'Tatter Tot Tat fails the shift. The throne stays. Your closer badge does not.',
+    body: () => lines(
+      'Tatter Tot Tat stamps the page with a sound like a gavel that went to charm school. "FAILED," she says, and the smile is the worst part because it is sincere. "You guessed. I published the rules on a laminate and in the mouths of your coworkers. The tiger does not commute. The soap is not the chair. A slice you do not hold is not a fine." She does not insult you. She invoices you.',
+      'The throne does not chase you to the parking lot. It does not have to. The night ends before 6:00 AM can pretend you survived it. Joey will call this a tragic ballet. Bubba will hold a slice you needed earlier. Pete will write that the audit was correct and also upsetting. Tiggy will wave at the door cam and miss. You, Bhad Bunny, keep the ears. You do not keep the shift. The tots remain a fine, which is to say potato, which is to say not a comment on anybody in the room.',
     ),
     choices: [],
   },

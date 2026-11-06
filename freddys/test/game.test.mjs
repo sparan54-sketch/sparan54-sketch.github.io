@@ -28,12 +28,13 @@ const HASHES = {
   'joey-cha-cha.jpg': '3d453c145f7ee7353e87ed0bf319cde8ac9fbe16c4c7e3985dd652f68ace2400',
   'chicken-pete.jpg': 'b774cf47fd26d640f468fc5920c1806b0e5a5e47e5a1ee9bd8dc75a5f0ecd077',
   'ticklish-tiggy.jpg': '815f6116ab0406a421c4840f47e5c1facf8939cfaf862d1426e7b3a79d0d65a7',
+  'tatter-tot-tat.jpg': 'd4014a8ede8fd67baf583dbeee5147b89f21e36726dd996787ec62f3fccc43c5',
 };
 
-function untilEnding(choiceIds, loopId, max = 6) {
+function untilNode(choiceIds, loopId, nodeId, max = 10) {
   let state = play(choiceIds);
   let steps = 0;
-  while (!NODES[state.node].ending && steps < max) {
+  while (state.node !== nodeId && !NODES[state.node].ending && steps < max) {
     state = applyChoice(state, loopId);
     steps += 1;
   }
@@ -62,40 +63,128 @@ test('story graph is large, linked, and fully reachable', () => {
   assert.equal(report.reachable, Object.keys(NODES).length);
 });
 
+function untilEnding(choiceIds, loopId, max = 8) {
+  let state = play(choiceIds);
+  let steps = 0;
+  while (!NODES[state.node].ending && steps < max) {
+    state = applyChoice(state, loopId);
+    steps += 1;
+  }
+  return state;
+}
+
+function finishAudit(state, proof) {
+  assert.equal(state.node, 'tatter-arrival', `${state.node} power ${state.power} at ${state.minutes}`);
+  let next = applyChoice(state, 'face-rules');
+  next = applyChoice(next, 'rules-right');
+  next = applyChoice(next, proof);
+  return next;
+}
+
 test('scripted endings are actually reachable', () => {
-  const cases = [
-    ['ending-foam-manager', ['read-note', 'to-kitchen', 'cooler', 'foam-now'], null],
-    ['ending-dough', ['read-note', 'to-kitchen', 'beer-talk', 'ask-dough', 'join-dough'], null],
-    ['ending-fired-napkin', ['read-note', 'to-kitchen', 'leave-restroom', 'dismiss', 'double-down'], null],
-    ['ending-pete-union', ['read-note', 'to-kitchen', 'leave-restroom', 'fix-soap', 'make-official'], null],
-    ['ending-tickle-treaty', ['read-note', 'lock-up', 'unlock-hall', 'to-parts', 'step-in', 'open-treaty', 'sign-treaty'], null],
-    ['ending-toilet-throne', ['read-note', 'to-kitchen', 'leave-restroom', 'into-stall', 'take-plunger', 'talk-toilet', 'claim-throne'], null],
-    ['ending-prize-locked', ['strut', 'sneak-prize', 'climb-bin'], null],
-    ['ending-dawn-closer', ['read-note', 'lock-up', 'unlock-hall', 'to-party', 'leave-for-jazz', 'dance-crisis', 'to-diplomacy', 'mop-heroes'], 'long-mop'],
-    ['ending-staff-picnic', ['read-note', 'lock-up', 'unlock-hall', 'to-party', 'leave-for-jazz', 'dance-crisis', 'to-diplomacy', 'mop-heroes', 'invite-out', 'staff-picnic'], 'long-mop'],
-    ['ending-parking-joey', ['strut', 'dance', 'encore-flirt', 'date-ask'], 'wait-joey'],
-    ['ending-parking-bubba', ['read-note', 'to-kitchen', 'keg-flirt', 'ask-date'], 'wait-bubba'],
+  const direct = [
+    ['ending-foam-manager', ['read-note', 'to-kitchen', 'cooler', 'listen-dough', 'tell-bubba', 'take-sip', 'foam-now']],
+    ['ending-dough', ['read-note', 'to-kitchen', 'beer-talk', 'ask-dough', 'join-dough']],
+    ['ending-fired-napkin', ['read-note', 'to-kitchen', 'leave-restroom', 'dismiss', 'double-down']],
+    ['ending-pete-union', ['read-note', 'to-kitchen', 'leave-restroom', 'fix-soap', 'make-official']],
+    ['ending-tickle-treaty', ['read-note', 'lock-up', 'unlock-hall', 'to-parts', 'step-in', 'open-treaty', 'sign-treaty']],
+    ['ending-toilet-throne', ['read-note', 'to-kitchen', 'leave-restroom', 'into-stall', 'take-plunger', 'talk-toilet', 'claim-throne']],
+    ['ending-prize-locked', ['strut', 'sneak-prize', 'climb-bin']],
+  ];
+  for (const [ending, path] of direct) {
+    const state = play(path);
+    assert.equal(state.node, ending, `${ending} via ${path.join(' > ')} landed on ${state.node}`);
+    assertTiggy(state);
+  }
+
+  const audited = [
+    ['ending-dawn-closer', ['read-note', 'lock-up', 'unlock-hall', 'to-party', 'leave-for-jazz', 'dance-crisis', 'to-diplomacy', 'mop-heroes'], 'long-mop', 'present-work'],
+    ['ending-staff-picnic', ['read-note', 'lock-up', 'unlock-hall', 'to-party', 'leave-for-jazz', 'dance-crisis', 'to-diplomacy', 'mop-heroes', 'invite-out', 'staff-picnic'], 'long-mop', 'present-work'],
+    ['ending-parking-joey', ['strut', 'dance', 'encore-flirt', 'date-ask'], 'wait-joey', 'present-work'],
+  ];
+  for (const [ending, path, loop, proof] of audited) {
+    const atDoor = untilNode(path, loop, 'tatter-arrival');
+    const state = finishAudit(atDoor, proof);
+    assert.equal(state.node, ending, `${ending} landed on ${state.node}`);
+    assert.equal(state.flags.tatterCleared, true);
+    assert.equal(state.minutes, 360);
+    assert.ok(state.power > 0, `${ending} power ${state.power}`);
+    assertTiggy(state);
+  }
+
+  const bubbaDoor = untilNode(['read-note', 'to-kitchen', 'keg-flirt', 'ask-date'], 'wait-bubba', 'tatter-arrival');
+  let bubba = applyChoice(bubbaDoor, 'face-rules');
+  bubba = applyChoice(bubba, 'rules-right');
+  bubba = applyChoice(bubba, 'slip-for-proof');
+  bubba = applyChoice(bubba, 'prep-slice');
+  bubba = applyChoice(bubba, 'present-slice');
+  assert.equal(bubba.node, 'ending-parking-bubba');
+  assert.equal(bubba.minutes, 360);
+  assert.ok(bubba.power > 0);
+  assertTiggy(bubba);
+
+  for (const [ending, path, loop] of [
     ['ending-blackout-huddle', ['open-cams', 'more-rooms', 'stare'], 'keep'],
     ['ending-blackout-polka', ['strut', 'dance', 'cams-from-dance'], 'keep'],
     ['ending-blackout-keg', ['read-note', 'to-kitchen', 'cooler', 'cams-from-cooler'], 'keep'],
-  ];
-  for (const [ending, path, loop] of cases) {
-    const state = loop ? untilEnding(path, loop) : play(path);
-    assert.equal(state.node, ending, `${ending} via ${path.join(' > ')} landed on ${state.node}`);
-    assert.equal(NODES[state.node].ending, true);
+  ]) {
+    const state = untilEnding(path, loop);
+    assert.equal(state.node, ending, `${ending} landed on ${state.node}`);
+    assert.equal(state.power, 0);
+    assert.ok(state.minutes < 300);
     assertTiggy(state);
-    if (ending.startsWith('ending-blackout')) {
-      assert.equal(state.power, 0);
-      assert.ok(state.minutes < 360);
-    }
-    if (ending === 'ending-dawn-closer' || ending.startsWith('ending-parking') || ending === 'ending-staff-picnic' || ending === 'ending-prize-locked') {
-      assert.equal(state.minutes, 360);
-      assert.equal(clockLabel(state.minutes), '6:00 AM');
-    }
-    if (ending === 'ending-dawn-closer' || ending.startsWith('ending-parking') || ending === 'ending-staff-picnic') {
-      assert.ok(state.power > 0);
-    }
   }
+});
+
+test('the auditor is a fair puzzle and resources do not respawn', () => {
+  const door = untilNode(
+    ['read-note', 'to-kitchen', 'leave-restroom', 'fix-soap', 'enough-rules', 'to-kitchen-hall', 'beer-talk', 'take-slice', 'to-party', 'leave-for-jazz', 'dance-crisis', 'to-diplomacy', 'mop-heroes'],
+    'long-mop',
+    'tatter-arrival',
+  );
+  assert.ok(door.power > 0, `prepared power ${door.power}`);
+  assert.ok(door.inventory.includes('slice'));
+  assert.equal(door.flags.soapFixed, true);
+  assert.equal(door.flags.readRules, true);
+  let won = applyChoice(door, 'face-rules');
+  won = applyChoice(won, 'rules-right');
+  won = applyChoice(won, 'present-slice');
+  assert.equal(won.node, 'ending-dawn-closer');
+  assert.equal(won.flags.tatterCleared, true);
+  assert.equal(won.inventory.includes('slice'), false);
+
+  let missed = applyChoice(door, 'face-rules');
+  missed = applyChoice(missed, 'rules-jazz');
+  assert.equal(missed.node, 'tatter-rules');
+  assert.equal(missed.flags.auditStrike, true);
+  missed = applyChoice(missed, 'rules-chair');
+  assert.equal(missed.node, 'ending-audit-failed');
+  assert.notEqual(missed.flags.tatterCleared, true);
+
+  let empty = applyChoice(door, 'face-rules');
+  empty = applyChoice(empty, 'rules-right');
+  const withoutSlice = { ...empty, inventory: empty.inventory.filter((id) => id !== 'slice') };
+  empty = applyChoice(withoutSlice, 'present-fuse');
+  assert.equal(empty.node, 'tatter-offering');
+  assert.equal(empty.flags.offeringMiss, true);
+  empty = applyChoice(empty, 'present-fuse');
+  assert.equal(empty.node, 'ending-audit-failed');
+
+  let office = freshState();
+  office.node = 'office-hold';
+  office = applyChoice(office, 'breadstick');
+  const fed = office.power;
+  office = applyChoice(office, 'breadstick');
+  office = applyChoice(office, 'breadstick');
+  assert.ok(office.power < fed, `breadstick farm ${fed} -> ${office.power}`);
+
+  let dock = freshState();
+  dock.node = 'loading-dock';
+  dock = applyChoice(dock, 'kill-sign');
+  const saved = dock.power;
+  dock = applyChoice(dock, 'kill-sign');
+  dock = applyChoice(dock, 'kill-sign');
+  assert.ok(dock.power < saved, `sign farm ${saved} -> ${dock.power}`);
 });
 
 test('inventory, relationships, cameras, and secrets change the night', () => {
@@ -175,7 +264,7 @@ test('save, load, and reset keep a valid shift and the night log', () => {
   assert.deepEqual(tiggyStations(moved), ['Parts & Service']);
   assert.ok(moved.cams['Party Room'].includes(PEOPLE.joey));
 
-  const ending = play(['read-note', 'to-kitchen', 'cooler', 'foam-now']);
+  const ending = play(['read-note', 'to-kitchen', 'cooler', 'listen-dough', 'tell-bubba', 'take-sip', 'foam-now']);
   const meta = noteProgress(blankMeta(), ending);
   assert.ok(meta.endings['ending-foam-manager']);
   const again = noteProgress(meta, ending);
@@ -211,7 +300,7 @@ test('every choice can be followed a few turns without throwing or moving Tiggy'
 });
 
 test('cast photos are the exact supplied jpeg bytes', () => {
-  assert.equal(CAST.length, 5);
+  assert.equal(CAST.length, 6);
   const expectedFiles = new Set(Object.keys(HASHES).map((name) => `assets/${name}`));
   for (const person of CAST) {
     assert.equal(expectedFiles.has(person.file), true, person.file);

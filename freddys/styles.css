@@ -101,7 +101,7 @@ img { display: block; }
 
 .crew {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
   margin: 4px 0 10px;
 }
@@ -340,7 +340,7 @@ img { display: block; }
   .crew .thumb { height: 48px; }
   .stat { padding: 6px 8px; }
   .stat strong { font-size: 20px; }
-  .hero { min-height: 184px; height: 184px; }
+  .hero { min-height: 156px; height: 156px; }
 }
 
 @media (min-width: 900px) {
@@ -348,6 +348,7 @@ img { display: block; }
   .toolbar { grid-template-columns: repeat(6, 1fr); }
   .status { grid-template-columns: 160px 140px 1fr 1fr; }
   #power-card, #room-card { grid-column: auto; }
+  .crew { grid-template-columns: repeat(6, 1fr); }
   .layout {
     display: grid;
     grid-template-columns: 380px 1fr;

@@ -344,7 +344,7 @@ function openPockets() {
 function openPeople() {
   openModal('People', (body) => {
     const p = document.createElement('p');
-    p.textContent = 'How the shift feels about you. Words, not just a number, and nobody is a punchline for how they get around.';
+    p.textContent = 'How the shift feels about you. Words, not just a number, and nobody is a punchline for how they get around. Tatter Tot Tat is the auditor, not a relationship to farm.';
     const list = document.createElement('ul');
     list.className = 'rel-list';
     for (const [key, name] of REL_ORDER) {
@@ -352,6 +352,11 @@ function openPeople() {
       li.textContent = `${name}: ${relLabel(state.rel[key])}`;
       list.append(li);
     }
+    const boss = document.createElement('li');
+    boss.textContent = state.flags.tatterCleared
+      ? 'Tatter Tot Tat: audit passed'
+      : (state.node.startsWith('tatter') ? 'Tatter Tot Tat: holding the stamp' : 'Tatter Tot Tat: not on the floor yet');
+    list.append(boss);
     body.append(p, list);
   });
 }

@@ -102,7 +102,7 @@ async function run() {
     }));
     if (!opening.disclaimer.includes('Not affiliated')) throw new Error('missing disclaimer');
     if (opening.clock !== '12:00 AM') throw new Error(opening.clock);
-    if (opening.crew !== 5) throw new Error('crew ' + opening.crew);
+    if (opening.crew !== 6) throw new Error('crew ' + opening.crew);
     if (opening.sound !== 'false') throw new Error('sound default ' + opening.sound);
     if (opening.scrollWidth > 364) throw new Error('horizontal overflow ' + opening.scrollWidth);
     if (opening.choices.length < 2 || opening.choices.length > 4) throw new Error('choice count');
@@ -117,7 +117,7 @@ async function run() {
       const box = el.getBoundingClientRect();
       return { top: box.top, height: box.height, bottom: box.bottom };
     });
-    if (heroBox.height < 180) throw new Error('hero too short ' + JSON.stringify(heroBox));
+    if (heroBox.height < 150) throw new Error('hero too short ' + JSON.stringify(heroBox));
     if (heroBox.top > 520) throw new Error('hero starts too low ' + JSON.stringify(heroBox));
     await shot(page, 'freddys-mobile-portrait.png');
     await page.screenshot({ path: join(shots, 'freddys-mobile-opening-full.png'), fullPage: true });
@@ -151,6 +151,9 @@ async function run() {
     await page.click('[data-choice="read-note"]');
     await page.click('[data-choice="to-kitchen"]');
     await page.click('[data-choice="cooler"]');
+    await page.click('[data-choice="listen-dough"]');
+    await page.click('[data-choice="tell-bubba"]');
+    await page.click('[data-choice="take-sip"]');
     await page.click('[data-choice="foam-now"]');
     await page.waitForFunction(() => document.querySelector('#story-title').textContent.includes('Foam Manager'));
     const meta = await page.evaluate(() => JSON.parse(localStorage.getItem('freddys-meta-v1')));
@@ -184,11 +187,11 @@ async function run() {
     await shot(page, 'freddys-desktop-floor-board.png');
     await page.click('#modal-x');
     await page.click('#btn-cast');
-    await page.waitForFunction(() => document.querySelectorAll('.cast-card img').length === 5);
+    await page.waitForFunction(() => document.querySelectorAll('.cast-card img').length === 6);
     await page.waitForFunction(() => [...document.querySelectorAll('.cast-card img')].every((img) => img.naturalWidth > 500));
     const galleryFit = await page.evaluate(() => [...document.querySelectorAll('.cast-card img')].map((img) => getComputedStyle(img).objectFit));
     if (galleryFit.some((fit) => fit !== 'contain')) throw new Error('gallery fit ' + galleryFit.join(','));
-    await page.waitForFunction(() => document.querySelector('#cast-status').textContent.includes('All 5'));
+    await page.waitForFunction(() => document.querySelector('#cast-status').textContent.includes('All 6'));
     await shot(page, 'freddys-desktop-cast.png');
     await page.click('#modal-x');
     await shot(page, 'freddys-desktop-shift.png');
@@ -199,7 +202,7 @@ async function run() {
     await offline.goto(`http://127.0.0.1:${port}/freddys/play-offline.html`, { waitUntil: 'networkidle0' });
     await offline.waitForSelector('[data-choice="strut"]');
     const offlineImgs = await offline.evaluate(() => [...document.querySelectorAll('.crew img')].map((img) => img.naturalWidth));
-    if (offlineImgs.length !== 5 || offlineImgs.some((w) => w < 500)) throw new Error('offline portraits ' + offlineImgs.join(','));
+    if (offlineImgs.length !== 6 || offlineImgs.some((w) => w < 500)) throw new Error('offline portraits ' + offlineImgs.join(','));
     await offline.click('[data-choice="strut"]');
     await offline.waitForFunction(() => document.querySelector('#story-title').textContent.includes('Mandatory'));
     await offline.screenshot({ path: join(shots, 'freddys-offline-mobile.png') });

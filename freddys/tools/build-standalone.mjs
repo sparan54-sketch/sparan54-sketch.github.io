@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const files = ['bhad-bunny.jpg', 'bubba-beer-bot.jpg', 'joey-cha-cha.jpg', 'chicken-pete.jpg', 'ticklish-tiggy.jpg'];
+const files = ['bhad-bunny.jpg', 'bubba-beer-bot.jpg', 'joey-cha-cha.jpg', 'chicken-pete.jpg', 'ticklish-tiggy.jpg', 'tatter-tot-tat.jpg'];
 
 function stripModule(src) {
   return src
