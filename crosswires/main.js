@@ -189,17 +189,17 @@ function playHTML(g, me, swaps) {
   const pn = pc && NOTES.find((x) => x[0] === pc.chip);
   h += '<div class="partnerchip">' + (pn ? 'Note from Desk ' + pc.by + ': <b>' + pn[1] + '</b> ' + pn[3] : '') + '</div>';
   h += '<div class="lab">Your clues, Desk ' + me + '</div><div class="clues">';
-  const glMe = Engine.gridLetters(lv, st, me);
+  const glMe = Engine.gridLetters(lv, st, me), myHints = (st.hints && st.hints[me]) || {};
   lv.slots.filter((s) => s.desk === me).forEach((s) => {
     const locked = st.locked[s.id], pen = st.pencil[me][s.id];
-    h += '<button class="clue' + (ctx.sel === s.id ? ' sel' : '') + (locked ? ' done' : '') + '" data-a="sel-' + s.id + '"' + (locked ? ' disabled' : '') + '><span class="n">' + s.n + arrow(s) + '</span><span class="t">' + esc(s.clue) + '<span class="s">' + (locked ? 'Locked: ' + locked : (pen ? 'Pencilled: ' + pen + ' · ' : '') + 'Letters: ' + pattern(s, glMe) + (lv.hinted ? (st.hints[me][s.id] ? ' · list open' : ' · list hidden') : '')) + '</span></span></button>';
+    h += '<button class="clue' + (ctx.sel === s.id ? ' sel' : '') + (locked ? ' done' : '') + '" data-a="sel-' + s.id + '"' + (locked ? ' disabled' : '') + '><span class="n">' + s.n + arrow(s) + '</span><span class="t">' + esc(s.clue) + '<span class="s">' + (locked ? 'Locked: ' + locked : (pen ? 'Pencilled: ' + pen + ' · ' : '') + 'Letters: ' + pattern(s, glMe) + (lv.hinted ? (myHints[s.id] ? ' · list open' : ' · list hidden') : '')) + '</span></span></button>';
   });
   h += '</div>';
   if (myTurn) {
     if (ctx.sel !== null) {
       const s = lv.slots[ctx.sel];
       h += '<div class="entry">';
-      const listOpen = lv.chips && (!lv.hinted || st.hints[me][s.id]), hintsLeft = Engine.HINT_CAP - Object.keys(st.hints[me]).length;
+      const listOpen = lv.chips && (!lv.hinted || myHints[s.id]), hintsLeft = Engine.HINT_CAP - Object.keys(myHints).length;
       if (listOpen) {
         const gl = Engine.gridLetters(lv, st, me);
         h += '<div class="lab">Choose a word for ' + s.n + arrow(s) + ': ' + esc(s.label) + '</div><div class="wchips">';
