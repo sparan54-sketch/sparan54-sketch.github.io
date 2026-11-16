@@ -42,6 +42,7 @@ function slotsFromGrid(grid) {
   // Desk A holds the Across words and Desk B holds the Down words
   return A.concat(D).map(function (x) { return [x[0] === 'A' ? 'A' : 'B', x[1]]; });
 }
+var HINT_CAP = 2;
 var MAX_SLIPS = 3, PENCIL_CAP = 3;
 
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -59,11 +60,11 @@ function buildLevel(L) {
     var d = L.slots[i], len = p[1].length;
     return { id: i, desk: p[0], n: numbers[p[1][0][0] + ',' + p[1][0][1]], cells: p[1], len: len, allowed: d.words.slice().sort(), label: d.label, clue: cap(d.label) + ' (' + len + ' letters)' };
   });
-  return { n: L.n, rows: R, cols: C, slots: slots, salt: L.salt, hash: L.hash, tutorial: !!L.tutorial, chips: true, recap: L.recap || '', budget: L.tutorial ? 24 : 5 * slots.length + 4 };
+  return { n: L.n, rows: R, cols: C, slots: slots, salt: L.salt, hash: L.hash, tutorial: !!L.tutorial, chips: true, hinted: L.n >= 4, recap: L.recap || '', budget: L.tutorial ? 24 : 5 * slots.length + 4 };
 }
 function buildLevels(levels) { return levels.map(buildLevel); }
 
-function newState(level) { return { level: level.n, turn: 1, active: 'A', slips: 0, budget: level.budget, locked: {}, pencil: { A: {}, B: {} }, chip: null, log: [], status: 'play', reason: '' }; }
+function newState(level) { return { level: level.n, turn: 1, active: 'A', slips: 0, budget: level.budget, locked: {}, pencil: { A: {}, B: {} }, chip: null, hints: { A: {}, B: {} }, log: [], status: 'play', reason: '' }; }
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 function lettersOf(level, locked) {
   var m = {};
@@ -98,13 +99,26 @@ function finish(st, ev, by, act, slot, word) {
   st.turn++; st.active = by === 'A' ? 'B' : 'A';
   return st;
 }
-// action: {type:'pencil'|'erase'|'lock'|'pass', slot, word, chip}
+// action: {type:'pencil'|'erase'|'lock'|'pass'|'hint', slot, word, chip}
+// On hinted levels (4 and up) a clue's word list is hidden. A hint opens it for one of your clues and uses your turn; each desk gets HINT_CAP per level.
+// A typed word that is not in a hidden list is a miss: it uses the turn but costs no slip.
 function apply(state, level, by, action) {
   var st = clone(state), ev, slot, word, i;
   if (st.status !== 'play') return { state: state, event: { type: 'over' } };
   if (st.active !== by) return { state: state, event: { type: 'not-your-turn' } };
   var t = action.type;
+  if (!st.hints) st.hints = { A: {}, B: {} };
   if (t === 'pass') { ev = { type: 'pass' }; }
+  else if (t === 'hint') {
+    slot = level.slots[action.slot];
+    if (!level.hinted) return { state: state, event: { type: 'no-hints' } };
+    if (!slot) return { state: state, event: { type: 'bad-slot' } };
+    if (slot.desk !== by) return { state: state, event: { type: 'not-your-slot' } };
+    if (st.locked[slot.id] !== undefined) return { state: state, event: { type: 'already-locked', slot: slot.id } };
+    if (st.hints[by][slot.id]) return { state: state, event: { type: 'already-hinted', slot: slot.id } };
+    if (Object.keys(st.hints[by]).length >= HINT_CAP) return { state: state, event: { type: 'hints-used' } };
+    st.hints[by][slot.id] = true; ev = { type: 'hint', slot: slot.id };
+  }
   else {
     slot = level.slots[action.slot];
     if (!slot) return { state: state, event: { type: 'bad-slot' } };
@@ -116,8 +130,10 @@ function apply(state, level, by, action) {
     } else if (t === 'pencil' || t === 'lock') {
       word = String(action.word || '').toLowerCase();
       if (word.length !== slot.len) return { state: state, event: { type: 'bad-length' } };
-      if (slot.allowed.indexOf(word) < 0) return { state: state, event: { type: 'unknown-word' } };
-      if (t === 'pencil') {
+      var known = slot.allowed.indexOf(word) >= 0, hidden = level.hinted && !st.hints[by][slot.id];
+      if (!known && !hidden) return { state: state, event: { type: 'unknown-word' } };
+      if (!known) { ev = { type: 'miss', slot: slot.id }; }
+      else if (t === 'pencil') {
         var cur = Object.keys(st.pencil[by]).length;
         if (st.pencil[by][slot.id] === undefined && cur >= PENCIL_CAP) return { state: state, event: { type: 'pencil-cap' } };
         st.pencil[by][slot.id] = word; ev = { type: 'pencil', slot: slot.id, word: word };
@@ -134,6 +150,7 @@ function apply(state, level, by, action) {
       }
     } else return { state: state, event: { type: 'bad-action' } };
   }
+  if (st.chip && st.chip.by !== by) st.chip = null;
   if (action.chip && ['fits', 'clash', 'stuck', 'yourmove'].indexOf(action.chip) >= 0) st.chip = { by: by, chip: action.chip, turn: st.turn };
   finish(st, ev, by, t, slot ? slot.id : undefined, word);
   if (Object.keys(st.locked).length === level.slots.length) {
@@ -145,4 +162,4 @@ function apply(state, level, by, action) {
   return { state: st, event: ev };
 }
 
-export const Engine = { sha256, slotsFromGrid, buildLevel, buildLevels, newState, apply, candidates, lettersOf, gridLetters, fits, slotName, MAX_SLIPS, PENCIL_CAP };
+export const Engine = { HINT_CAP, sha256, slotsFromGrid, buildLevel, buildLevels, newState, apply, candidates, lettersOf, gridLetters, fits, slotName, MAX_SLIPS, PENCIL_CAP };

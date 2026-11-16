@@ -32,7 +32,7 @@ const clearedMap = () => (ctx.mode === 'hot' ? ctx.cleared : (ctx.doc && ctx.doc
 const setMsg = (t, k) => { ctx.msg = { t: t, k: k || '' }; };
 const starsFor = (st, lv) => (st.status !== 'won' ? 0 : st.slips > 0 ? 1 : (st.turn - 1) <= lv.slots.length + 4 ? 3 : 2);
 const arrow = (s) => (s.desk === 'A' ? '→' : '↓');
-const NOOP = ['over', 'not-your-turn', 'bad-slot', 'not-your-slot', 'already-locked', 'nothing-to-erase', 'bad-length', 'unknown-word', 'pencil-cap', 'no-seat', 'no-level', 'bad-action'];
+const NOOP = ['over', 'not-your-turn', 'bad-slot', 'not-your-slot', 'already-locked', 'nothing-to-erase', 'bad-length', 'unknown-word', 'pencil-cap', 'no-hints', 'already-hinted', 'hints-used', 'no-seat', 'no-level', 'bad-action'];
 
 function describe(ev, by, lv, mine) {
   const who = mine ? 'You' : 'Desk ' + by, nm = (i) => Engine.slotName(lv, i);
@@ -40,6 +40,10 @@ function describe(ev, by, lv, mine) {
     case 'pencil': return { t: who + ' pencilled ' + nm(ev.slot) + '.', k: 'good' };
     case 'erase': return { t: who + ' rubbed out a pencil on ' + nm(ev.slot) + '.', k: '' };
     case 'lock': return { t: who + ' locked ' + nm(ev.slot) + '.', k: 'good' };
+    case 'hint': return { t: who + ' opened the word list for ' + nm(ev.slot) + '. That used the turn.', k: '' };
+    case 'miss': return { t: 'That word is not on the list for ' + nm(ev.slot) + '. It used your turn, but no slip.', k: 'bad' };
+    case 'hints-used': return { t: 'You have used both hints on this level.', k: '' };
+    case 'already-hinted': return { t: 'That word list is already open.', k: '' };
     case 'pass': return { t: who + ' passed.', k: '' };
     case 'clash': return { t: 'Slip. That word does not match a letter already locked in the grid (' + nm(ev.slot) + ').', k: 'bad' };
     case 'jam': return { t: 'Slip. After that word, ' + nm(ev.dry) + ' would have no possible word left, so the lock on ' + nm(ev.slot) + ' was undone.', k: 'bad' };
@@ -65,6 +69,7 @@ function errText(e) {
 // ---------- coach (level 1 only) ----------
 function coach(lv, st, me, myTurn) {
   if (!myTurn) return 'Wait for Desk ' + st.active + '. When they pencil or lock a word, its letters appear on the grid. Then check which of your words still fit.';
+  if (lv.hinted && myTurn) return 'The word lists are hidden. Type a word you think fits, or use a Hint to open the list for one clue. A Hint uses your turn, and you get ' + Engine.HINT_CAP + ' per level. A word that is not on the list uses your turn too, but costs no slip.';
   const gl = Engine.gridLetters(lv, st, me);
   if (!Object.keys(gl).length) return 'The grid is empty, so you have to guess. Pick a clue, choose a word, and Pencil it. Pencil is free and your partner sees it in teal. Ask them whether it fits.';
   const open = lv.slots.filter((s) => s.desk === me && st.locked[s.id] === undefined);
@@ -126,7 +131,8 @@ function rulesHTML() {
     '<li><span class="num">4</span><div><h3>Crossing squares share a letter</h3><p>Where an Across word and a Down word meet, there is one square for both of them. the square is marked with a small teal diamond and both words use the same letter there. If your partner has put a T in that square, your word must have a T there too. Use their letters to rule out your guesses.</p>' + mini + '</div></li>' +
     '<li><span class="num">5</span><div><h3>On your turn</h3><p><b>Pencil</b> suggests a word. Your partner sees it in teal, and you can change it later. <b>Lock</b> makes it final. <b>Rub out</b> removes a pencil. <b>Pass</b> skips your turn. Each turn you do one of these.</p></div></li>' +
     '<li><span class="num">6</span><div><h3>Notes to your partner</h3><p>You cannot see each other’s clues, so notes are how you talk. Tap one before you end your turn and your partner sees it on their screen. They are optional and cost nothing.</p><p><b>Fits</b>: my words work with your letters.<br><b>Clash</b>: a letter you pencilled breaks one of my clues.<br><b>Stuck</b>: none of my words work yet, so try a different letter.<br><b>Your move</b>: I am waiting on you. Lock a word if you are sure.</p></div></li>' +
-    '<li><span class="num">7</span><div><h3>Slips</h3><p>A lock that breaks a shared letter is a slip. So is a lock that leaves your partner with no possible word. Three slips ends the level. There is also a turn limit. Pencils never cost anything.</p></div></li>' +
+    '<li><span class="num">7</span><div><h3>Hints (levels 4 and up)</h3><p>On these levels the list of possible words is hidden, so you type your own guess. Tap <b>Hint</b> on a clue to open its list. A hint uses your turn, and each of you gets 2 per level. A typed word that is not on the list also uses your turn, but costs no slip.</p></div></li>' +
+    '<li><span class="num">8</span><div><h3>Slips</h3><p>A lock that breaks a shared letter is a slip. So is a lock that leaves your partner with no possible word. Three slips ends the level. There is also a turn limit. Pencils never cost anything.</p></div></li>' +
     '</ol><button class="btn" data-a="rules-done">' + (inGame ? 'Got it, back to the game' : 'Got it') + '</button></div>';
 }
 
@@ -180,14 +186,15 @@ function playHTML(g, me) {
   const glMe = Engine.gridLetters(lv, st, me);
   lv.slots.filter((s) => s.desk === me).forEach((s) => {
     const locked = st.locked[s.id], pen = st.pencil[me][s.id];
-    h += '<button class="clue' + (ctx.sel === s.id ? ' sel' : '') + (locked ? ' done' : '') + '" data-a="sel-' + s.id + '"' + (locked ? ' disabled' : '') + '><span class="n">' + s.n + arrow(s) + '</span><span class="t">' + esc(s.clue) + '<span class="s">' + (locked ? 'Locked: ' + locked : (pen ? 'Pencilled: ' + pen + ' · ' : '') + 'Letters: ' + pattern(s, glMe)) + '</span></span></button>';
+    h += '<button class="clue' + (ctx.sel === s.id ? ' sel' : '') + (locked ? ' done' : '') + '" data-a="sel-' + s.id + '"' + (locked ? ' disabled' : '') + '><span class="n">' + s.n + arrow(s) + '</span><span class="t">' + esc(s.clue) + '<span class="s">' + (locked ? 'Locked: ' + locked : (pen ? 'Pencilled: ' + pen + ' · ' : '') + 'Letters: ' + pattern(s, glMe) + (lv.hinted ? (st.hints[me][s.id] ? ' · list open' : ' · list hidden') : '')) + '</span></span></button>';
   });
   h += '</div>';
   if (myTurn) {
     if (ctx.sel !== null) {
       const s = lv.slots[ctx.sel];
       h += '<div class="entry">';
-      if (lv.chips) {
+      const listOpen = lv.chips && (!lv.hinted || st.hints[me][s.id]), hintsLeft = Engine.HINT_CAP - Object.keys(st.hints[me]).length;
+      if (listOpen) {
         const gl = Engine.gridLetters(lv, st, me);
         h += '<div class="lab">Choose a word for ' + s.n + arrow(s) + ': ' + esc(s.label) + '</div><div class="wchips">';
         s.allowed.forEach((w) => { h += '<button class="wc' + (Engine.fits(s, w, gl) ? '' : ' dim') + '" aria-pressed="' + (ctx.draft === w) + '" data-a="word-' + w + '">' + w + '</button>'; });
@@ -196,7 +203,8 @@ function playHTML(g, me) {
         h += '<input id="wordIn" type="text" maxlength="' + s.len + '" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Word for ' + s.n + (s.desk === 'A' ? ' across' : ' down') + '" placeholder="' + '·'.repeat(s.len) + '" value="' + esc(ctx.draft) + '">';
       }
       h += '<div class="row"><button class="btn alt" data-a="do-pencil">Pencil</button><button class="btn red" data-a="do-lock">Lock</button><button class="btn alt" data-a="do-erase">Rub out</button></div>';
-      if (lv.chips) h += '<p class="small">Pencil suggests the word. Lock makes it final.</p>';
+      if (lv.hinted && !listOpen) h += '<button class="btn alt" data-a="do-hint"' + (hintsLeft > 0 ? '' : ' disabled') + '>Hint: open the word list (' + hintsLeft + ' left)</button><p class="small">A hint uses your turn. A typed word that is not on the list also uses your turn, with no slip.</p>';
+      else if (lv.chips) h += '<p class="small">Pencil suggests the word. Lock makes it final.</p>';
       h += '</div>';
     } else h += '<p class="small">Tap one of your clues, then pencil or lock a word.</p>';
     h += '<div class="lab">Add a note for your partner (optional)</div><p class="small">A note rides along with your move. Your partner sees it until they move.</p><div class="chips notes">';
@@ -329,6 +337,7 @@ app.addEventListener('click', (e) => {
   else if (a.indexOf('sel-') === 0) { ctx.sel = parseInt(a.slice(4), 10); ctx.draft = ''; render(); const w = $('#wordIn'); if (w) w.focus(); }
   else if (a.indexOf('word-') === 0) { ctx.draft = a.slice(5); render(); }
   else if (a.indexOf('chip-') === 0) { const c = a.slice(5); ctx.chip = ctx.chip === c ? null : c; render(); }
+  else if (a === 'do-hint') { if (ctx.sel !== null) act({ type: 'hint', slot: ctx.sel }); }
   else if (a === 'do-pass') act({ type: 'pass' });
   else if (a === 'do-pencil') { if (ctx.sel !== null) act({ type: 'pencil', slot: ctx.sel }); }
   else if (a === 'do-lock') { if (ctx.sel !== null) act({ type: 'lock', slot: ctx.sel }); }
