@@ -8,5 +8,6 @@ self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);
  if(u.origin!==location.origin)return;
  if(u.pathname.startsWith('/philly-eats/'))return; // separate app
  if(u.pathname.startsWith('/cs2/'))return; // separate page
+ if(u.pathname.startsWith('/crosswires/'))return; // separate page
  if(r.mode==='navigate'||u.pathname.endsWith('/')||u.pathname.endsWith('.html')){e.respondWith(fetch(r).then(res=>{const cp=res.clone();caches.open(V).then(c=>c.put('index.html',cp));return res}).catch(()=>caches.match('index.html')));return}
  e.respondWith(caches.match(r,{ignoreSearch:true}).then(hit=>{const net=fetch(r).then(res=>{if(res.ok){const cp=res.clone();caches.open(V).then(c=>c.put(r,cp))}return res});return hit||net}))});
