@@ -1,0 +1,145 @@
+// Crosswires game engine. Pure functions, no DOM. Runs in the browser and in Node.
+function sha256(str) {
+  var K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  var H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  var bytes = [];
+  for (var i = 0; i < str.length; i++) bytes.push(str.charCodeAt(i) & 0xff); // ASCII only
+  var bl = bytes.length * 8;
+  bytes.push(0x80);
+  while (bytes.length % 64 !== 56) bytes.push(0);
+  for (var s = 7; s >= 0; s--) bytes.push(s >= 4 ? 0 : (bl >>> (s * 8)) & 0xff);
+  var rotr = function (x, n) { return (x >>> n) | (x << (32 - n)); };
+  for (var off = 0; off < bytes.length; off += 64) {
+    var w = [];
+    for (var t = 0; t < 16; t++) w[t] = (bytes[off+4*t]<<24)|(bytes[off+4*t+1]<<16)|(bytes[off+4*t+2]<<8)|bytes[off+4*t+3];
+    for (t = 16; t < 64; t++) {
+      var s0 = rotr(w[t-15],7)^rotr(w[t-15],18)^(w[t-15]>>>3), s1 = rotr(w[t-2],17)^rotr(w[t-2],19)^(w[t-2]>>>10);
+      w[t] = (w[t-16] + s0 + w[t-7] + s1) | 0;
+    }
+    var a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for (t = 0; t < 64; t++) {
+      var S1 = rotr(e,6)^rotr(e,11)^rotr(e,25), ch = (e&f)^(~e&g), t1 = (h+S1+ch+K[t]+w[t])|0;
+      var S0 = rotr(a,2)^rotr(a,13)^rotr(a,22), mj = (a&b)^(a&c)^(b&c), t2 = (S0+mj)|0;
+      h=g; g=f; f=e; e=(d+t1)|0; d=c; c=b; b=a; a=(t1+t2)|0;
+    }
+    H[0]=(H[0]+a)|0;H[1]=(H[1]+b)|0;H[2]=(H[2]+c)|0;H[3]=(H[3]+d)|0;H[4]=(H[4]+e)|0;H[5]=(H[5]+f)|0;H[6]=(H[6]+g)|0;H[7]=(H[7]+h)|0;
+  }
+  return H.map(function (x) { return ('00000000' + (x >>> 0).toString(16)).slice(-8); }).join('');
+}
+
+function ring(n) {
+  var top = [], bot = [], left = [], right = [], i;
+  for (i = 0; i < n; i++) { top.push([0, i]); bot.push([n-1, i]); left.push([i, 0]); right.push([i, n-1]); }
+  return [['A', top], ['A', bot], ['B', left], ['B', right]];
+}
+function lad(rows, cols) {
+  var s = [], i;
+  rows.forEach(function (r) { var c = []; for (i = 0; i < 5; i++) c.push([r, i]); s.push(['A', c]); });
+  cols.forEach(function (cc) { var c = []; for (i = 0; i < 5; i++) c.push([i, cc]); s.push(['B', c]); });
+  return s;
+}
+var PATTERNS = { ring3: ring(3), frame4: ring(4), frame5: ring(5), ladderA: lad([0,2,4],[0,4]), ladderB: lad([0,4],[0,2,4]) };
+var SIZE = { ring3: 3, frame4: 4, frame5: 5, ladderA: 5, ladderB: 5 };
+var MAX_SLIPS = 3, PENCIL_CAP = 3;
+
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function clueText(bank, cats, idx, len) {
+  var ph = cats.map(function (c) { return bank[c].clue[idx]; });
+  var t = ph.length === 1 ? ph[0] : ph.slice(0, -1).join(', ') + ' or ' + ph[ph.length - 1];
+  return cap(t) + ' (' + len + ')';
+}
+// Every level lists the exact words per slot, so a clue always names one group and its words are shown to the player.
+function buildLevel(L) {
+  var pat = PATTERNS[L.pattern], len = SIZE[L.pattern], cnt = { A: 0, B: 0 };
+  var slots = pat.map(function (p, i) {
+    cnt[p[0]]++;
+    var d = L.slots[i];
+    return { id: i, desk: p[0], n: cnt[p[0]], cells: p[1], len: len, allowed: d.words.slice().sort(), label: d.label, clue: cap(d.label) + ' (' + len + ' letters)' };
+  });
+  return { n: L.n, pattern: L.pattern, size: SIZE[L.pattern], slots: slots, salt: L.salt, hash: L.hash, tutorial: !!L.tutorial, chips: true, recap: L.recap || '', budget: L.tutorial ? 24 : 5 * slots.length + 4 };
+}
+function buildLevels(levels) { return levels.map(buildLevel); }
+
+function newState(level) { return { level: level.n, turn: 1, active: 'A', slips: 0, budget: level.budget, locked: {}, pencil: { A: {}, B: {} }, chip: null, log: [], status: 'play', reason: '' }; }
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function lettersOf(level, locked) {
+  var m = {};
+  Object.keys(locked).forEach(function (si) {
+    var s = level.slots[si];
+    s.cells.forEach(function (rc, k) { m[rc[0] + ',' + rc[1]] = locked[si].charAt(k); });
+  });
+  return m;
+}
+// Letters visible on the grid for one desk: every locked word plus the partner's pencils.
+function gridLetters(level, st, me) {
+  var m = lettersOf(level, st.locked), other = me === 'A' ? 'B' : 'A';
+  Object.keys(st.pencil[other] || {}).forEach(function (si) {
+    if (st.locked[si] !== undefined) return;
+    var s = level.slots[si], w = st.pencil[other][si];
+    s.cells.forEach(function (rc, k) { var key = rc[0] + ',' + rc[1]; if (m[key] === undefined) m[key] = w.charAt(k); });
+  });
+  return m;
+}
+function fits(slot, word, m) {
+  for (var k = 0; k < slot.cells.length; k++) { var v = m[slot.cells[k][0] + ',' + slot.cells[k][1]]; if (v && v !== word.charAt(k)) return false; }
+  return true;
+}
+function candidates(level, locked, si) {
+  var m = lettersOf(level, locked), s = level.slots[si];
+  return s.allowed.filter(function (w) { return fits(s, w, m); });
+}
+function slotName(level, si) { var s = level.slots[si]; return s.n + ' ' + (s.desk === 'A' ? 'Across' : 'Down'); }
+function finish(st, ev, by, act, slot, word) {
+  st.log.push({ turn: st.turn, by: by, act: act, slot: slot === undefined ? null : slot, word: word || null, res: ev.type });
+  if (st.log.length > 60) st.log.shift();
+  st.turn++; st.active = by === 'A' ? 'B' : 'A';
+  return st;
+}
+// action: {type:'pencil'|'erase'|'lock'|'pass', slot, word, chip}
+function apply(state, level, by, action) {
+  var st = clone(state), ev, slot, word, i;
+  if (st.status !== 'play') return { state: state, event: { type: 'over' } };
+  if (st.active !== by) return { state: state, event: { type: 'not-your-turn' } };
+  var t = action.type;
+  if (t === 'pass') { ev = { type: 'pass' }; }
+  else {
+    slot = level.slots[action.slot];
+    if (!slot) return { state: state, event: { type: 'bad-slot' } };
+    if (slot.desk !== by) return { state: state, event: { type: 'not-your-slot' } };
+    if (st.locked[slot.id] !== undefined) return { state: state, event: { type: 'already-locked', slot: slot.id } };
+    if (t === 'erase') {
+      if (st.pencil[by][slot.id] === undefined) return { state: state, event: { type: 'nothing-to-erase' } };
+      delete st.pencil[by][slot.id]; ev = { type: 'erase', slot: slot.id };
+    } else if (t === 'pencil' || t === 'lock') {
+      word = String(action.word || '').toLowerCase();
+      if (word.length !== slot.len) return { state: state, event: { type: 'bad-length' } };
+      if (slot.allowed.indexOf(word) < 0) return { state: state, event: { type: 'unknown-word' } };
+      if (t === 'pencil') {
+        var cur = Object.keys(st.pencil[by]).length;
+        if (st.pencil[by][slot.id] === undefined && cur >= PENCIL_CAP) return { state: state, event: { type: 'pencil-cap' } };
+        st.pencil[by][slot.id] = word; ev = { type: 'pencil', slot: slot.id, word: word };
+      } else {
+        var m = lettersOf(level, st.locked);
+        if (!fits(slot, word, m)) { st.slips++; ev = { type: 'clash', slot: slot.id }; }
+        else {
+          st.locked[slot.id] = word; delete st.pencil[by][slot.id];
+          var empty = -1;
+          for (i = 0; i < level.slots.length; i++) if (st.locked[i] === undefined && candidates(level, st.locked, i).length === 0) { empty = i; break; }
+          if (empty >= 0) { delete st.locked[slot.id]; st.slips++; ev = { type: 'jam', slot: slot.id, dry: empty }; }
+          else ev = { type: 'lock', slot: slot.id, word: word };
+        }
+      }
+    } else return { state: state, event: { type: 'bad-action' } };
+  }
+  if (action.chip && ['fits', 'clash', 'stuck', 'yourmove'].indexOf(action.chip) >= 0) st.chip = { by: by, chip: action.chip, turn: st.turn };
+  finish(st, ev, by, t, slot ? slot.id : undefined, word);
+  if (Object.keys(st.locked).length === level.slots.length) {
+    var words = level.slots.map(function (s) { return st.locked[s.id]; });
+    ev.seal = sha256(level.salt + ':' + words.join('|')) === level.hash;
+    st.status = 'won'; ev.won = true;
+  } else if (st.slips >= MAX_SLIPS) { st.status = 'lost'; st.reason = 'slips'; ev.lost = 'slips'; }
+  else if (st.turn - 1 >= st.budget) { st.status = 'lost'; st.reason = 'turns'; ev.lost = 'turns'; }
+  return { state: st, event: ev };
+}
+
+export const Engine = { sha256, PATTERNS, SIZE, buildLevel, buildLevels, newState, apply, candidates, lettersOf, gridLetters, fits, slotName, MAX_SLIPS, PENCIL_CAP };
