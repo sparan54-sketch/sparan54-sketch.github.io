@@ -95,6 +95,12 @@ function candidates(level, locked, si) {
   return s.allowed.filter(function (w) { return fits(s, w, m); });
 }
 function slotName(level, si) { var s = level.slots[si]; return s.n + ' ' + (s.desk === 'A' ? 'Across' : 'Down'); }
+// If the desk whose turn it is has nothing left to fill in, the turn stays with the other desk instead of forcing a pass.
+function whoseTurn(st, level) {
+  var open = function (d) { return level.slots.some(function (s) { return s.desk === d && st.locked[s.id] === undefined; }); };
+  if (st.active && !open(st.active) && open(st.active === 'A' ? 'B' : 'A')) return st.active === 'A' ? 'B' : 'A';
+  return st.active;
+}
 function finish(st, ev, by, act, slot, word) {
   st.log.push({ turn: st.turn, by: by, act: act, slot: slot === undefined ? null : slot, word: word || null, res: ev.type });
   if (st.log.length > 60) st.log.shift();
@@ -107,6 +113,7 @@ function finish(st, ev, by, act, slot, word) {
 function apply(state, level, by, action) {
   var st = clone(state), ev, slot, word, i;
   if (st.status !== 'play') return { state: state, event: { type: 'over' } };
+  st.active = whoseTurn(st, level);
   if (st.active !== by) return { state: state, event: { type: 'not-your-turn' } };
   var t = action.type;
   if (!st.hints) st.hints = { A: {}, B: {} };
@@ -155,6 +162,7 @@ function apply(state, level, by, action) {
   if (st.chip && st.chip.by !== by) st.chip = null;
   if (action.chip && ['fits', 'clash', 'stuck', 'yourmove'].indexOf(action.chip) >= 0) st.chip = { by: by, chip: action.chip, turn: st.turn };
   finish(st, ev, by, t, slot ? slot.id : undefined, word);
+  st.active = whoseTurn(st, level);
   if (Object.keys(st.locked).length === level.slots.length) {
     var words = level.slots.map(function (s) { return st.locked[s.id]; });
     ev.seal = sha256(level.salt + ':' + words.join('|')) === level.hash;
@@ -164,4 +172,4 @@ function apply(state, level, by, action) {
   return { state: st, event: ev };
 }
 
-export const Engine = { deskFor, HINT_CAP, sha256, slotsFromGrid, buildLevel, buildLevels, newState, apply, candidates, lettersOf, gridLetters, fits, slotName, MAX_SLIPS, PENCIL_CAP };
+export const Engine = { whoseTurn, deskFor, HINT_CAP, sha256, slotsFromGrid, buildLevel, buildLevels, newState, apply, candidates, lettersOf, gridLetters, fits, slotName, MAX_SLIPS, PENCIL_CAP };

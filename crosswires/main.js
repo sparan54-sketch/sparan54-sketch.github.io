@@ -26,7 +26,7 @@ const ctx = { mode: null, doc: null, hot: null, sel: null, chip: null, draft: ''
   view: null, rulesSeen: store('cw_rules') === '1', cleared: {}, net: 'idle', netNote: '', flash: null, lastRevShown: 0, sync: null };
 
 const lvOf = (n) => levels[n - 1];
-const curGame = () => (ctx.mode === 'hot' ? ctx.hot : (ctx.doc && ctx.doc.game) || null);
+const curGame = () => { const g = ctx.mode === 'hot' ? ctx.hot : (ctx.doc && ctx.doc.game) || null; if (g && g.state.status === 'play') g.state.active = Engine.whoseTurn(g.state, lvOf(g.level)); return g; };
 const mySeat = () => (ctx.doc && ctx.doc.seats ? (ctx.doc.seats.A === uid ? 'A' : ctx.doc.seats.B === uid ? 'B' : null) : null);
 const clearedMap = () => (ctx.mode === 'hot' ? ctx.cleared : (ctx.doc && ctx.doc.cleared) || {});
 const setMsg = (t, k) => { ctx.msg = { t: t, k: k || '' }; };
