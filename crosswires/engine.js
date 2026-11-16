@@ -27,19 +27,21 @@ function sha256(str) {
   return H.map(function (x) { return ('00000000' + (x >>> 0).toString(16)).slice(-8); }).join('');
 }
 
-function ring(n) {
-  var top = [], bot = [], left = [], right = [], i;
-  for (i = 0; i < n; i++) { top.push([0, i]); bot.push([n-1, i]); left.push([i, 0]); right.push([i, n-1]); }
-  return [['A', top], ['A', bot], ['B', left], ['B', right]];
+// A grid is an array of strings: "." is an open square and "#" is a block. Every run of 3 or more open
+// squares in a row is an Across word and in a column is a Down word. Slots are numbered in reading order
+// the way a printed crossword is: a square that starts an Across word, a Down word or both gets one number.
+function slotsFromGrid(grid) {
+  var R = grid.length, C = grid[0].length, A = [], D = [];
+  var open = function (r, c) { return r >= 0 && r < R && c >= 0 && c < C && grid[r].charAt(c) !== '#'; };
+  for (var r = 0; r < R; r++) for (var c = 0; c < C; c++) {
+    if (!open(r, c)) continue;
+    var k, cells;
+    if (!open(r, c - 1) && open(r, c + 1) && open(r, c + 2)) { cells = []; for (k = c; open(r, k); k++) cells.push([r, k]); A.push(['A', cells]); }
+    if (!open(r - 1, c) && open(r + 1, c) && open(r + 2, c)) { cells = []; for (k = r; open(k, c); k++) cells.push([k, c]); D.push(['D', cells]); }
+  }
+  // Desk A holds the Across words and Desk B holds the Down words
+  return A.concat(D).map(function (x) { return [x[0] === 'A' ? 'A' : 'B', x[1]]; });
 }
-function lad(rows, cols) {
-  var s = [], i;
-  rows.forEach(function (r) { var c = []; for (i = 0; i < 5; i++) c.push([r, i]); s.push(['A', c]); });
-  cols.forEach(function (cc) { var c = []; for (i = 0; i < 5; i++) c.push([i, cc]); s.push(['B', c]); });
-  return s;
-}
-var PATTERNS = { ring3: ring(3), frame4: ring(4), frame5: ring(5), ladderA: lad([0,2,4],[0,4]), ladderB: lad([0,4],[0,2,4]) };
-var SIZE = { ring3: 3, frame4: 4, frame5: 5, ladderA: 5, ladderB: 5 };
 var MAX_SLIPS = 3, PENCIL_CAP = 3;
 
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -48,15 +50,16 @@ function clueText(bank, cats, idx, len) {
   var t = ph.length === 1 ? ph[0] : ph.slice(0, -1).join(', ') + ' or ' + ph[ph.length - 1];
   return cap(t) + ' (' + len + ')';
 }
-// Every level lists the exact words per slot, so a clue always names one group and its words are shown to the player.
+// Every level gives a grid and, for each word slot in reading order, the clue group and its exact words.
 function buildLevel(L) {
-  var pat = PATTERNS[L.pattern], len = SIZE[L.pattern], cnt = { A: 0, B: 0 };
+  var pat = slotsFromGrid(L.grid), R = L.grid.length, C = L.grid[0].length, numbers = {}, next = 1;
+  pat.forEach(function (p) { var k = p[1][0][0] + ',' + p[1][0][1]; if (numbers[k] === undefined) numbers[k] = 0; });
+  for (var r = 0; r < R; r++) for (var c = 0; c < C; c++) { var key = r + ',' + c; if (numbers[key] !== undefined) numbers[key] = next++; }
   var slots = pat.map(function (p, i) {
-    cnt[p[0]]++;
-    var d = L.slots[i];
-    return { id: i, desk: p[0], n: cnt[p[0]], cells: p[1], len: len, allowed: d.words.slice().sort(), label: d.label, clue: cap(d.label) + ' (' + len + ' letters)' };
+    var d = L.slots[i], len = p[1].length;
+    return { id: i, desk: p[0], n: numbers[p[1][0][0] + ',' + p[1][0][1]], cells: p[1], len: len, allowed: d.words.slice().sort(), label: d.label, clue: cap(d.label) + ' (' + len + ' letters)' };
   });
-  return { n: L.n, pattern: L.pattern, size: SIZE[L.pattern], slots: slots, salt: L.salt, hash: L.hash, tutorial: !!L.tutorial, chips: true, recap: L.recap || '', budget: L.tutorial ? 24 : 5 * slots.length + 4 };
+  return { n: L.n, rows: R, cols: C, slots: slots, salt: L.salt, hash: L.hash, tutorial: !!L.tutorial, chips: true, recap: L.recap || '', budget: L.tutorial ? 24 : 5 * slots.length + 4 };
 }
 function buildLevels(levels) { return levels.map(buildLevel); }
 
@@ -142,4 +145,4 @@ function apply(state, level, by, action) {
   return { state: st, event: ev };
 }
 
-export const Engine = { sha256, PATTERNS, SIZE, buildLevel, buildLevels, newState, apply, candidates, lettersOf, gridLetters, fits, slotName, MAX_SLIPS, PENCIL_CAP };
+export const Engine = { sha256, slotsFromGrid, buildLevel, buildLevels, newState, apply, candidates, lettersOf, gridLetters, fits, slotName, MAX_SLIPS, PENCIL_CAP };

@@ -43,7 +43,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--wire);outline-o
 .msg:empty{border-color:transparent}
 .msg.bad{border-color:var(--stamp)}.msg.good{border-color:var(--wire)}
 .board{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:3px;width:100%;max-width:360px;margin:0 auto}
-.cell{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--panel);border:2px solid var(--ink);font-family:var(--fd);font-size:min(9vw,34px);text-transform:uppercase}
+.cell{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--panel);border:2px solid var(--ink);font-family:var(--fd);font-size:calc(min(92vw,360px)/var(--n)*.58);text-transform:uppercase}
 .cell.off{background:repeating-linear-gradient(45deg,var(--rule) 0 3px,transparent 3px 7px);border-color:var(--rule)}
 .cell .tag{position:absolute;top:1px;left:3px;font-family:var(--fb);font-size:10px;font-weight:700;color:var(--pencil);letter-spacing:0}
 .cell.x::after,.dia::after{content:'';position:absolute;right:4px;bottom:4px;width:7px;height:7px;background:var(--wire);transform:rotate(45deg)}
@@ -51,7 +51,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--wire);outline-o
 .cell.sel{box-shadow:inset 0 0 0 3px var(--stamp)}
 .cell .l{color:var(--ink)}.cell .l.mine{color:var(--pencil)}.cell .l.theirs{color:var(--wire)}
 .cell.locked{background:#fff8dc}
-.legend{font-size:12px;color:var(--pencil);text-align:center;margin:0}
+.chip.notes,.chips.notes{display:grid;grid-template-columns:1fr 1fr;gap:6px}.chips.notes .chip{border-radius:10px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;padding:8px 10px;min-height:64px}.chips.notes .chip span{font-size:12px;font-weight:400;line-height:1.25}.cell .tag{font-size:9px}.legend{font-size:12px;color:var(--pencil);text-align:center;margin:0}
 .clues{display:flex;flex-direction:column;gap:6px}
 .clue{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1.5px solid var(--ink);background:var(--panel);padding:8px 10px;min-height:48px;width:100%}
 .clue .n{font-family:var(--fd);font-size:20px;color:var(--stamp);min-width:30px}

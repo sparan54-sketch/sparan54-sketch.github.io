@@ -77,12 +77,18 @@ function coach(lv, st, me, myTurn) {
 }
 
 // ---------- screens ----------
+const NOTES = [
+  ['fits', 'Fits', 'My words work with your letters.', '(their words work with your letters)'],
+  ['clash', 'Clash', 'A letter you pencilled breaks one of my clues.', '(a letter you pencilled breaks one of their clues)'],
+  ['stuck', 'Stuck', 'None of my words work yet. Try a different letter.', '(none of their words work yet, so try a different letter)'],
+  ['yourmove', 'Your move', 'I am waiting on you. Lock a word if you are sure.', '(they are waiting on you, so lock a word if you are sure)']
+];
 function boardHTML(lv, st, me, showTags) {
-  const n = lv.size, cells = {};
+  const R = lv.rows, C = lv.cols, cells = {}, gl0 = Engine.gridLetters(lv, st, me);
   lv.slots.forEach((s) => s.cells.forEach((rc, idx) => { const key = rc[0] + ',' + rc[1]; (cells[key] = cells[key] || []).push({ s: s, idx: idx }); }));
   const lock = Engine.lettersOf(lv, st.locked), selSlot = ctx.sel !== null ? lv.slots[ctx.sel] : null, other = me === 'A' ? 'B' : 'A';
   let out = '';
-  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
     const key = r + ',' + c, here = cells[key];
     if (!here) { out += '<div class="cell off" aria-hidden="true"></div>'; continue; }
     let letter = '', cls = '';
@@ -93,15 +99,17 @@ function boardHTML(lv, st, me, showTags) {
         const pm = st.pencil[me] && st.pencil[me][h.s.id], pt = st.pencil[other] && st.pencil[other][h.s.id];
         if (pm) mine = pm.charAt(h.idx); if (pt) theirs = pt.charAt(h.idx);
       });
+      if (!mine && !theirs && selSlot && ctx.draft && ctx.draft.length === selSlot.len) { const hs = here.find((h) => h.s.id === selSlot.id); if (hs) mine = ctx.draft.charAt(hs.idx); }
       if (mine) letter = '<span class="l mine">' + mine + '</span>'; else if (theirs) letter = '<span class="l theirs">' + theirs + '</span>';
     }
     let tag = '';
-    if (showTags) here.forEach((h) => { if (h.idx === 0) tag += (tag ? ' ' : '') + h.s.n + arrow(h.s); });
+    if (showTags) here.forEach((h) => { if (h.idx === 0 && !tag) tag = String(h.s.n); });
     const sel = selSlot && here.some((h) => h.s.id === selSlot.id) ? ' sel' : '';
     out += '<div class="cell' + cls + sel + (here.length > 1 ? ' x' : '') + '" role="img" aria-label="grid square">' + (tag ? '<span class="tag">' + tag + '</span>' : '') + letter + '</div>';
   }
-  return '<div class="board" style="--n:' + n + '">' + out + '</div>';
+  return '<div class="board" style="--n:' + C + '">' + out + '</div>';
 }
+function pattern(s, gl) { return s.cells.map((rc) => gl[rc[0] + ',' + rc[1]] || '_').join(' ').toUpperCase(); }
 function dotsHTML(st) { let o = ''; for (let i = 0; i < Engine.MAX_SLIPS; i++) o += '<span class="dot' + (i < st.slips ? ' on' : '') + '"></span>'; return '<span class="dots" role="img" aria-label="' + st.slips + ' of ' + Engine.MAX_SLIPS + ' slips used">' + o + '</span>'; }
 
 function rulesHTML() {
@@ -114,10 +122,11 @@ function rulesHTML() {
   return '<div class="mast"><span>Crosswires</span><span>How to play</span></div><div class="card rules"><ol>' +
     '<li><span class="num">1</span><div><h3>One grid, two people</h3><p>You fill in a small crossword together. Each of you sees only your own clues.</p></div></li>' +
     '<li><span class="num">2</span><div><h3>Desk A and Desk B</h3><p>Desk A has the Across words, which run left to right. Desk B has the Down words, which run top to bottom. You cannot see your partner’s clues, only the letters they put on the grid.</p></div></li>' +
-    '<li><span class="num">3</span><div><h3>What a clue does</h3><p>A clue names a group, like “a drink”, and the number tells you how many letters. The answer is a word from that group. Several words can fit one clue, so you have to guess, and the grid tells you which guess is right.</p></div></li>' +
-    '<li><span class="num">4</span><div><h3>Crossing squares share a letter</h3><p>Where an Across word and a Down word meet, the square is marked with a small teal diamond and both words use the same letter there. If your partner has put a T in that square, your word must have a T there too. Use their letters to rule out your guesses.</p>' + mini + '</div></li>' +
-    '<li><span class="num">5</span><div><h3>On your turn</h3><p><b>Pencil</b> suggests a word. Your partner sees it in teal, and you can change it later. <b>Lock</b> makes it final. <b>Rub out</b> removes a pencil. <b>Pass</b> skips your turn. The signal buttons (Fits, Clash, Stuck, Your move) send your partner a one-tap note.</p></div></li>' +
-    '<li><span class="num">6</span><div><h3>Slips</h3><p>A lock that breaks a shared letter is a slip. So is a lock that leaves your partner with no possible word. Three slips ends the level. There is also a turn limit. Pencils never cost anything.</p></div></li>' +
+    '<li><span class="num">3</span><div><h3>What a clue does</h3><p>A clue names a group, like “a drink”, and the number tells you how many letters. The answer is a word from that group. Several words can fit one clue, so you have to guess, and the grid tells you which guess is right. Under each clue, “Letters” shows what is already on the grid for that word, like T _ _.</p></div></li>' +
+    '<li><span class="num">4</span><div><h3>Crossing squares share a letter</h3><p>Where an Across word and a Down word meet, there is one square for both of them. the square is marked with a small teal diamond and both words use the same letter there. If your partner has put a T in that square, your word must have a T there too. Use their letters to rule out your guesses.</p>' + mini + '</div></li>' +
+    '<li><span class="num">5</span><div><h3>On your turn</h3><p><b>Pencil</b> suggests a word. Your partner sees it in teal, and you can change it later. <b>Lock</b> makes it final. <b>Rub out</b> removes a pencil. <b>Pass</b> skips your turn. Each turn you do one of these.</p></div></li>' +
+    '<li><span class="num">6</span><div><h3>Notes to your partner</h3><p>You cannot see each other’s clues, so notes are how you talk. Tap one before you end your turn and your partner sees it on their screen. They are optional and cost nothing.</p><p><b>Fits</b>: my words work with your letters.<br><b>Clash</b>: a letter you pencilled breaks one of my clues.<br><b>Stuck</b>: none of my words work yet, so try a different letter.<br><b>Your move</b>: I am waiting on you. Lock a word if you are sure.</p></div></li>' +
+    '<li><span class="num">7</span><div><h3>Slips</h3><p>A lock that breaks a shared letter is a slip. So is a lock that leaves your partner with no possible word. Three slips ends the level. There is also a turn limit. Pencils never cost anything.</p></div></li>' +
     '</ol><button class="btn" data-a="rules-done">' + (inGame ? 'Got it, back to the game' : 'Got it') + '</button></div>';
 }
 
@@ -165,11 +174,13 @@ function playHTML(g, me) {
   h += boardHTML(lv, st, me, true);
   h += '<p class="legend">Across words run left to right, Down words run top to bottom. <span class="dia"></span> marks a square shared by two words, so both use the same letter there. Teal letters are your partner’s pencils.</p>';
   const pc = st.chip && st.chip.by !== me ? st.chip : null;
-  h += '<div class="partnerchip">' + (pc ? 'Desk ' + pc.by + ' signalled: <b>' + ({ fits: 'Fits', clash: 'Clash', stuck: 'Stuck', yourmove: 'Your move' }[pc.chip]) + '</b>' : '') + '</div>';
+  const pn = pc && NOTES.find((x) => x[0] === pc.chip);
+  h += '<div class="partnerchip">' + (pn ? 'Note from Desk ' + pc.by + ': <b>' + pn[1] + '</b> ' + pn[3] : '') + '</div>';
   h += '<div class="lab">Your clues, Desk ' + me + '</div><div class="clues">';
+  const glMe = Engine.gridLetters(lv, st, me);
   lv.slots.filter((s) => s.desk === me).forEach((s) => {
     const locked = st.locked[s.id], pen = st.pencil[me][s.id];
-    h += '<button class="clue' + (ctx.sel === s.id ? ' sel' : '') + (locked ? ' done' : '') + '" data-a="sel-' + s.id + '"' + (locked ? ' disabled' : '') + '><span class="n">' + s.n + arrow(s) + '</span><span class="t">' + esc(s.clue) + '<span class="s">' + (locked ? 'Locked: ' + locked : pen ? 'Pencilled: ' + pen : 'Open') + '</span></span></button>';
+    h += '<button class="clue' + (ctx.sel === s.id ? ' sel' : '') + (locked ? ' done' : '') + '" data-a="sel-' + s.id + '"' + (locked ? ' disabled' : '') + '><span class="n">' + s.n + arrow(s) + '</span><span class="t">' + esc(s.clue) + '<span class="s">' + (locked ? 'Locked: ' + locked : (pen ? 'Pencilled: ' + pen + ' · ' : '') + 'Letters: ' + pattern(s, glMe)) + '</span></span></button>';
   });
   h += '</div>';
   if (myTurn) {
@@ -188,8 +199,8 @@ function playHTML(g, me) {
       if (lv.chips) h += '<p class="small">Pencil suggests the word. Lock makes it final.</p>';
       h += '</div>';
     } else h += '<p class="small">Tap one of your clues, then pencil or lock a word.</p>';
-    h += '<div class="lab">Tell your partner (optional)</div><div class="chips">';
-    [['fits', 'Fits'], ['clash', 'Clash'], ['stuck', 'Stuck'], ['yourmove', 'Your move']].forEach((c) => { h += '<button class="chip" aria-pressed="' + (ctx.chip === c[0]) + '" data-a="chip-' + c[0] + '">' + c[1] + '</button>'; });
+    h += '<div class="lab">Add a note for your partner (optional)</div><p class="small">A note rides along with your move. Your partner sees it until they move.</p><div class="chips notes">';
+    NOTES.forEach((c) => { h += '<button class="chip" aria-pressed="' + (ctx.chip === c[0]) + '" data-a="chip-' + c[0] + '"><b>' + c[1] + '</b><span>' + c[2] + '</span></button>'; });
     h += '</div><button class="btn alt" data-a="do-pass">Pass this turn</button>';
   }
   h += '<div class="menu"><button data-a="back-levels">Levels</button><button data-a="rules">How to play</button>' + (ctx.mode === 'duo' ? '<button data-a="leave">Leave desk</button>' : '') + '</div>';
