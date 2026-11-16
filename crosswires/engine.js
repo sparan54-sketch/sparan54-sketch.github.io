@@ -42,6 +42,8 @@ function slotsFromGrid(grid) {
   // Desk A holds the Across words and Desk B holds the Down words
   return A.concat(D).map(function (x) { return [x[0] === 'A' ? 'A' : 'B', x[1]]; });
 }
+// Each player keeps a seat (A or B). The desk they play swaps every level: odd levels as seated, even levels switched.
+function deskFor(seat, levelN) { return levelN % 2 === 0 ? (seat === 'A' ? 'B' : 'A') : seat; }
 var HINT_CAP = 2;
 var MAX_SLIPS = 3, PENCIL_CAP = 3;
 
@@ -162,4 +164,4 @@ function apply(state, level, by, action) {
   return { state: st, event: ev };
 }
 
-export const Engine = { HINT_CAP, sha256, slotsFromGrid, buildLevel, buildLevels, newState, apply, candidates, lettersOf, gridLetters, fits, slotName, MAX_SLIPS, PENCIL_CAP };
+export const Engine = { deskFor, HINT_CAP, sha256, slotsFromGrid, buildLevel, buildLevels, newState, apply, candidates, lettersOf, gridLetters, fits, slotName, MAX_SLIPS, PENCIL_CAP };

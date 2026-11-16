@@ -40,7 +40,7 @@ function describe(ev, by, lv, mine) {
     case 'pencil': return { t: who + ' pencilled ' + nm(ev.slot) + '.', k: 'good' };
     case 'erase': return { t: who + ' rubbed out a pencil on ' + nm(ev.slot) + '.', k: '' };
     case 'lock': return { t: who + ' locked ' + nm(ev.slot) + '.', k: 'good' };
-    case 'hint': return { t: who + ' opened the word list for ' + nm(ev.slot) + '. That used the turn.', k: '' };
+    case 'hint': return { t: who + ' used a hint on ' + nm(ev.slot) + ' and skipped the move.', k: '' };
     case 'miss': return { t: 'That word is not on the list for ' + nm(ev.slot) + '. It used your turn, but no slip.', k: 'bad' };
     case 'hints-used': return { t: 'You have used both hints on this level.', k: '' };
     case 'already-hinted': return { t: 'That word list is already open.', k: '' };
@@ -126,7 +126,7 @@ function rulesHTML() {
     '<p class="small">Example: CAT runs across, COW runs down. They share the C.</p></div>';
   return '<div class="mast"><span>Crosswires</span><span>How to play</span></div><div class="card rules"><ol>' +
     '<li><span class="num">1</span><div><h3>One grid, two people</h3><p>You fill in a small crossword together. Each of you sees only your own clues.</p></div></li>' +
-    '<li><span class="num">2</span><div><h3>Desk A and Desk B</h3><p>Desk A has the Across words, which run left to right. Desk B has the Down words, which run top to bottom. You cannot see your partner’s clues, only the letters they put on the grid.</p></div></li>' +
+    '<li><span class="num">2</span><div><h3>Desk A and Desk B</h3><p>Desk A has the Across words, which run left to right. Desk B has the Down words, which run top to bottom. On two phones, you swap desks every level, so whoever had Across on one level has Down on the next. You cannot see your partner’s clues, only the letters they put on the grid.</p></div></li>' +
     '<li><span class="num">3</span><div><h3>What a clue does</h3><p>A clue names a group, like “a drink”, and the number tells you how many letters. The answer is a word from that group. Several words can fit one clue, so you have to guess, and the grid tells you which guess is right. Under each clue, “Letters” shows what is already on the grid for that word, like T _ _.</p></div></li>' +
     '<li><span class="num">4</span><div><h3>Crossing squares share a letter</h3><p>Where an Across word and a Down word meet, there is one square for both of them. the square is marked with a small teal diamond and both words use the same letter there. If your partner has put a T in that square, your word must have a T there too. Use their letters to rule out your guesses.</p>' + mini + '</div></li>' +
     '<li><span class="num">5</span><div><h3>On your turn</h3><p><b>Pencil</b> suggests a word. Your partner sees it in teal, and you can change it later. <b>Lock</b> makes it final. <b>Rub out</b> removes a pencil. <b>Pass</b> skips your turn. Each turn you do one of these.</p></div></li>' +
@@ -162,7 +162,7 @@ function lobbyHTML() {
         const holder = d && d.seats && d.seats[k], mineS = holder && holder === uid;
         h += '<div class="row"><div><b>Desk ' + k + '</b> <span class="small">(' + (k === 'A' ? 'Across words' : 'Down words') + ')</span><br><span class="small">' + (mineS ? 'You are here' : holder ? 'Taken' : 'Free') + '</span></div><button class="btn ' + (mineS ? 'alt' : '') + '" data-a="' + (mineS ? 'leave' : 'seat-' + k) + '"' + (holder && !mineS ? ' disabled' : '') + '>' + (mineS ? 'Leave desk' : 'Take Desk ' + k) + '</button></div>';
       });
-      h += '<p class="small">Each of you takes a different desk on your own phone.</p></div>';
+      h += '<p class="small">Each of you takes a different desk on your own phone. You swap desks every level, so you both get Across and Down.</p></div>';
       if (d && d.seats && d.seats.A && d.seats.B && seat) h += tilesHTML();
       else if (seat) h += '<p class="small">Waiting for the other desk to be taken.</p>';
       if (d && d.seats && ((d.seats.A && d.seats.A !== uid) || (d.seats.B && d.seats.B !== uid)) && !seat) h += '<button class="btn alt" data-a="clear-seats">Clear both desks</button>';
@@ -171,11 +171,17 @@ function lobbyHTML() {
   h += '<p class="msg ' + ctx.msg.k + '" aria-live="polite">' + esc(ctx.msg.t) + '</p><div class="menu"><button data-a="rules">How to play</button><button data-a="mode-reset">Change how we play</button></div>';
   return h;
 }
-function playHTML(g, me) {
+function playHTML(g, me, swaps) {
   const lv = lvOf(g.level), st = g.state, myTurn = st.status === 'play' && st.active === me;
   let h = '<div class="bar"><span>Level ' + lv.n + '</span>' + dotsHTML(st) + '<span>Turn ' + Math.min(st.turn, st.budget) + ' of ' + st.budget + '</span></div>';
+  if (swaps && lv.n > 1) h += '<p class="small" style="margin:0">Desks swap each level. This level you are Desk ' + me + ' (' + (me === 'A' ? 'Across' : 'Down') + ').</p>';
   h += '<div class="banner ' + (myTurn ? 'mine' : 'wait') + '">' + (myTurn ? 'Your turn · Desk ' + me + ' (' + (me === 'A' ? 'Across' : 'Down') + ')' : 'Waiting · Desk ' + st.active + ' is up') + '</div>';
   if (lv.chips) h += '<div class="coach"><b>Tip.</b> ' + esc(coach(lv, st, me, myTurn)) + '</div>';
+  const lg = st.log[st.log.length - 1];
+  if (lg && lg.by !== me && myTurn && lg.slot !== null && (lg.res === 'hint' || lg.res === 'miss')) {
+    const nm = Engine.slotName(lv, lg.slot);
+    h += '<div class="coach partner"><b>Desk ' + lg.by + ' ' + (lg.res === 'hint' ? 'used a hint on ' + nm + ' and skipped their move.' : 'guessed a word on ' + nm + ' that was not on the list, so their move was used up.') + '</b> Nothing you did was wrong. Their turn only went on that.</div>';
+  }
   h += '<p class="msg ' + ctx.msg.k + '" aria-live="polite">' + esc(ctx.msg.t) + '</p>';
   h += boardHTML(lv, st, me, true);
   h += '<p class="legend">Across words run left to right, Down words run top to bottom. <span class="dia"></span> marks a square shared by two words, so both use the same letter there. Teal letters are your partner’s pencils.</p>';
@@ -242,7 +248,7 @@ function render() {
   else if (!ctx.mode || !g) html = lobbyHTML();
   else if (g.state.status !== 'play') html = resultHTML(g);
   else if (ctx.mode === 'hot') html = ctx.cover ? coverHTML(g) : playHTML(g, g.state.active);
-  else { const me = mySeat(); html = me ? playHTML(g, me) : lobbyHTML(); }
+  else { const seat = mySeat(); html = seat ? playHTML(g, Engine.deskFor(seat, g.level), true) : lobbyHTML(); }
   app.innerHTML = html;
   const w = $('#wordIn');
   if (w) { w.addEventListener('input', () => { ctx.draft = w.value.replace(/[^a-zA-Z]/g, '').toLowerCase(); w.value = ctx.draft; }); if (wi) { w.focus(); try { w.setSelectionRange(caret, caret); } catch (e) {} } }
@@ -297,7 +303,7 @@ async function seatOp(fn) {
 function onDoc(d) {
   const prev = ctx.doc; ctx.doc = d; ctx.net = 'ok';
   const seat = mySeat();
-  if (seat && d.last && d.last.by !== seat && d.last.rev > ctx.lastRevShown && d.game) {
+  if (seat && d.game && d.last && d.last.by !== Engine.deskFor(seat, d.game.level) && d.last.rev > ctx.lastRevShown && d.game) {
     const m = describe(d.last.ev, d.last.by, lvOf(d.game.level), false); setMsg(m.t, m.k); ctx.lastRevShown = d.last.rev; ctx.flash = d.last.ev.type;
   }
   if (prev && prev.game && d.game && prev.game.level !== d.game.level) { ctx.sel = null; ctx.draft = ''; ctx.chip = null; }
