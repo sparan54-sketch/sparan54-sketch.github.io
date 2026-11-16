@@ -1,6 +1,16 @@
 import { Engine } from './engine.js';
 import { LEVELS } from './data.js';
 import { makeSync } from './sync.js';
+import { themeFor, skylineSVG, themeVars, FONT_URL } from './themes.js';
+{ const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = FONT_URL; document.head.appendChild(l); }
+const postHTML = (n) => { const t = themeFor(n); return '<div class="post">' + skylineSVG(t) + '<div class="city"><span>Level ' + n + '</span><b>' + esc(t.city) + '</b></div></div>'; };
+let themed = null;
+function applyTheme(n) {
+  if (themed === n) return; themed = n;
+  const root = document.documentElement.style, vars = themeVars(themeFor(1));
+  Object.keys(vars).forEach((k) => root.removeProperty(k));
+  if (n) { const v = themeVars(themeFor(n)); Object.keys(v).forEach((k) => root.setProperty(k, v[k])); }
+}
 
 // Public web config for the Firebase project. These values identify the project; access is controlled by the Firestore rules.
 const FIREBASE = {
@@ -141,7 +151,7 @@ function tilesHTML() {
   let o = '<div class="card"><h3>Pick a level</h3><div class="tiles">';
   levels.forEach((lv) => {
     const s = cl[lv.n] || 0, open = lv.n === 1 || (cl[lv.n - 1] || 0) > 0;
-    o += '<button class="tile" data-a="level-' + lv.n + '"' + (open ? '' : ' disabled') + ' aria-label="Level ' + lv.n + (s ? ', ' + s + ' stars' : open ? '' : ', locked') + '">' + lv.n + '<small>' + (s ? '★'.repeat(s) : lv.n === 1 && !s ? 'start here' : '') + '</small></button>';
+    o += '<button class="tile" data-a="level-' + lv.n + '"' + (open ? '' : ' disabled') + ' aria-label="Level ' + lv.n + (s ? ', ' + s + ' stars' : open ? '' : ', locked') + '">' + lv.n + '<span class="cty">' + esc(({ 'Rio de Janeiro': 'Rio', 'Mexico City': 'Mexico', 'San Francisco': 'San Fran' })[themeFor(lv.n).city] || themeFor(lv.n).city) + '</span><small>' + (s ? '★'.repeat(s) : lv.n === 1 && !s ? 'start here' : '') + '</small></button>';
   });
   return o + '</div><p class="small">Level 1 teaches the rules. Each level unlocks when you clear the one before it.</p></div>';
 }
@@ -173,7 +183,7 @@ function lobbyHTML() {
 }
 function playHTML(g, me, swaps) {
   const lv = lvOf(g.level), st = g.state, myTurn = st.status === 'play' && st.active === me;
-  let h = '<div class="bar"><span>Level ' + lv.n + '</span>' + dotsHTML(st) + '<span>Turn ' + Math.min(st.turn, st.budget) + ' of ' + st.budget + '</span></div>';
+  let h = postHTML(lv.n) + '<div class="bar"><span>Level ' + lv.n + '</span>' + dotsHTML(st) + '<span>Turn ' + Math.min(st.turn, st.budget) + ' of ' + st.budget + '</span></div>';
   if (swaps && lv.n > 1) h += '<p class="small" style="margin:0">Desks swap each level. This level you are Desk ' + me + ' (' + (me === 'A' ? 'Across' : 'Down') + ').</p>';
   h += '<div class="banner ' + (myTurn ? 'mine' : 'wait') + '">' + (myTurn ? 'Your turn · Desk ' + me + ' (' + (me === 'A' ? 'Across' : 'Down') + ')' : 'Waiting · Desk ' + st.active + ' is up') + '</div>';
   if (lv.chips) h += '<div class="coach"><b>Tip.</b> ' + esc(coach(lv, st, me, myTurn)) + '</div>';
@@ -223,7 +233,7 @@ function playHTML(g, me, swaps) {
 function resultHTML(g) {
   const lv = lvOf(g.level), st = g.state, won = st.status === 'won', stars = starsFor(st, lv);
   let h = '<div class="mast"><span>Level ' + lv.n + '</span><span>' + (won ? 'Cleared' : 'Not this time') + '</span></div>';
-  h += '<div class="cover" style="min-height:0;padding:12px 0"><div class="stamp slam">' + (won ? 'Cleared' : st.reason === 'slips' ? 'Three slips' : 'Out of turns') + '</div>';
+  h += postHTML(lv.n) + '<div class="cover" style="min-height:0;padding:12px 0"><div class="stamp slam">' + (won ? 'Cleared' : st.reason === 'slips' ? 'Three slips' : 'Out of turns') + '</div>';
   if (won) {
     const words = lv.slots.map((s) => st.locked[s.id]), ok = Engine.sha256(lv.salt + ':' + words.join('|')) === lv.hash;
     h += '<div class="stars" aria-label="' + stars + ' of 3 stars">' + '★'.repeat(stars) + '☆'.repeat(3 - stars) + '</div>' + boardHTML(lv, st, 'A', false) +
@@ -237,18 +247,19 @@ function resultHTML(g) {
 }
 function coverHTML(g) {
   const st = g.state;
-  return '<div class="mast"><span>Level ' + g.level + '</span><span>Pass the phone</span></div><div class="cover"><h2 class="title" style="font-size:34px">Desk ' + st.active + ' is up</h2><p class="deck">Hand the phone over. Tap when only Desk ' + st.active + ' is looking.</p><button class="btn" data-a="uncover">I am Desk ' + st.active + '</button></div>';
+  return '<div class="mast"><span>Level ' + g.level + '</span><span>Pass the phone</span></div><div class="cover">' + postHTML(g.level) + '<h2 class="title" style="font-size:34px">Desk ' + st.active + ' is up</h2><p class="deck">Hand the phone over. Tap when only Desk ' + st.active + ' is looking.</p><button class="btn" data-a="uncover">I am Desk ' + st.active + '</button></div>';
 }
 function render() {
   const wi = document.activeElement && document.activeElement.id === 'wordIn', caret = wi ? document.activeElement.selectionStart : 0;
   const g = curGame();
   const needRules = g && lvOf(g.level).tutorial && g.state.status === 'play' && !ctx.rulesSeen && (ctx.mode === 'hot' || mySeat());
-  let html;
+  let html, theme = null;
   if (ctx.view === 'rules' || needRules) html = rulesHTML();
   else if (!ctx.mode || !g) html = lobbyHTML();
-  else if (g.state.status !== 'play') html = resultHTML(g);
-  else if (ctx.mode === 'hot') html = ctx.cover ? coverHTML(g) : playHTML(g, g.state.active);
-  else { const seat = mySeat(); html = seat ? playHTML(g, Engine.deskFor(seat, g.level), true) : lobbyHTML(); }
+  else if (g.state.status !== 'play') { html = resultHTML(g); theme = g.level; }
+  else if (ctx.mode === 'hot') { html = ctx.cover ? coverHTML(g) : playHTML(g, g.state.active); theme = g.level; }
+  else { const seat = mySeat(); html = seat ? playHTML(g, Engine.deskFor(seat, g.level), true) : lobbyHTML(); if (seat) theme = g.level; }
+  applyTheme(theme);
   app.innerHTML = html;
   const w = $('#wordIn');
   if (w) { w.addEventListener('input', () => { ctx.draft = w.value.replace(/[^a-zA-Z]/g, '').toLowerCase(); w.value = ctx.draft; }); if (wi) { w.focus(); try { w.setSelectionRange(caret, caret); } catch (e) {} } }
