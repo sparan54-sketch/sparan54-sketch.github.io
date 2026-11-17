@@ -298,16 +298,286 @@ export const THEMES = [
   }
 ];
 
-export const FONT_URL = 'https://fonts.googleapis.com/css2?' + [...new Set(THEMES.map((t) => t.font))].map((f) => 'family=' + f.replace(/ /g, '+') + (/(Playfair|Cormorant|Libre Baskerville|Josefin|Rubik|Oswald)/.test(f) ? ':wght@400;700' : '')).join('&') + '&display=swap';
+
+// ---------- National parks, levels 21 to 40 ----------
+// Poster-style landscapes: a sky gradient, then layers from far to near.
+const xs = (n) => Array.from({ length: n }, (_, i) => +(i * 400 / (n - 1)).toFixed(1));
+// smooth ridge through evenly spaced heights
+function soft(ys, base = G) {
+  const x = xs(ys.length); let d = `M0 ${base}L0 ${ys[0]}L${(x[0] + x[1]) / 2} ${(ys[0] + ys[1]) / 2}`;
+  for (let i = 1; i < ys.length - 1; i++) d += `Q${x[i]} ${ys[i]} ${(x[i] + x[i + 1]) / 2} ${(ys[i] + ys[i + 1]) / 2}`;
+  return d + `L400 ${ys[ys.length - 1]}L400 ${base}Z`;
+}
+// jagged ridge through [x, y] points
+const jag = (pts, base = G) => `M${pts[0][0]} ${base}` + pts.map(([x, y]) => `L${x} ${y}`).join('') + `L${pts[pts.length - 1][0]} ${base}Z`;
+// flat-topped steps: start height, then [x, y] = at x the top changes to y
+const steps = (y0, pairs, base = G) => `M0 ${base}V${y0}` + pairs.map(([x, y]) => `H${x}V${y}`).join('') + `H400V${base}Z`;
+const pine = (x, base, h) => { const w = h * 0.3; return `M${x} ${base - h}L${x - w * 0.6} ${base - h * 0.6}H${x - w * 0.35}L${x - w} ${base - h * 0.18}H${x + w}L${x + w * 0.35} ${base - h * 0.6}H${x + w * 0.6}Z` + `M${x - 1} ${base}V${base - h * 0.2}H${x + 1}V${base}Z`; };
+const pines = (list, base = G) => list.map(([x, h, b]) => pine(x, b || base, h)).join('');
+const BISON = 'M2 18L3 11Q1 8 3 5Q6 1 11 2Q14 0 18 2Q26 3 28 8L29 18H26L25 12H13L12 18H9L8 12L6 13L5 18Z';
+const animal = (d, x, y, s, fill, flip) => `<path d="${d}" fill="${fill}" transform="translate(${x} ${y - 18 * s}) scale(${flip ? -s : s} ${s})"/>`;
+const ELK = 'M4 18L5 10Q3 9 2 6L0 5L2 4L4 5L3 1L5 3L6 0L7 4Q9 6 10 9H24Q27 10 27 14L26 18H24L23 14H12L11 18H9L8 13L6 12L6 18Z';
+const sky2 = (a, b) => [a, b];
+
+const PARKS = [
+  { // 21
+    city: 'Yellowstone', short: 'Yellowstn', park: true, font: 'Alfa Slab One', scale: 0.85,
+    c: { paper: '#EDE6D3', panel: '#F8F4E8', ink: '#1F2A22', pencil: '#4F5A4E', stamp: '#A8461C', onstamp: '#FFFFFF', wire: '#1D5C78', rule: '#BFB596', locked: '#FFFCF2', sky: '#2E4A35', sun: '#F2B33D' },
+    block: tile(16, 16, '#C9873A', "<g fill='none' stroke='%23F3E3C3' stroke-width='1.1'><path d='M0 6Q8 1 16 6M0 12Q8 7 16 12'/></g>"),
+    sky: () => ({
+      bg: sky2('#BFD5E2', '#F4EBD6'), sunX: 80, sunY: 24,
+      layers: [[soft([54, 44, 50, 38, 48, 42, 52]), '#9FB0BC', 1], [soft([74, 66, 70, 62, 68, 72, 66]), '#6E8A68', 1], [soft([84, 86, 82, 86, 84, 86, 84]), '#C9B27A', 1]],
+      d: pines([[14, 30], [26, 24], [38, 34], [50, 26], [330, 32], [344, 26], [356, 36], [370, 28], [384, 34], [396, 24]]),
+      extra: '<g fill="#FFFFFF" opacity=".9">' + [[250, 78, 6], [248, 68, 7], [252, 58, 8], [246, 48, 9], [254, 38, 9], [248, 28, 10], [258, 22, 8], [240, 22, 7]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('') + '</g><ellipse cx="250" cy="86" rx="22" ry="3" fill="#E8D9B0"/>' + animal(BISON, 120, 90, 1, 'var(--sky)') + animal(BISON, 160, 90, 0.8, 'var(--sky)', true)
+    })
+  },
+  { // 22
+    city: 'Yosemite', park: true, font: 'Arvo', scale: 0.95,
+    c: { paper: '#E6E8E6', panel: '#F6F7F5', ink: '#1D2420', pencil: '#4C5550', stamp: '#2F6B4A', onstamp: '#FFFFFF', wire: '#275A85', rule: '#ADB4AE', locked: '#FFFEF8', sky: '#2F4A3A', sun: '#F0B24A' },
+    block: tile(12, 12, '#7D8590', "<g fill='%23C9CED4'><circle cx='3' cy='3' r='1'/><circle cx='9' cy='7' r='1.2'/><circle cx='5' cy='10' r='.8'/></g>"),
+    sky: () => ({
+      bg: sky2('#C9DDEB', '#F3EFE6'), sunX: 300, sunY: 20, sunR: 9,
+      layers: [[soft([60, 52, 56, 50, 54, 58, 52]), '#B9C3CC', 1],
+        ['M0 96V30Q30 20 74 26L96 40V96Z', '#8C929B', 1],
+        ['M100 96V40H134V96Z', '#9AA0A8', 1],
+        ['M180 96C186 62 206 26 246 20L250 20V96Z', '#7F868F', 1],
+        ['M250 96V70Q300 60 400 66V96Z', '#8C929B', 1]],
+      d: pines([[60, 26], [72, 32], [84, 24], [150, 30], [162, 22], [174, 34], [270, 28], [284, 36], [298, 26], [312, 32], [340, 30], [356, 24], [372, 34], [388, 28]]),
+      extra: '<path d="M116 40V96" stroke="#FFFFFF" stroke-width="2.4" opacity=".9"/><rect x="0" y="92" width="400" height="4" fill="var(--wire)" opacity=".5"/>'
+    })
+  },
+  { // 23
+    city: 'Grand Canyon', short: 'Canyon', park: true, font: 'Ultra', scale: 0.75,
+    c: { paper: '#F3E3CF', panel: '#FBF3E8', ink: '#2B160E', pencil: '#613F2D', stamp: '#A63A1C', onstamp: '#FFFFFF', wire: '#1F5F7A', rule: '#D9B896', locked: '#FFF9F0', sky: '#7A3322', sun: '#F29A3A' },
+    block: tile(16, 12, '#B5502E', "<rect y='0' width='16' height='3' fill='%23E8B27A'/><rect y='6' width='16' height='2' fill='%23D07A45'/>"),
+    sky: () => ({
+      bg: sky2('#F2C99A', '#F8E8D2'), sunX: 330, sunY: 30, sunR: 14,
+      layers: [[steps(40, [[60, 36], [130, 42], [210, 34], [300, 40], [360, 38]]), '#E8B27A', 1],
+        [steps(54, [[40, 50], [90, 58], [150, 48], [220, 56], [280, 50], [340, 58]]), '#D07A45', 1],
+        [steps(66, [[30, 70], [80, 62], [140, 72], [200, 64], [260, 70], [320, 62], [370, 68]]), '#B5502E', 1]],
+      d: steps(80, [[50, 76], [110, 84], [170, 78], [230, 86], [290, 80], [350, 84]]),
+      extra: '<path d="M0 92Q80 86 160 92T320 90T400 92" stroke="var(--wire)" stroke-width="2.5" fill="none"/>'
+    })
+  },
+  { // 24
+    city: 'Zion', park: true, font: 'Bitter', scale: 1,
+    c: { paper: '#F1E1D2', panel: '#FAF1E8', ink: '#2A1711', pencil: '#5F4337', stamp: '#8F3A1E', onstamp: '#FFFFFF', wire: '#2E6A5A', rule: '#D4B39E', locked: '#FFF8F2', sky: '#6E2E1C', sun: '#F2B04A' },
+    block: tile(14, 14, '#A3482C', "<path d='M0 4L14 0M0 10L14 6M0 14L14 12' stroke='%23D98B5F' stroke-width='1'/>"),
+    sky: () => ({
+      bg: sky2('#BCD4E0', '#F6E6D2'), sunX: 200, sunY: 16, sunR: 8,
+      layers: [[jag([[120, 96], [130, 40], [160, 30], [200, 36], [240, 28], [270, 44], [280, 96]]), '#E0A27A', 1],
+        ['M0 96V12L30 8L60 22L84 40L104 96Z', '#A3482C', 1], ['M400 96V16L370 10L344 26L320 44L300 96Z', '#A3482C', 1]],
+      d: 'M0 96V30L20 26L40 40L70 60L90 96Z M400 96V36L380 32L356 50L334 66L318 96Z',
+      extra: '<path d="M150 96Q190 84 200 90T250 96Z" fill="var(--wire)" opacity=".7"/><g fill="#5F7F3A">' + [[118, 84, 8], [134, 88, 6], [270, 84, 8], [284, 88, 6]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('') + '</g>'
+    })
+  },
+  { // 25
+    city: 'Acadia', park: true, font: 'Zilla Slab', scale: 1,
+    c: { paper: '#E3E8EA', panel: '#F4F7F8', ink: '#172228', pencil: '#4A5860', stamp: '#A12A2A', onstamp: '#FFFFFF', wire: '#1D5976', rule: '#A9B6BC', locked: '#FFFDF8', sky: '#2B3A33', sun: '#F2A65A' },
+    block: tile(16, 8, '#3D5566', "<path d='M0 5Q4 2 8 5T16 5' fill='none' stroke='%23C9D6DE' stroke-width='1.1'/>"),
+    sky: () => ({
+      bg: sky2('#F7C9A4', '#E8EEF1'), sunX: 300, sunY: 64, sunR: 14,
+      layers: [['M0 72H400V96H0Z', '#4E7790', 1], [soft([60, 54, 62, 70, 74, 76, 78]), '#7C8FA0', 0.6]],
+      d: 'M0 96V58Q40 54 70 64Q100 70 120 80L150 96Z' + pines([[10, 30, 60], [24, 24, 58], [38, 34, 60], [54, 26, 63], [68, 22, 65]], 0),
+      acc: 'M112 76V60H118V76Z M111 60L115 54L119 60Z',
+      extra: '<path d="M109 76V82H121V76Z" fill="#E8E2D6"/><path d="M300 72V96" stroke="var(--sun)" stroke-width="8" opacity=".35"/>'
+    })
+  },
+  { // 26
+    city: 'Great Smoky Mountains', short: 'Smokies', park: true, font: 'Fraunces', scale: 1,
+    c: { paper: '#E4E9EF', panel: '#F5F7FA', ink: '#172234', pencil: '#4A5568', stamp: '#3E6B3E', onstamp: '#FFFFFF', wire: '#2B5C8C', rule: '#A8B5C6', locked: '#FFFEFA', sky: '#3D5675', sun: '#F4C770' },
+    block: tile(16, 10, '#4F6D8C', "<path d='M0 7Q4 3 8 6T16 4' fill='none' stroke='%23C9D6E3' stroke-width='1.1'/>"),
+    sky: () => ({
+      bg: sky2('#F6E2C2', '#E4E9EF'), sunX: 100, sunY: 26,
+      layers: [[soft([40, 34, 42, 30, 38, 36, 44]), '#C9D6E3', 1], [soft([52, 46, 54, 44, 50, 48, 56]), '#A7BBD0', 1], [soft([64, 58, 66, 56, 62, 60, 66]), '#8099B5', 1], [soft([76, 70, 78, 68, 74, 72, 78]), '#5C7798', 1]],
+      d: soft([88, 82, 90, 80, 86, 84, 88]),
+      extra: '<g fill="#FFFFFF" opacity=".45"><rect x="0" y="56" width="400" height="5"/><rect x="0" y="70" width="400" height="4"/></g>'
+    })
+  },
+  { // 27
+    city: 'Arches', park: true, font: 'Rye', scale: 0.8,
+    c: { paper: '#F4E2D2', panel: '#FBF2EA', ink: '#2A140C', pencil: '#63402F', stamp: '#9E3B1C', onstamp: '#FFFFFF', wire: '#2C5E86', rule: '#DDB59A', locked: '#FFF8F1', sky: '#8A3A1F', sun: '#F5B24E' },
+    block: tile(16, 14, '#B4502F', "<path d='M3 14V9A5 5 0 0 1 13 9V14' fill='none' stroke='%23F4E2D2' stroke-width='1.4'/>"),
+    sky: () => ({
+      bg: sky2('#A9CBE0', '#F6E6D4'), sunX: 70, sunY: 22,
+      layers: [[jag([[0, 60], [40, 50], [70, 38], [90, 30], [110, 40], [150, 54], [190, 60], [400, 60]]), '#9C8AA8', 1], ['M64 40L90 30L104 36L86 40Z', '#F2EEF4', 1], [soft([84, 76, 72, 74, 80, 78, 84]), '#D9875A', 1]],
+      d: 'M228 78C226 42 236 18 260 18C286 18 296 42 294 78H284C286 48 278 32 261 32C246 32 238 48 240 78Z' + 'M300 96V60H316V40H326V60H336V96Z' + 'M20 96V66H34V56H44V96Z',
+      extra: ''
+    })
+  },
+  { // 28
+    city: 'Glacier', park: true, font: 'Fjalla One', scale: 0.95,
+    c: { paper: '#E2EBF0', panel: '#F3F8FA', ink: '#14232E', pencil: '#475A66', stamp: '#2F6B3C', onstamp: '#FFFFFF', wire: '#1E5F8A', rule: '#A3B8C4', locked: '#FFFFFB', sky: '#22382A', sun: '#F2C46A' },
+    block: tile(14, 14, '#5E9CC0', "<path d='M0 4L6 8L14 3M3 14L8 9L14 12' fill='none' stroke='%23EAF4F9' stroke-width='1'/>"),
+    sky: () => ({
+      bg: sky2('#BFDCEB', '#EEF5F8'), sunX: 360, sunY: 18, sunR: 8,
+      layers: [[jag([[0, 50], [30, 30], [50, 40], [80, 12], [110, 36], [140, 20], [170, 44], [200, 16], [230, 34], [260, 22], [290, 40], [320, 14], [350, 32], [380, 24], [400, 38]]), '#5D6F82', 1],
+        ['M80 12L72 22L80 20L88 22Z M200 16L192 26L200 24L208 26Z M320 14L312 24L320 22L328 24Z M140 20L134 28L146 28Z', '#FFFFFF', 1],
+        ['M0 70H400V96H0Z', '#4F9BC2', 1]],
+      d: pines([[10, 30], [24, 38], [38, 28], [52, 34], [300, 30], [316, 38], [332, 26], [348, 36], [364, 30], [380, 40], [396, 28]]),
+      extra: '<path d="M60 80H280" stroke="#FFFFFF" stroke-width="1" opacity=".5"/>'
+    })
+  },
+  { // 29
+    city: 'Rocky Mountain', short: 'Rocky Mtn', park: true, font: 'Roboto Slab', scale: 1,
+    c: { paper: '#EEE9DA', panel: '#F9F6EC', ink: '#1F241C', pencil: '#52574A', stamp: '#8A5A12', onstamp: '#FFFFFF', wire: '#2D5B7E', rule: '#C2BBA2', locked: '#FFFDF4', sky: '#3B4A3A', sun: '#E9A93A' },
+    block: tile(10, 16, '#D4A52B', "<rect x='3' width='3' height='16' fill='%23F4F1E6'/><rect x='3' y='5' width='3' height='1.4' fill='%23333333'/><rect x='3' y='11' width='3' height='1' fill='%23333333'/>"),
+    sky: () => ({
+      bg: sky2('#B5D0E4', '#F2EEE0'), sunX: 60, sunY: 20,
+      layers: [[jag([[0, 54], [50, 30], [90, 46], [140, 14], [170, 26], [200, 18], [250, 42], [300, 24], [350, 44], [400, 36]]), '#6E7B8C', 1],
+        ['M140 14L130 26L140 23L150 27Z M200 18L192 28L206 28Z M300 24L292 34L308 34Z', '#FFFFFF', 1], [soft([76, 72, 78, 74, 80, 76, 78]), '#A7B06A', 1]],
+      d: pines([[14, 26], [28, 34], [42, 24], [356, 30], [370, 26], [384, 34]]) + [100, 112, 124, 260, 274].map((x) => `M${x} 96V72H${x + 2}V96Z`).join(''),
+      extra: '<g fill="#E6B52C">' + [[101, 70, 7], [113, 66, 8], [125, 71, 6], [261, 68, 7], [275, 72, 6]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('') + '</g>' + animal(ELK, 190, 92, 0.9, 'var(--sky)')
+    })
+  },
+  { // 30
+    city: 'Olympic', park: true, font: 'Merriweather', scale: 0.9,
+    c: { paper: '#E2E8E1', panel: '#F3F7F2', ink: '#16231A', pencil: '#47574B', stamp: '#2F6B3A', onstamp: '#FFFFFF', wire: '#245C78', rule: '#A7B8A9', locked: '#FFFFF8', sky: '#22302A', sun: '#E8D9A6' },
+    block: tile(12, 14, '#3F6B3A', "<path d='M6 0V14M6 3L2 1M6 3L10 1M6 7L1 4M6 7L11 4M6 11L1 8M6 11L11 8' fill='none' stroke='%23A9C79A' stroke-width='1'/>"),
+    sky: () => ({
+      bg: sky2('#D9E2E2', '#EEF1EC'), sunX: 300, sunY: 24, sunR: 9,
+      layers: [[soft([50, 44, 48, 42, 50, 46, 52]), '#B7C2BE', 1], ['M0 74H400V96H0Z', '#6E8E96', 1]],
+      d: pines([[8, 50], [22, 62], [36, 46], [50, 58], [64, 44], [78, 52]]) + 'M0 96V54H90V96Z' +
+        'M200 80V44Q204 36 212 40L216 80Z M250 80V30Q256 22 264 28L266 80Z M300 80V54Q306 48 312 54L314 80Z M340 80V62H350V80Z' + pines([[206, 12, 40], [256, 14, 26], [262, 10, 28], [306, 8, 50]], 0),
+      extra: '<g fill="#FFFFFF" opacity=".35"><rect x="0" y="40" width="400" height="6"/><rect x="0" y="86" width="400" height="2"/></g>'
+    })
+  },
+  { // 31
+    city: 'Joshua Tree', short: 'Joshua', park: true, night: true, font: 'Staatliches', scale: 1.05,
+    c: { paper: '#1B1626', panel: '#251E33', ink: '#F6EEFF', pencil: '#BDB0D0', stamp: '#F2A65A', onstamp: '#1B1626', wire: '#7FD0E6', rule: '#3F3554', locked: '#2F2741', sky: '#0E0A16', sun: '#FFF0C8' },
+    block: tile(14, 14, '#5A3F72', "<g fill='%23F2E6FF'><circle cx='3' cy='4' r='.8'/><circle cx='10' cy='2' r='.6'/><circle cx='8' cy='10' r='1'/></g>"),
+    sky: () => ({
+      bg: sky2('#1B1530', '#6A3F5E'), starsN: 50, sunX: 330, sunY: 20, sunR: 7,
+      layers: [[soft([70, 62, 66, 58, 64, 60, 68]), '#3A2A4A', 1]],
+      d: 'M120 96C118 80 130 70 146 72C160 64 178 74 176 86C186 84 194 92 192 96Z M280 96C280 84 292 78 304 82C314 76 328 84 326 96Z' + 'M0 92H400V96H0Z',
+      extra: '<g stroke="var(--sky)" stroke-linecap="round" fill="none">' + [[60, 92, 1], [230, 92, 1.2], [370, 92, 0.9]].map(([x, y, s]) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 0V-30M0 -18L-10 -28L-12 -36M0 -24L8 -32L8 -40M-10 -28L-18 -30" stroke-width="3.2"/></g>`).join('') + '</g><g fill="var(--sky)">' + [[60, 92, 1], [230, 92, 1.2], [370, 92, 0.9]].map(([x, y, s]) => [[0, -30], [-12, -36], [8, -40], [-18, -30]].map(([a, b]) => `<circle cx="${x + a * s}" cy="${y + b * s}" r="${3.4 * s}"/>`).join('')).join('') + '</g>'
+    })
+  },
+  { // 32
+    city: 'Everglades', park: true, font: 'Patua One', scale: 0.95,
+    c: { paper: '#EAEAD2', panel: '#F7F7E9', ink: '#1C2416', pencil: '#4F5944', stamp: '#9A4A12', onstamp: '#FFFFFF', wire: '#1F6170', rule: '#BFC09A', locked: '#FFFFF4', sky: '#2F3D24', sun: '#F09A3A' },
+    block: tile(10, 14, '#6E7F3A', "<path d='M2 14L3 2M6 14L5 0M8 14L9 4' stroke='%23C9D08A' stroke-width='1'/>"),
+    sky: () => ({
+      bg: sky2('#F4C08A', '#F3EED6'), sunX: 200, sunY: 58, sunR: 16,
+      layers: [['M0 74H400V96H0Z', '#6E9A9C', 1]],
+      d: 'M0 74H400V77H0Z' + 'M20 74Q30 50 50 54Q66 46 76 60Q90 58 92 74Z' + 'M300 74Q308 56 326 58Q340 50 352 62Q366 60 370 74Z' +
+        Array.from({ length: 60 }, (_, i) => { const x = 4 + i * 6.6 + (i % 3); return `M${x} 96L${x + 1.2} ${82 - (i * 7) % 10}L${x + 2} 96Z`; }).join(''),
+      extra: '<path d="M200 76V96" stroke="var(--sun)" stroke-width="10" opacity=".35"/><g transform="translate(150 74)"><path d="M0 0V-14M0 -14Q4 -22 2 -26Q6 -26 8 -24L12 -24L8 -22Q4 -16 2 -10Q-6 -8 -8 -12Q-4 -12 0 -14" stroke="var(--sky)" stroke-width="1.2" fill="var(--sky)"/></g>'
+    })
+  },
+  { // 33
+    city: 'Denali', park: true, font: 'Anton', scale: 0.95,
+    c: { paper: '#E6EAEF', panel: '#F6F8FA', ink: '#182230', pencil: '#4A5566', stamp: '#A33A2A', onstamp: '#FFFFFF', wire: '#2A5C88', rule: '#AAB5C3', locked: '#FFFFFC', sky: '#2C3A2C', sun: '#F4C46A' },
+    block: tile(16, 12, '#4E6A85', "<path d='M0 12L5 4L8 8L11 2L16 12Z' fill='%23EEF3F8'/>"),
+    sky: () => ({
+      bg: sky2('#A9C6E0', '#EEF2F6'), sunX: 60, sunY: 20, sunR: 8,
+      layers: [[jag([[0, 64], [130, 56], [190, 44], [240, 26], [270, 14], [290, 8], [312, 12], [336, 24], [370, 40], [400, 50]]), '#FFFFFF', 1],
+        ['M290 8L280 40L300 22L310 46L312 12Z M240 26L234 46L258 30Z M336 24L352 50L356 34Z', '#C9D3DE', 1],
+        [soft([72, 68, 74, 66, 72, 70, 74]), '#8A7E5E', 1], [soft([84, 80, 86, 82, 84, 80, 86]), '#6E7A4E', 1]],
+      d: pines([[20, 22], [34, 28], [48, 20], [62, 26], [372, 24], [388, 20]]),
+      extra: ''
+    })
+  },
+  { // 34
+    city: 'Bryce Canyon', short: 'Bryce', park: true, font: 'Bree Serif', scale: 1,
+    c: { paper: '#F6E4D6', panel: '#FCF3EC', ink: '#2C150B', pencil: '#66412E', stamp: '#A8461C', onstamp: '#FFFFFF', wire: '#2B5B83', rule: '#E0B79B', locked: '#FFF9F4', sky: '#9A431C', sun: '#F7B85A' },
+    block: tile(10, 16, '#D66A2E', "<ellipse cx='5' cy='4' rx='3' ry='3' fill='%23F6E4D6'/><rect x='3.5' y='7' width='3' height='9' fill='%23E89A5E'/>"),
+    sky: () => {
+      const hoo = (x, w, h, base) => `M${x} ${base}V${base - h + w * 0.6}Q${x - 1} ${base - h + w * 0.3} ${x + w * 0.2} ${base - h + w * 0.2}Q${x + w / 2} ${base - h - w * 0.2} ${x + w * 0.8} ${base - h + w * 0.2}Q${x + w + 1} ${base - h + w * 0.3} ${x + w} ${base - h + w * 0.6}V${base - h * 0.5}Q${x + w + 2} ${base - h * 0.4} ${x + w} ${base - h * 0.3}V${base}Z`;
+      const row1 = Array.from({ length: 34 }, (_, i) => hoo(i * 12 - 4, 8, 28 + (i * 11) % 18, 80)).join('');
+      const row2 = Array.from({ length: 22 }, (_, i) => hoo(i * 19 - 6, 13, 30 + (i * 7) % 20, 96)).join('');
+      return { bg: sky2('#B7D3E6', '#F8EADC'), sunX: 340, sunY: 18, sunR: 9, layers: [[soft([50, 46, 52, 48, 50, 46, 52]), '#E8B98E', 1], [row1, '#E89A5E', 1]], d: row2, extra: '' };
+    }
+  },
+  { // 35
+    city: 'Grand Teton', short: 'Teton', park: true, font: 'Crete Round', scale: 1,
+    c: { paper: '#E9E8E2', panel: '#F7F6F2', ink: '#1B1F24', pencil: '#4E535A', stamp: '#7A3E22', onstamp: '#FFFFFF', wire: '#2A5E80', rule: '#B6B4AA', locked: '#FFFEF9', sky: '#3A2A1E', sun: '#F2B84E' },
+    block: tile(12, 12, '#6B4A32', "<path d='M0 4H12M0 8H12' stroke='%23A5805F' stroke-width='1'/><circle cx='9' cy='2' r='.6' fill='%23A5805F'/>"),
+    sky: () => ({
+      bg: sky2('#F2D1A8', '#EDEFF2'), sunX: 340, sunY: 22,
+      layers: [[jag([[0, 70], [50, 56], [90, 40], [120, 30], [150, 12], [168, 4], [182, 18], [200, 10], [214, 24], [240, 20], [270, 40], [310, 54], [360, 62], [400, 66]]), '#4E5A6E', 1],
+        ['M168 4L160 18L170 14L176 22L182 18Z M200 10L194 22L206 20Z M150 12L144 22L156 20Z', '#FFFFFF', 1],
+        [soft([80, 78, 82, 78, 80, 78, 82]), '#9AA36A', 1]],
+      d: 'M90 96V80L84 80L104 66L114 74V70L134 80H128V96Z' + pines([[30, 20], [44, 26], [300, 22], [316, 28], [330, 20]]),
+      extra: '<path d="M0 90Q120 84 220 90T400 88" stroke="var(--wire)" stroke-width="3" fill="none"/>'
+    })
+  },
+  { // 36
+    city: 'Sequoia', park: true, font: 'Vollkorn', scale: 1,
+    c: { paper: '#ECE4D6', panel: '#F8F3EA', ink: '#24170F', pencil: '#594636', stamp: '#8C3B22', onstamp: '#FFFFFF', wire: '#2E6648', rule: '#C9B89E', locked: '#FFFBF3', sky: '#6A2E18', sun: '#F5D58A' },
+    block: tile(10, 16, '#7A3B22', "<path d='M2 0V16M5 0Q6 8 5 16M8 0V16' stroke='%23A4593A' stroke-width='1'/>"),
+    sky: () => ({
+      bg: sky2('#E9EED6', '#F5EBD6'), sunX: 260, sunY: 0, sunR: 0,
+      layers: [['M40 96L44 0H70L76 96Z M330 96L334 0H352L356 96Z', '#A85E3E', 0.6], [soft([82, 80, 84, 82, 80, 84, 82]), '#5E7F3A', 1]],
+      d: 'M110 96L116 0H160L168 96Z M220 96L226 0H252L258 96Z' + pines([[20, 30], [190, 26], [290, 34], [380, 28]]),
+      extra: '<g fill="#FFF6D6" opacity=".35"><path d="M170 0L200 0L240 96L200 96Z"/><path d="M270 0L284 0L320 96L300 96Z"/></g><g fill="#3E5F2A">' + [[100, 92, 8], [180, 92, 6], [270, 92, 9], [320, 92, 6]].map(([x, y, r]) => `<ellipse cx="${x}" cy="${y}" rx="${r * 1.6}" ry="${r}"/>`).join('') + '</g>'
+    })
+  },
+  { // 37
+    city: 'Death Valley', short: 'Death Vly', park: true, font: 'Holtwood One SC', scale: 0.7,
+    c: { paper: '#F5E8D6', panel: '#FCF5EC', ink: '#2A1B0E', pencil: '#614B35', stamp: '#A8461C', onstamp: '#FFFFFF', wire: '#5B4A8A', rule: '#DCC4A4', locked: '#FFFAF2', sky: '#8A5A2E', sun: '#F29A3A' },
+    block: tile(14, 12, '#8C6E52', "<path d='M3.5 .5H10.5L14 6L10.5 11.5H3.5L0 6Z' fill='none' stroke='%23F5E8D6' stroke-width='1'/>"),
+    sky: () => ({
+      bg: sky2('#F6C9A0', '#F8EEDF'), sunX: 90, sunY: 24, sunR: 16,
+      layers: [[jag([[0, 48], [40, 40], [80, 46], [130, 30], [180, 42], [240, 34], [300, 44], [350, 36], [400, 42]]), '#9C7E9A', 1], [soft([64, 60, 66, 62, 64, 60, 66]), '#E2C29A', 1],
+        ['M0 96V80Q60 60 120 76Q150 84 180 72Q220 58 260 80Q300 92 330 74Q360 62 400 70V96Z', '#D9A86C', 1]],
+      d: 'M0 96V88Q80 74 160 88Q220 96 280 84Q340 74 400 86V96Z',
+      extra: '<path d="M120 76Q150 70 180 72" stroke="#F8E6CA" stroke-width="1.4" fill="none"/><path d="M260 80Q300 70 330 74" stroke="#F8E6CA" stroke-width="1.4" fill="none"/>'
+    })
+  },
+  { // 38
+    city: 'Hawaiʻi Volcanoes', short: 'Hawaiʻi', park: true, night: true, font: 'Rubik', scale: 1,
+    c: { paper: '#1A1414', panel: '#251C1C', ink: '#FFF1EA', pencil: '#C9B3AA', stamp: '#FF6A2B', onstamp: '#1A1414', wire: '#6FD3C9', rule: '#4A3533', locked: '#33262A', sky: '#0D0909', sun: '#FFB36B' },
+    block: tile(16, 16, '#5A1F12', "<path d='M0 5L5 7L8 3L13 6L16 4M2 16L6 11L10 13L14 9' fill='none' stroke='%23FF8A3D' stroke-width='1.2'/>"),
+    sky: () => ({
+      bg: sky2('#1C1220', '#7A2E1E'), starsN: 30, sunX: 70, sunY: 18, sunR: 6,
+      layers: [[soft([60, 50, 44, 40, 44, 52, 62]), '#2A1A1A', 1]],
+      d: 'M0 96V70Q100 46 200 44Q300 46 400 72V96Z',
+      acc: 'M176 46Q200 40 224 46Q200 50 176 46Z M196 48Q198 70 230 80Q260 88 300 96H280Q240 88 214 80Q194 72 192 48Z',
+      extra: '<g fill="#FFFFFF" opacity=".5"><circle cx="300" cy="86" r="6"/><circle cx="306" cy="76" r="8"/><circle cx="314" cy="64" r="9"/></g><ellipse cx="200" cy="40" rx="40" ry="10" fill="var(--stamp)" opacity=".25"/>'
+    })
+  },
+  { // 39
+    city: 'Crater Lake', short: 'Crater', park: true, font: 'Domine', scale: 0.95,
+    c: { paper: '#E1E8F1', panel: '#F3F7FB', ink: '#11203A', pencil: '#45546B', stamp: '#1F4E8C', onstamp: '#FFFFFF', wire: '#2F6B4A', rule: '#A4B4C9', locked: '#FFFFFC', sky: '#2A3A2E', sun: '#F4C46A' },
+    block: tile(14, 10, '#1F4E8C', "<path d='M0 6Q3.5 3 7 6T14 6' fill='none' stroke='%237FA9DA' stroke-width='1'/>"),
+    sky: () => ({
+      bg: sky2('#B5CFE8', '#EEF3F8'), sunX: 330, sunY: 20, sunR: 8,
+      layers: [[jag([[0, 40], [40, 34], [80, 44], [110, 56], [290, 56], [320, 42], [360, 30], [400, 38]]), '#6E7F92', 1],
+        ['M40 34L32 42L48 40Z M360 30L350 40L368 38Z', '#FFFFFF', 1],
+        ['M80 66Q200 56 320 66V80H80Z', '#1F4E8C', 1], ['M130 66L150 50L168 64Z', '#4A5A3E', 1]],
+      d: 'M0 96V58Q50 54 90 66Q120 80 200 80Q280 80 310 66Q350 54 400 58V96Z' + pines([[20, 24, 60], [36, 18, 59], [370, 22, 59], [386, 26, 60]], 0),
+      extra: ''
+    })
+  },
+  { // 40
+    city: 'Badlands', park: true, night: true, font: 'Passion One', scale: 1.05,
+    c: { paper: '#17141C', panel: '#211C28', ink: '#F7F0E8', pencil: '#C4B6AA', stamp: '#E8915A', onstamp: '#17141C', wire: '#8FC2FF', rule: '#3F3644', locked: '#2C2534', sky: '#0D0A10', sun: '#FFF1D0' },
+    block: tile(12, 12, '#7A4B3C', "<rect y='3' width='12' height='2' fill='%23C98A68'/><rect y='8' width='12' height='1.5' fill='%23E6C3A4'/>"),
+    sky: () => {
+      const butte = jag([[0, 60], [30, 42], [50, 46], [70, 30], [90, 34], [110, 52], [150, 56], [170, 38], [190, 26], [210, 30], [230, 50], [270, 54], [290, 34], [310, 28], [330, 44], [360, 40], [380, 52], [400, 50]]);
+      return {
+        bg: sky2('#16122A', '#4E3048'), starsN: 60, sunX: 340, sunY: 14, sunR: 5,
+        d: 'M0 90H400V96H0Z',
+        extra: `<defs><clipPath id="bl"><path d="${butte}"/></clipPath></defs><path d="${butte}" fill="#5A3A30"/><g clip-path="url(#bl)">${[[38, 4, '#8A5A44'], [48, 3, '#B77A58'], [60, 5, '#7A4B3C'], [72, 3, '#C9926E'], [82, 4, '#6A3E32']].map(([y, h, c]) => `<rect x="0" y="${y}" width="400" height="${h}" fill="${c}"/>`).join('')}</g><path d="M0 40Q120 -10 400 30" stroke="#FFFFFF" stroke-width="14" opacity=".08" fill="none"/>` + animal(BISON, 220, 92, 0.8, 'var(--sky)')
+      };
+    }
+  }
+];
+THEMES.push(...PARKS);
+
+export const FONT_URL = 'https://fonts.googleapis.com/css2?' + [...new Set(THEMES.map((t) => t.font))].map((f) => 'family=' + f.replace(/ /g, '+') + (/(Playfair|Cormorant|Libre Baskerville|Josefin|Rubik|Oswald|Fraunces|Vollkorn|Merriweather|Bitter|Arvo|Zilla Slab|Roboto Slab|Domine)/.test(f) ? ':wght@400;700' : '')).join('&') + '&display=swap';
 
 export function themeFor(n) { return THEMES[(n - 1) % THEMES.length]; }
 
 export function skylineSVG(t) {
   const s = t.sky();
   let o = `<svg class="sky" viewBox="0 0 400 96" preserveAspectRatio="xMidYMax slice" aria-hidden="true">`;
+  if (s.bg) o += `<defs><linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.bg[0]}"/><stop offset="1" stop-color="${s.bg[1]}"/></linearGradient></defs><rect width="400" height="96" fill="url(#skyg)"/>`;
   if (s.starsN) o += `<g fill="var(--ink)" opacity=".7">${stars(t.city.length * 97, s.starsN)}</g>`;
-  o += `<circle cx="${s.sunX || 340}" cy="${s.sunY || 26}" r="${s.sunR || 11}" fill="var(--sun)" opacity="${t.night ? 0.9 : 0.75}"/>`;
+  if (s.sunR !== 0) o += `<circle cx="${s.sunX || 340}" cy="${s.sunY || 26}" r="${s.sunR || 11}" fill="var(--sun)" opacity="${t.night ? 0.9 : 0.75}"/>`;
   if (s.back) o += `<path d="${s.back}" fill="var(--sky)" opacity=".35"/>`;
+  (s.layers || []).forEach(([d, fill, op]) => { o += `<path d="${d}" fill="${fill}"${op < 1 ? ` opacity="${op}"` : ''}/>`; });
   o += `<path d="${s.d}" fill="var(--sky)"/>`;
   if (s.acc) o += `<path d="${s.acc}" fill="var(--stamp)"/>`;
   if (s.win) o += `<g fill="var(--sun)" opacity=".85">${s.win}</g>`;

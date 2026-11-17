@@ -3,7 +3,7 @@ import { LEVELS } from './data.js';
 import { makeSync } from './sync.js';
 import { themeFor, skylineSVG, themeVars, FONT_URL } from './themes.js';
 { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = FONT_URL; document.head.appendChild(l); }
-const postHTML = (n) => { const t = themeFor(n); return '<div class="post">' + skylineSVG(t) + '<div class="city"><span>Level ' + n + '</span><b>' + esc(t.city) + '</b></div></div>'; };
+const postHTML = (n) => { const t = themeFor(n); return '<div class="post">' + skylineSVG(t) + '<div class="city"><span>Level ' + n + (t.park ? ' · National Park' : '') + '</span><b>' + esc(t.city) + '</b></div></div>'; };
 let themed = null;
 function applyTheme(n) {
   if (themed === n) return; themed = n;
@@ -41,7 +41,8 @@ const mySeat = () => (ctx.doc && ctx.doc.seats ? (ctx.doc.seats.A === uid ? 'A' 
 const clearedMap = () => (ctx.mode === 'hot' ? ctx.cleared : (ctx.doc && ctx.doc.cleared) || {});
 const setMsg = (t, k) => { ctx.msg = { t: t, k: k || '' }; };
 const starsFor = (st, lv) => (st.status !== 'won' ? 0 : st.slips > 0 ? 1 : (st.turn - 1) <= lv.slots.length + 4 ? 3 : 2);
-const arrow = (s) => (s.desk === 'A' ? '→' : '↓');
+const arrow = (s) => (s.dir === 'across' ? '→' : '↓');
+const deskWords = (lv, d) => (lv.mix ? 'a mix of Across and Down' : d === 'A' ? 'Across' : 'Down');
 const NOOP = ['over', 'not-your-turn', 'bad-slot', 'not-your-slot', 'already-locked', 'nothing-to-erase', 'bad-length', 'unknown-word', 'pencil-cap', 'no-hints', 'already-hinted', 'hints-used', 'no-seat', 'no-level', 'bad-action'];
 
 function describe(ev, by, lv, mine) {
@@ -136,7 +137,7 @@ function rulesHTML() {
     '<p class="small">Example: CAT runs across, COW runs down. They share the C.</p></div>';
   return '<div class="mast"><span>Crosswires</span><span>How to play</span></div><div class="card rules"><ol>' +
     '<li><span class="num">1</span><div><h3>One grid, two people</h3><p>You fill in a small crossword together. Each of you sees only your own clues.</p></div></li>' +
-    '<li><span class="num">2</span><div><h3>Desk A and Desk B</h3><p>Desk A has the Across words, which run left to right. Desk B has the Down words, which run top to bottom. On two phones, you swap desks every level, so whoever had Across on one level has Down on the next. You cannot see your partner’s clues, only the letters they put on the grid.</p></div></li>' +
+    '<li><span class="num">2</span><div><h3>Desk A and Desk B</h3><p>Desk A has the Across words, which run left to right. Desk B has the Down words, which run top to bottom. From level 21 the words are split evenly instead, so each desk gets some Across and some Down, and your clue list shows the direction of each one. On two phones, you swap desks every level, so whoever had Across on one level has Down on the next. You cannot see your partner’s clues, only the letters they put on the grid.</p></div></li>' +
     '<li><span class="num">3</span><div><h3>What a clue does</h3><p>A clue names a group, like “a drink”, and the number tells you how many letters. The answer is a word from that group. Several words can fit one clue, so you have to guess, and the grid tells you which guess is right. Under each clue, “Letters” shows what is already on the grid for that word, like T _ _.</p></div></li>' +
     '<li><span class="num">4</span><div><h3>Crossing squares share a letter</h3><p>Where an Across word and a Down word meet, there is one square for both of them. the square is marked with a small teal diamond and both words use the same letter there. If your partner has put a T in that square, your word must have a T there too. Use their letters to rule out your guesses.</p>' + mini + '</div></li>' +
     '<li><span class="num">5</span><div><h3>On your turn</h3><p><b>Pencil</b> suggests a word. Your partner sees it in teal, and you can change it later. <b>Lock</b> makes it final. <b>Rub out</b> removes a pencil. <b>Pass</b> skips your turn. Each turn you do one of these.</p></div></li>' +
@@ -148,10 +149,11 @@ function rulesHTML() {
 
 function tilesHTML() {
   const cl = clearedMap();
-  let o = '<div class="card"><h3>Pick a level</h3><div class="tiles">';
+  let o = '<div class="card"><h3>Pick a level</h3><div class="lab">Cities · levels 1 to 20</div><div class="tiles">';
   levels.forEach((lv) => {
+    if (lv.n === 21) o += '</div><div class="lab" style="margin-top:6px">National parks · levels 21 to 40</div><p class="small">From here the words are split evenly, so each desk gets some Across and some Down.</p><div class="tiles">';
     const s = cl[lv.n] || 0, open = lv.n === 1 || (cl[lv.n - 1] || 0) > 0;
-    o += '<button class="tile" data-a="level-' + lv.n + '"' + (open ? '' : ' disabled') + ' aria-label="Level ' + lv.n + (s ? ', ' + s + ' stars' : open ? '' : ', locked') + '">' + lv.n + '<span class="cty">' + esc(({ 'Rio de Janeiro': 'Rio', 'Mexico City': 'Mexico', 'San Francisco': 'San Fran' })[themeFor(lv.n).city] || themeFor(lv.n).city) + '</span><small>' + (s ? '★'.repeat(s) : lv.n === 1 && !s ? 'start here' : '') + '</small></button>';
+    o += '<button class="tile" data-a="level-' + lv.n + '"' + (open ? '' : ' disabled') + ' aria-label="Level ' + lv.n + (s ? ', ' + s + ' stars' : open ? '' : ', locked') + '">' + lv.n + '<span class="cty">' + esc(themeFor(lv.n).short || ({ 'Rio de Janeiro': 'Rio', 'Mexico City': 'Mexico', 'San Francisco': 'San Fran' })[themeFor(lv.n).city] || themeFor(lv.n).city) + '</span><small>' + (s ? '★'.repeat(s) : lv.n === 1 && !s ? 'start here' : '') + '</small></button>';
   });
   return o + '</div><p class="small">Level 1 teaches the rules. Each level unlocks when you clear the one before it.</p></div>';
 }
@@ -170,9 +172,9 @@ function lobbyHTML() {
       h += '<div class="card"><h3>Pick your desk</h3>';
       ['A', 'B'].forEach((k) => {
         const holder = d && d.seats && d.seats[k], mineS = holder && holder === uid;
-        h += '<div class="row"><div><b>Desk ' + k + '</b> <span class="small">(' + (k === 'A' ? 'Across words' : 'Down words') + ')</span><br><span class="small">' + (mineS ? 'You are here' : holder ? 'Taken' : 'Free') + '</span></div><button class="btn ' + (mineS ? 'alt' : '') + '" data-a="' + (mineS ? 'leave' : 'seat-' + k) + '"' + (holder && !mineS ? ' disabled' : '') + '>' + (mineS ? 'Leave desk' : 'Take Desk ' + k) + '</button></div>';
+        h += '<div class="row"><div><b>Desk ' + k + '</b> <span class="small">(' + (k === 'A' ? 'Across words to start' : 'Down words to start') + ')</span><br><span class="small">' + (mineS ? 'You are here' : holder ? 'Taken' : 'Free') + '</span></div><button class="btn ' + (mineS ? 'alt' : '') + '" data-a="' + (mineS ? 'leave' : 'seat-' + k) + '"' + (holder && !mineS ? ' disabled' : '') + '>' + (mineS ? 'Leave desk' : 'Take Desk ' + k) + '</button></div>';
       });
-      h += '<p class="small">Each of you takes a different desk on your own phone. You swap desks every level, so you both get Across and Down.</p></div>';
+      h += '<p class="small">Each of you takes a different desk on your own phone. You swap desks every level, so you both get Across and Down. From level 21 each desk gets an even mix of both.</p></div>';
       if (d && d.seats && d.seats.A && d.seats.B && seat) h += tilesHTML();
       else if (seat) h += '<p class="small">Waiting for the other desk to be taken.</p>';
       if (d && d.seats && ((d.seats.A && d.seats.A !== uid) || (d.seats.B && d.seats.B !== uid)) && !seat) h += '<button class="btn alt" data-a="clear-seats">Clear both desks</button>';
@@ -184,8 +186,8 @@ function lobbyHTML() {
 function playHTML(g, me, swaps) {
   const lv = lvOf(g.level), st = g.state, myTurn = st.status === 'play' && st.active === me;
   let h = postHTML(lv.n) + '<div class="bar"><span>Level ' + lv.n + '</span>' + dotsHTML(st) + '<span>Turn ' + Math.min(st.turn, st.budget) + ' of ' + st.budget + '</span></div>';
-  if (swaps && lv.n > 1) h += '<p class="small" style="margin:0">Desks swap each level. This level you are Desk ' + me + ' (' + (me === 'A' ? 'Across' : 'Down') + ').</p>';
-  h += '<div class="banner ' + (myTurn ? 'mine' : 'wait') + '">' + (myTurn ? 'Your turn · Desk ' + me + ' (' + (me === 'A' ? 'Across' : 'Down') + ')' : 'Waiting · Desk ' + st.active + ' is up') + '</div>';
+  if (swaps && lv.n > 1) h += '<p class="small" style="margin:0">Desks swap each level. This level you are Desk ' + me + ' (' + deskWords(lv, me) + ').</p>';
+  h += '<div class="banner ' + (myTurn ? 'mine' : 'wait') + '">' + (myTurn ? 'Your turn · Desk ' + me + (lv.mix ? '' : ' (' + deskWords(lv, me) + ')') : 'Waiting · Desk ' + st.active + ' is up') + '</div>';
   if (lv.chips) h += '<div class="coach"><b>Tip.</b> ' + esc(coach(lv, st, me, myTurn)) + '</div>';
   const lg = st.log[st.log.length - 1];
   if (lg && lg.by !== me && myTurn && lg.slot !== null && (lg.res === 'hint' || lg.res === 'miss')) {
@@ -216,7 +218,7 @@ function playHTML(g, me, swaps) {
         s.allowed.forEach((w) => { h += '<button class="wc' + (Engine.fits(s, w, gl) ? '' : ' dim') + '" aria-pressed="' + (ctx.draft === w) + '" data-a="word-' + w + '">' + w + '</button>'; });
         h += '</div><p class="small">Greyed-out words do not match a letter already on the grid.</p>';
       } else {
-        h += '<input id="wordIn" type="text" maxlength="' + s.len + '" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Word for ' + s.n + (s.desk === 'A' ? ' across' : ' down') + '" placeholder="' + '·'.repeat(s.len) + '" value="' + esc(ctx.draft) + '">';
+        h += '<input id="wordIn" type="text" maxlength="' + s.len + '" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Word for ' + s.n + (s.dir === 'across' ? ' across' : ' down') + '" placeholder="' + '·'.repeat(s.len) + '" value="' + esc(ctx.draft) + '">';
       }
       h += '<div class="row"><button class="btn alt" data-a="do-pencil">Pencil</button><button class="btn red" data-a="do-lock">Lock</button><button class="btn alt" data-a="do-erase">Rub out</button></div>';
       if (lv.hinted && !listOpen) h += '<button class="btn alt" data-a="do-hint"' + (hintsLeft > 0 ? '' : ' disabled') + '>Hint: open the word list (' + hintsLeft + ' left)</button><p class="small">A hint uses your turn. A typed word that is not on the list also uses your turn, with no slip.</p>';

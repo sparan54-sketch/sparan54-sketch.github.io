@@ -53,6 +53,15 @@ function clueText(bank, cats, idx, len) {
   var t = ph.length === 1 ? ph[0] : ph.slice(0, -1).join(', ') + ' or ' + ph[ph.length - 1];
   return cap(t) + ' (' + len + ')';
 }
+// From level 21 the words are dealt evenly instead of Across to one desk and Down to the other: Across words go
+// A, B, A, B in clue-number order, then Down words continue the deal, so the desks differ by at most one word
+// and each desk gets about half the Across words and half the Down words.
+function splitEvenly(slots) {
+  var k = 0;
+  ['across', 'down'].forEach(function (dir) {
+    slots.filter(function (s) { return s.dir === dir; }).sort(function (a, b) { return a.n - b.n; }).forEach(function (s) { s.desk = k++ % 2 === 0 ? 'A' : 'B'; });
+  });
+}
 // Every level gives a grid and, for each word slot in reading order, the clue group and its exact words.
 function buildLevel(L) {
   var pat = slotsFromGrid(L.grid), R = L.grid.length, C = L.grid[0].length, numbers = {}, next = 1;
@@ -60,9 +69,10 @@ function buildLevel(L) {
   for (var r = 0; r < R; r++) for (var c = 0; c < C; c++) { var key = r + ',' + c; if (numbers[key] !== undefined) numbers[key] = next++; }
   var slots = pat.map(function (p, i) {
     var d = L.slots[i], len = p[1].length;
-    return { id: i, desk: p[0], n: numbers[p[1][0][0] + ',' + p[1][0][1]], cells: p[1], len: len, allowed: d.words.slice().sort(), label: d.label, clue: cap(d.label) + ' (' + len + ' letters)' };
+    return { id: i, desk: p[0], dir: p[0] === 'A' ? 'across' : 'down', n: numbers[p[1][0][0] + ',' + p[1][0][1]], cells: p[1], len: len, allowed: d.words.slice().sort(), label: d.label, clue: cap(d.label) + ' (' + len + ' letters)' };
   });
-  return { n: L.n, rows: R, cols: C, slots: slots, salt: L.salt, hash: L.hash, tutorial: !!L.tutorial, chips: true, hinted: L.n >= 4, recap: L.recap || '', budget: L.tutorial ? 24 : 5 * slots.length + 4 };
+  if (L.mix) splitEvenly(slots);
+  return { n: L.n, rows: R, cols: C, mix: !!L.mix, slots: slots, salt: L.salt, hash: L.hash, tutorial: !!L.tutorial, chips: true, hinted: L.n >= 4, recap: L.recap || '', budget: L.tutorial ? 24 : 5 * slots.length + 4 };
 }
 function buildLevels(levels) { return levels.map(buildLevel); }
 
@@ -94,7 +104,7 @@ function candidates(level, locked, si) {
   var m = lettersOf(level, locked), s = level.slots[si];
   return s.allowed.filter(function (w) { return fits(s, w, m); });
 }
-function slotName(level, si) { var s = level.slots[si]; return s.n + ' ' + (s.desk === 'A' ? 'Across' : 'Down'); }
+function slotName(level, si) { var s = level.slots[si]; return s.n + ' ' + (s.dir === 'across' ? 'Across' : 'Down'); }
 // If the desk whose turn it is has nothing left to fill in, the turn stays with the other desk instead of forcing a pass.
 function whoseTurn(st, level) {
   var open = function (d) { return level.slots.some(function (s) { return s.desk === d && st.locked[s.id] === undefined; }); };
