@@ -44,7 +44,7 @@ function slotsFromGrid(grid) {
 }
 // Each player keeps a seat (A or B). The desk they play swaps every level: odd levels as seated, even levels switched.
 function deskFor(seat, levelN) { return levelN % 2 === 0 ? (seat === 'A' ? 'B' : 'A') : seat; }
-var HINT_CAP = 2; // levels 4 to 7; levels 8 and up have bigger grids and get 3 (level.hintCap)
+var HINT_CAP = 2; // levels 4 to 6; levels 7 and up have bigger grids and get 3 (level.hintCap)
 var MAX_SLIPS = 3, PENCIL_CAP = 3;
 
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -72,7 +72,7 @@ function buildLevel(L) {
     return { id: i, desk: p[0], dir: p[0] === 'A' ? 'across' : 'down', n: numbers[p[1][0][0] + ',' + p[1][0][1]], cells: p[1], len: len, allowed: d.words.slice().sort(), label: d.label, clue: cap(d.label) + ' (' + len + ' letters)' };
   });
   if (L.mix) splitEvenly(slots);
-  return { n: L.n, rows: R, cols: C, mix: !!L.mix, slots: slots, salt: L.salt, hash: L.hash, tutorial: !!L.tutorial, chips: true, hinted: L.n >= 4, hintCap: L.n >= 8 ? 3 : HINT_CAP, recap: L.recap || '', budget: L.tutorial ? 24 : 5 * slots.length + 4 };
+  return { n: L.n, rows: R, cols: C, mix: !!L.mix, slots: slots, salt: L.salt, hash: L.hash, tutorial: !!L.tutorial, chips: true, hinted: L.n >= 4, hintCap: L.n >= 7 ? 3 : HINT_CAP, recap: L.recap || '', budget: L.tutorial ? 24 : 5 * slots.length + 4 };
 }
 function buildLevels(levels) { return levels.map(buildLevel); }
 

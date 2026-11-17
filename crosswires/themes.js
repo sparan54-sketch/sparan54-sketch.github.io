@@ -23,7 +23,8 @@ function lit(list, seed, every = 3) {
 const stars = (seed, n) => { let a = seed, o = ''; const r = () => { a = (a * 16807) % 2147483647; return a / 2147483647; }; for (let i = 0; i < n; i++) o += `<circle cx="${(r() * 400).toFixed(1)}" cy="${(r() * 50).toFixed(1)}" r="${(0.4 + r() * 0.7).toFixed(2)}"/>`; return o; };
 
 // SVG tile for the black squares
-const tile = (w, h, bg, body) => `${bg} url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>${body}</svg>`)}") 0 0/${w}px ${h}px`;
+// colours in the pattern bodies are written as %23RRGGBB; turn them back into # before encoding the whole SVG once
+const tile = (w, h, bg, body) => `${bg} url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>${body.replace(/%23/g, '#')}</svg>`)}") 0 0/${w}px ${h}px`;
 
 export const THEMES = [
   { // 1
@@ -117,16 +118,21 @@ export const THEMES = [
     })
   },
   { // 7
-    city: 'Rio de Janeiro', font: 'Righteous', scale: 0.95,
-    c: { paper: '#E6EFE2', panel: '#F6FAF2', ink: '#13281D', pencil: '#455A4C', stamp: '#0A7A43', onstamp: '#FFFFFF', wire: '#1B5E9A', rule: '#A6BCA3', locked: '#FFFEF5', sky: '#2E4A3A', sun: '#F2C230' },
-    block: tile(24, 12, '#F7F5EE', "<path d='M0 6Q6 0 12 6T24 6V12H0Z' fill='%23222222'/>"),
-    sky: () => ({
-      back: hill([[0, 64], [40, 48], [70, 60]]) ,
-      d: /* sugarloaf */ 'M250 96C252 70 262 40 280 34C296 30 304 56 308 96Z' + 'M210 96C214 80 222 66 232 64C242 64 246 80 250 96Z' +
-        /* tall peak */ 'M60 96C80 70 100 30 118 22C128 20 134 40 150 96Z' + S(122, 10, 22, 1.2) + 'M118 14H126V15.4H118Z' +
-        row([[150, 10, 30], [162, 12, 38], [176, 10, 26], [188, 14, 34], [312, 12, 30], [326, 10, 40], [338, 14, 28], [354, 12, 36], [368, 14, 26], [384, 16, 32]]),
-      extra: '<path d="M0 92H400" stroke="var(--wire)" stroke-width="3" opacity=".45"/>'
-    })
+    city: 'Barcelona', font: 'Fredoka', scale: 1,
+    c: { paper: '#F4EAD8', panel: '#FBF5EA', ink: '#1E1C2A', pencil: '#514B5C', stamp: '#B5332A', onstamp: '#FFFFFF', wire: '#1D5F8A', rule: '#D6C3A3', locked: '#FFFCF4', sky: '#6A4A3A', sun: '#F2B33D' },
+    block: tile(16, 16, '#2E6E9E', "<g stroke='%232E6E9E' stroke-width='.8'><path d='M0 0H7L5 6L0 5Z' fill='%23F2B33D'/><path d='M8 0H16V5L9 7Z' fill='%23E9E2D0'/><path d='M0 6L6 7L7 16H0Z' fill='%234E9A6B'/><path d='M8 9L16 6V16H9Z' fill='%23B5332A'/></g>"),
+    sky: () => {
+      // basilica spires: tall, tapered, rounded tips
+      const spire = (x, w, h) => `M${x} 96V${96 - h + w}Q${x} ${96 - h} ${x + w / 2} ${96 - h - 2}Q${x + w} ${96 - h} ${x + w} ${96 - h + w}V96Z`;
+      return {
+        bg: ['#BFDDEE', '#F7EDDC'], sunX: 60, sunY: 22,
+        layers: [[soft([60, 52, 58, 70, 74, 76, 78]), '#A8B48A', 1]],
+        d: spire(170, 8, 74) + spire(180, 9, 84) + spire(191, 9, 88) + spire(202, 8, 80) + spire(212, 7, 70) + spire(158, 7, 60) + spire(222, 7, 58) + R(150, 84, 34) + S(196, 2, 10, 1.2) +
+          /* bullet tower */ 'M300 96V44Q300 20 312 18Q324 20 324 44V96Z' +
+          row([[0, 22, 26], [24, 18, 32], [44, 26, 22], [72, 20, 30], [94, 22, 24], [118, 26, 30], [240, 22, 28], [264, 20, 22], [330, 24, 30], [356, 20, 24], [378, 22, 28]]),
+        extra: '<rect x="0" y="90" width="400" height="6" fill="var(--wire)" opacity=".4"/><g fill="var(--sun)" opacity=".8">' + [[183, 30], [194, 26], [205, 34]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.6"/>`).join('') + '</g>'
+      };
+    }
   },
   { // 8
     city: 'Istanbul', font: 'Amiri', scale: 1.05,
