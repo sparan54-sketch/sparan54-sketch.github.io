@@ -63,7 +63,7 @@ export function makeSync({ fs, db, room, uid, Engine, levels }) {
         d.game = { level: d.game.level, state: r.state };
         d.last = { rev: d.rev + 1, by: desk, ev: { type: r.event.type, slot: r.event.slot === undefined ? null : r.event.slot, dry: r.event.dry === undefined ? null : r.event.dry } };
         if (r.state.status === 'won') {
-          const stars = r.state.slips > 0 ? 1 : (r.state.turn - 1) <= lv.slots.length + 4 ? 3 : 2;
+          const stars = r.state.slips > 0 ? 1 : (r.state.turn - 1) <= lv.slots.length + 2 * lv.hintCap ? 3 : 2;
           d.cleared[d.game.level] = Math.max(d.cleared[d.game.level] || 0, stars);
         }
         return { write: true, result: { event: r.event, seat: desk } };
