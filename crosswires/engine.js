@@ -148,10 +148,12 @@ function apply(state, level, by, action) {
       delete st.pencil[by][slot.id]; ev = { type: 'erase', slot: slot.id };
     } else if (t === 'pencil' || t === 'lock') {
       word = String(action.word || '').toLowerCase();
-      if (word.length !== slot.len) return { state: state, event: { type: 'bad-length' } };
+      if (word.length !== slot.len || !/^[a-z]+$/.test(word)) return { state: state, event: { type: 'bad-length' } };
+      // Any word of the right length can be pencilled. Only a lock is checked against the clue's list:
+      // with the list hidden, a wrong lock uses the turn (no slip); with the list showing it is refused for free.
       var known = slot.allowed.indexOf(word) >= 0, hidden = level.hinted && !st.hints[by][slot.id];
-      if (!known && !hidden) return { state: state, event: { type: 'unknown-word' } };
-      if (!known) { ev = { type: 'miss', slot: slot.id }; }
+      if (!known && t === 'lock' && !hidden) return { state: state, event: { type: 'unknown-word' } };
+      if (!known && t === 'lock') { ev = { type: 'miss', slot: slot.id, word: word }; }
       else if (t === 'pencil') {
         var cur = Object.keys(st.pencil[by]).length;
         if (st.pencil[by][slot.id] === undefined && cur >= PENCIL_CAP) return { state: state, event: { type: 'pencil-cap' } };

@@ -52,7 +52,7 @@ function describe(ev, by, lv, mine) {
     case 'erase': return { t: who + ' rubbed out a pencil on ' + nm(ev.slot) + '.', k: '' };
     case 'lock': return { t: who + ' locked ' + nm(ev.slot) + '.', k: 'good' };
     case 'hint': return { t: who + ' used a hint on ' + nm(ev.slot) + ' and skipped the move.', k: '' };
-    case 'miss': return { t: 'That word is not on the list for ' + nm(ev.slot) + '. It used your turn, but no slip.', k: 'bad' };
+    case 'miss': return { t: (ev.word ? ev.word.toUpperCase() + ' isn’t' : 'That isn’t') + ' the answer for ' + nm(ev.slot) + '. It used your turn, but no slip.', k: 'bad' };
     case 'hints-used': return { t: 'You have used all your hints on this level.', k: '' };
     case 'already-hinted': return { t: 'That word list is already open.', k: '' };
     case 'pass': return { t: who + ' passed.', k: '' };
@@ -80,7 +80,7 @@ function errText(e) {
 // ---------- coach (level 1 only) ----------
 function coach(lv, st, me, myTurn) {
   if (!myTurn) return 'Wait for Desk ' + st.active + '. When they pencil or lock a word, its letters appear on the grid. Then check which of your words still fit.';
-  if (lv.hinted && myTurn) return 'The word lists are hidden. Type a word you think fits, or use a Hint to open the list for one clue. A Hint uses your turn, and you get ' + lv.hintCap + ' per level. A word that is not on the list uses your turn too, but costs no slip.';
+  if (lv.hinted && myTurn) return 'The word lists are hidden. Type a word you think fits, or use a Hint to open the list for one clue. A Hint uses your turn, and you get ' + lv.hintCap + ' per level. You can pencil any word. Locking a word that isn’t the answer uses your turn, but costs no slip.';
   const gl = Engine.gridLetters(lv, st, me);
   if (!Object.keys(gl).length) return 'The grid is empty, so you have to guess. Pick a clue, choose a word, and Pencil it. Pencil is free and your partner sees it in teal. Ask them whether it fits.';
   const open = lv.slots.filter((s) => s.desk === me && st.locked[s.id] === undefined);
@@ -142,7 +142,7 @@ function rulesHTML() {
     '<li><span class="num">4</span><div><h3>Crossing squares share a letter</h3><p>Where an Across word and a Down word meet, there is one square for both of them. the square is marked with a small teal diamond and both words use the same letter there. If your partner has put a T in that square, your word must have a T there too. Use their letters to rule out your guesses.</p>' + mini + '</div></li>' +
     '<li><span class="num">5</span><div><h3>On your turn</h3><p><b>Pencil</b> suggests a word. Your partner sees it in teal, and you can change it later. <b>Lock</b> makes it final. <b>Rub out</b> removes a pencil. <b>Pass</b> skips your turn. Each turn you do one of these.</p></div></li>' +
     '<li><span class="num">6</span><div><h3>Notes to your partner</h3><p>You cannot see each other’s clues, so notes are how you talk. Tap one before you end your turn and your partner sees it on their screen. They are optional and cost nothing.</p><p><b>Fits</b>: my words work with your letters.<br><b>Clash</b>: a letter you pencilled breaks one of my clues.<br><b>Stuck</b>: none of my words work yet, so try a different letter.<br><b>Your move</b>: I am waiting on you. Lock a word if you are sure.</p></div></li>' +
-    '<li><span class="num">7</span><div><h3>Hints (levels 4 and up)</h3><p>On these levels the list of possible words is hidden, so you type your own guess. Tap <b>Hint</b> on a clue to open its list. A hint uses your turn, and each of you gets 2 per level, or 3 per level from level 7, where the grids get bigger. A typed word that is not on the list also uses your turn, but costs no slip.</p></div></li>' +
+    '<li><span class="num">7</span><div><h3>Hints (levels 4 and up)</h3><p>On these levels the list of possible words is hidden, so you type your own guess. Tap <b>Hint</b> on a clue to open its list. A hint uses your turn, and each of you gets 2 per level, or 3 per level from level 7, where the grids get bigger. You can pencil any word that fits the squares. Locking a word that isn’t the answer uses your turn, but costs no slip.</p></div></li>' +
     '<li><span class="num">8</span><div><h3>Slips</h3><p>A lock that breaks a shared letter is a slip. So is a lock that leaves your partner with no possible word. Three slips ends the level. There is also a turn limit. Pencils never cost anything.</p></div></li>' +
     '</ol><button class="btn" data-a="rules-done">' + (inGame ? 'Got it, back to the game' : 'Got it') + '</button></div>';
 }
@@ -192,7 +192,7 @@ function playHTML(g, me, swaps) {
   const lg = st.log[st.log.length - 1];
   if (lg && lg.by !== me && myTurn && lg.slot !== null && (lg.res === 'hint' || lg.res === 'miss')) {
     const nm = Engine.slotName(lv, lg.slot);
-    h += '<div class="coach partner"><b>Desk ' + lg.by + ' ' + (lg.res === 'hint' ? 'used a hint on ' + nm + ' and skipped their move.' : 'guessed a word on ' + nm + ' that was not on the list, so their move was used up.') + '</b> Nothing you did was wrong. Their turn only went on that.</div>';
+    h += '<div class="coach partner"><b>Desk ' + lg.by + ' ' + (lg.res === 'hint' ? 'used a hint on ' + nm + ' and skipped their move.' : 'tried to lock ' + (lg.word ? lg.word.toUpperCase() : 'a word') + ' on ' + nm + ', but it isn’t the answer, so their move was used up.') + '</b> Nothing you did was wrong. Their turn only went on that.</div>';
   }
   h += '<p class="msg ' + ctx.msg.k + '" aria-live="polite">' + esc(ctx.msg.t) + '</p>';
   h += boardHTML(lv, st, me, true);
@@ -221,7 +221,7 @@ function playHTML(g, me, swaps) {
         h += '<input id="wordIn" type="text" maxlength="' + s.len + '" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Word for ' + s.n + (s.dir === 'across' ? ' across' : ' down') + '" placeholder="' + '·'.repeat(s.len) + '" value="' + esc(ctx.draft) + '">';
       }
       h += '<div class="row"><button class="btn alt" data-a="do-pencil">Pencil</button><button class="btn red" data-a="do-lock">Lock</button><button class="btn alt" data-a="do-erase">Rub out</button></div>';
-      if (lv.hinted && !listOpen) h += '<button class="btn alt" data-a="do-hint"' + (hintsLeft > 0 ? '' : ' disabled') + '>Hint: open the word list (' + hintsLeft + ' left)</button><p class="small">A hint uses your turn. A typed word that is not on the list also uses your turn, with no slip.</p>';
+      if (lv.hinted && !listOpen) h += '<button class="btn alt" data-a="do-hint"' + (hintsLeft > 0 ? '' : ' disabled') + '>Hint: open the word list (' + hintsLeft + ' left)</button><p class="small">A hint uses your turn. You can pencil any word. Locking a wrong word uses your turn, with no slip.</p>';
       else if (lv.chips) h += '<p class="small">Pencil suggests the word. Lock makes it final.</p>';
       h += '</div>';
     } else h += '<p class="small">Tap one of your clues, then pencil or lock a word.</p>';
